@@ -31,10 +31,12 @@ CC BY 4.0), the repository in English.
   fragments larger packets without DF (RFC 791); larger packets with DF are dropped.
 - `internal/sim/channel` and `scripts/lab-netns.sh`: two stations in their own network
   namespaces without root or Docker. With the model of the F4HWN app: ping 3/3 (RTT ~2.1 s),
-  UDP 1.7 s, HTTP 13 s, no frame lost (model, not hardware). With adapter MTU 576 as on
-  Windows also a 400-byte ping without DF (2/2, RTT ~10 s) and a 2 KB download: 111 s with the
-  original app, which drops 7 frames before the air (slot busy, USB ring overflow), 44 s with
-  ACKMODE without a drop (model).
+  UDP 1.7 s, HTTP 13 s, nothing lost on the air. The original app drops one frame before the
+  air in every run (TCP repeats its SYN after 1 s, the replies meet on the busy channel); TCP
+  recovers. With ACKMODE nothing is dropped. With adapter MTU 576 as on Windows also a
+  400-byte ping without DF (2/2, RTT ~10 s) and a 2 KB download: 111 s with the original app,
+  which drops 7 frames before the air (slot busy, USB ring overflow), 44 s with ACKMODE without
+  a drop. All from the model, not hardware.
 - Finding in the app's source: a frame cut off by a USB reset would be closed by the next FEND
   and sent truncated. The f4hwn profile therefore sends `FESC 00 FEND` on connecting.
 - `cmd/axlinkd`: `run`, `ports`, `decode`, `sim-channel`, `version`. `run -mtu` sets the radio
@@ -42,7 +44,8 @@ CC BY 4.0), the repository in English.
 - Documentation: architecture, decisions, development, TODO list, history of v0.1, Multiboot
   guide until F4HWN v7.
 - CI on Linux, Windows and macOS; builds also for ARMv6 (Pi Zero W). In CI also the lab, a real
-  TUN adapter in a user namespace and, on Windows, a real Wintun adapter with a ping through it.
+  TUN adapter in a user namespace and, on Windows, a real Wintun adapter with a ping through it
+  (on the GitHub runner Windows refuses an MTU of 256 and keeps 576).
 - `scripts/setup-go.sh` installs Go into the project with a checksum check.
 
 ## 0.1.0-alpha.1 — 2026-10-31

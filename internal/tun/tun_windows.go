@@ -18,7 +18,8 @@ import (
 )
 
 // Windows does not accept an IPv4 MTU below 576 (WireGuard for Windows uses
-// the same floor). AXLink keeps radio packets at 256 bytes itself.
+// the same floor; TestWindowsMTUFloor sees 256 refused on the CI runner).
+// AXLink keeps radio packets at 256 bytes itself.
 const minMTU = 576
 
 func open(cfg Config) (Device, error) {

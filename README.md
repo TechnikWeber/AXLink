@@ -4,7 +4,7 @@
   <img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha-orange">
   <a href="https://github.com/TechnikWeber/AXLink/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/TechnikWeber/AXLink?include_prereleases&label=release"></a>
   <a href="https://github.com/TechnikWeber/AXLink/actions/workflows/ci.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/TechnikWeber/AXLink/ci.yml?branch=main&label=tests"></a>
-  <img alt="Platform: Linux (Windows, macOS planned)" src="https://img.shields.io/badge/platform-Linux%20%28Windows%2C%20macOS%20planned%29-blue">
+  <img alt="Platform: Linux | Windows (macOS planned)" src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%28macOS%20planned%29-blue">
   <img alt="Radio: any KISS TNC, UV-K1 | UV-K5 V3" src="https://img.shields.io/badge/radio-KISS%20TNC%20%7C%20UV--K1%20%7C%20UV--K5%20V3-blue">
   <img alt="UI: English (German planned)" src="https://img.shields.io/badge/UI-English%20%28German%20planned%29-informational">
   <a href="LICENSE"><img alt="License: GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-green"></a>
@@ -21,16 +21,18 @@ It is tuned first to the Quansheng UV-K1 / UV-K5 V3 with the F4HWN firmware and 
 app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 
 > **Status: alpha (0.2.0-dev).** Linux works in the lab: two stations, a simulated channel,
-> real kernel IP stacks. Real radios, Windows and macOS come next. Nothing has been on the air
-> yet.
+> real kernel IP stacks. On Windows the network adapter passes its test in CI. Real radios and
+> macOS come next. Nothing has been on the air yet.
 
 ## What works
 
 - `axlinkd run`: a radio over USB (F4HWN radios are found by their USB ID `36B7:FFFF`), KISS
   over TCP or a Unix socket. It reconnects after USB resets, paces frames per TNC profile and
   supports ACKMODE.
-- A Linux network adapter `axl0` (MTU 256) and IPv4 over AX.25 UI/PID `0xCC`, with a destination
-  filter, checksum checks, routes and a broadcast filter.
+- A network adapter `axl0` on Linux (TUN) and Windows (Wintun) and IPv4 over AX.25 UI/PID
+  `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter. Radio
+  packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink lowers
+  the TCP MSS and fragments.
 - A lab without radios: `scripts/lab-netns.sh` runs two stations in their own network namespaces
   (no root, no Docker) and checks ping, UDP and HTTP through a simulated channel with a model of
   the F4HWN KISS app. It also runs in CI.
@@ -46,6 +48,9 @@ go build -o axlinkd ./cmd/axlinkd
 ./axlinkd ports
 sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
 ```
+
+Windows: an administrator PowerShell and `wintun.dll` next to `axlinkd.exe`
+(`scripts/fetch-wintun.ps1`); see [DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 Use your own callsign; placeholders such as `N0CALL` are refused. Every operator is
 responsible for what is allowed on their frequency; AXLink does not restrict traffic.

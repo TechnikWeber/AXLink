@@ -16,7 +16,8 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 - [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
 - [ ] Station discovery with tags (`RELAY`, `INET`, `LINK`, `AUTO`).
 - [ ] Chat in the APRS message format, so that messenger radios can take part.
-- [ ] Transmit queue: priorities (small packets first) and dropping duplicate TCP retransmissions.
+- [ ] Transmit queue: priorities (small packets first) and dropping duplicate TCP retransmissions
+      (in the lab TCP repeats its SYN after 1 s because the answer takes ~1.7 s).
 - [ ] Pacing for the original F4HWN app: hold the next frame while the radio hears other
       stations. In the lab (a 2 KB download: data one way, ACKs the other) the estimated end of
       a transmission passes while the channel is busy, and the app drops 7 frames; with ACKMODE
