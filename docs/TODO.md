@@ -1,6 +1,6 @@
 # AXLink — open points
 
-Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
+Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-03.
 
 ## AXLink (PC)
 
@@ -40,14 +40,16 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 Repository: [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC); its list
 ([TODO.md](https://github.com/TechnikWeber/AXLink-TNC/blob/main/TODO.md)) is the reference.
 
-- [ ] Build the extensions: ACKMODE, a counter for dropped frames, dropping a frame cut off by a
-      USB re-enumeration, identification, RSSI.
-- [ ] Test them in the AXLink lab against the model with ACKMODE, then on the bench.
+- [x] ACKMODE, a counter for host frames lost, dropping a frame cut off by a USB reset:
+      AXLink TNC 0.2, host-tested, prerelease v0.2.0-alpha.1 (2026-11-03, D4).
+- [ ] Identification (KISS SetHardware `0x06`) and RSSI.
+- [ ] Bench test on two radios: AXLink with `f4hwn-kisstnc-ackmode` against AXLink TNC, and
+      with `f4hwn-kisstnc` against the original app.
 - [ ] **Entry in the UV Studio Community tab** (after the hardware test): Apps → Community →
       Propose an app, with the app running on a radio.
-- [ ] Reply in [Discussion #764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764)
-      once the extensions are built and tested; what to tell them is collected in
-      [upstream/README.md](upstream/README.md).
+- [ ] Reply in [Discussion #764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764):
+      drafted in [upstream/f4hwn-764-followup-2.md](upstream/f4hwn-764-followup-2.md), the owner
+      posts it; what else to tell them is collected in [upstream/README.md](upstream/README.md).
 
 ## After F4HWN v7
 

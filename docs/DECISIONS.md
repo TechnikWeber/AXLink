@@ -101,3 +101,20 @@ Windows package with `axlinkd.exe` and `wintun.dll` would break the GPL. The per
 only Wintun; everything else stays under the plain GPL. Windows packages may therefore contain
 `wintun.dll` with its licence file; until the first one, `scripts/fetch-wintun.ps1` fetches it.
 Text: [LICENSING.md](../LICENSING.md).
+
+## 2026-11-03
+
+**D4 – status: the first three extensions are built.** On the owner's request AXLink TNC 0.2
+has ACKMODE, the counter for host frames lost to a waiting frame (in `lost N` on line 3) and
+the drop of a host frame cut off by a USB reset or a lapped receive ring; one commit each, with
+host tests, released as the prerelease
+[v0.2.0-alpha.1](https://github.com/TechnikWeber/AXLink-TNC/releases/tag/v0.2.0-alpha.1).
+- Tested: the host tests of the app (its own code against a model of the API and the audio
+  path), also after applying the commits to a copy of F4HWN v6.3.0 with `git am`. The AXLink
+  lab runs a Go model of the app (`internal/sim/f4hwnkiss`), not its code.
+- Not tested: a radio. The bench test with two UV-K1 decides about a release without "alpha"
+  and the entry in the UV Studio Community tab.
+- Identification and RSSI follow later. USB flow control stays a request to the resident
+  firmware.
+- #764: a reply with the commits is drafted in
+  [upstream/f4hwn-764-followup-2.md](upstream/f4hwn-764-followup-2.md); the owner posts it.
