@@ -40,9 +40,29 @@ der unveränderten App, weil AXLink auf Host-Seite taktet.
 - Zweck des Requests: Die offizielle App soll die Erweiterungen bekommen, damit alle
   F4HWN-Nutzer sie haben. Der USB-Rückstau sitzt in der residenten Firmware und lässt sich
   nur dort beheben, nicht in einer App. Außerdem sollen die Befehlsformate abgestimmt sein.
-- KISS TNC+ darf sofort gebaut werden (gegen das `app_api.h` von v6.3). In #764 verweisen
-  wir erst darauf, wenn es gebaut und mindestens im Host-Test und im AXLink-Labor geprüft ist.
+- Die eigene App darf sofort gebaut werden (gegen das `app_api.h` von v6.3). In #764 verweisen
+  wir erst darauf, wenn sie gebaut und mindestens im Host-Test und im AXLink-Labor geprüft ist.
   AXLink ist vorbereitet: Profil `f4hwn-kisstnc-ackmode` und das Modell mit ACKMODE.
+
+**D4a – Die eigene KISS-App ist eigenständig und wird getrennt angeboten.** (2026-11-02)
+- Sie braucht den Messenger nicht. Der Loader prüft nur ABI-Major, API-Level, Fähigkeiten und
+  Ladeadresse. Die sind in F4HWN v6.3.0, im Messenger-Fork und im v7-Branch gleich (ABI 1,
+  Adresse fest 0x20000280; v6.3 API 3, v7 API 4; die Tabelle wächst nur). Eine App mit
+  `APP_API_MIN` 3 läuft also auf dem originalen **Labs v6.3.0** und auf **Fusion v7**, das dort
+  die App-Plattform trägt. Ändert ein v7-Release das ABI, wird neu gebaut.
+- Nicht auf Fusion v6.3 und nicht auf dem Messenger v6.3 (kein Loader).
+- Mit Originalfirmware fehlt nur der USB-Rückstau (residenter Teil); AXLink taktet trotzdem.
+- Zielgruppe ist größer als die des Messengers: Wer nur IP über AX.25 will, nimmt Original-Labs
+  (v6.3) bzw. Original-Fusion (v7) plus die App, ohne Multiboot.
+- Verteilung: GitHub-Releases mit `.app`-Datei (UV Studio → Apps → Community → Install a .app)
+  und später ein Eintrag im Community-Tab (Apps → Community → Propose an app; geht nur mit der
+  App laufend auf einem Funkgerät).
+- Name: Der Community-Tab vergleicht Namen nur nach Kleinbuchstaben und Ziffern und lässt keine
+  offiziellen Namen zu. „KISS TNC+“ ergäbe „kisstnc“ wie das Original und geht nicht.
+  Arbeitstitel: **AXLink TNC**.
+- Ablageort (offen): Vorschlag eigenes Repo mit F4HWN als gepinntem Submodul (Tag v6.3.0,
+  später v7), damit immer gegen die Originalfirmware gebaut wird; Lizenz Apache-2.0 wie das
+  Original. Alternative: eigener App-Ordner im Messenger-Fork mit eigenen Release-Tags.
 
 **D5 – Lizenz.** Code: GPL-3.0-or-later (`LICENSE`). Protokollspezifikationen:
 CC BY 4.0 (`licenses/CC-BY-4.0.txt`). Details: `LICENSING.md`.
@@ -55,9 +75,9 @@ eine Übergangslösung und wird nach der Migration auf v7 gelöscht (Checkliste 
   `MENU`-Taste. Die Flash-Bereiche überschneiden sich laut Quelltext nicht
   (Multiboot-Slots 0x020000–0x0BFFFF, App-Slots 0x102000–0x161FFF, Messenger
   0x1BA000–0x1C9FFF). Auf Hardware noch nicht geprüft.
-- Eigene Variante der KISS-App („KISS TNC+“: ACKMODE, Zähler für verworfene Frames, Kennung,
-  RSSI) als Overlay-App im selben Firmware-Fork, eigener App-Ordner und eigene Release-Tags.
-  Sie kostet keinen MCU-Flash und läuft auf Labs v6.3 und später auf v7.
+- Eigene KISS-App (Arbeitstitel „AXLink TNC“: ACKMODE, Zähler für verworfene Frames, Kennung,
+  RSSI) als Overlay-App, siehe D4a. Sie kostet keinen MCU-Flash und läuft auf Labs v6.3 und
+  auf v7. Wer nur den TNC will, braucht weder Messenger noch Multiboot.
 - Mit F4HWN v7: Messenger auf v7 heben; die App-Plattform ist dann in der Firmware, die eigene
   KISS-App läuft in derselben Firmware wie der Messenger.
 - Natives KISS im Messenger nur als Notlösung, falls v7 ausbleibt oder die App-Plattform auf v7

@@ -18,6 +18,11 @@ liegen beide auf dem Gerät; beim Einschalten wählst du, welche läuft.
 Die Schritte folgen dem F4HWN-Wiki (Seiten „Multiboot and Multiconfig“, „UV Studio“,
 „Overlay apps“, „App KISS TNC“), Stand 2026-11-02.
 
+**Nur TNC, ohne Messenger:** Dafür braucht es kein Multiboot. Das originale F4HWN Labs v6.3.0
+normal flashen (UV Studio → *Flash Firmware*), dann wie in Schritt 4 unten die KISS-TNC-App
+installieren, später auch unsere eigene (Arbeitstitel AXLink TNC). Ab v7 geht dasselbe mit
+dem originalen Fusion.
+
 ## Was du brauchst
 
 - UV-K1 oder UV-K5 V3 (PY32F071).
@@ -87,4 +92,4 @@ Sobald der Messenger auf F4HWN v7 läuft und die App-Plattform enthält:
 - [ ] die Verweise in `README.md` und `DEVELOPMENT.md` entfernen;
 - [ ] im Firmware-Fork den Multiboot-Hinweis im Messenger-README durch „KISS TNC in
       derselben Firmware“ ersetzen;
-- [ ] KISS TNC+ gegen das `app_api.h` von v7 neu bauen und als v7-App veröffentlichen.
+- [ ] die eigene KISS-App (AXLink TNC) auf v7 prüfen und neu bauen, falls v7 das ABI ändert.
