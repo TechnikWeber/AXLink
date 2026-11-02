@@ -35,6 +35,12 @@ sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
   `station heard` for each new station, and the statistics list the known ones. `-tags` adds
   roles, e.g. `-tags INET,AUTO` on a gateway that runs unattended. `-route IP/PREFIX=CALLSIGN`
   is needed only for stations that send no beacons or for addresses outside the own subnet.
+- Internet gateway: `-proxy 8080` on a station with internet access starts an HTTP proxy on its
+  radio address and adds the tag `INET`; other stations see `proxy=10.73.0.2:8080` in their log.
+  A client then uses it as its HTTP proxy, e.g. `curl -x http://10.73.0.2:8080 https://example.org/`
+  or in the browser settings. The proxy refuses the gateway's own network (private, loopback,
+  link-local addresses) unless `-proxy-lan` is given. At 1200 bit/s a small page takes seconds,
+  the HTTPS set-up alone (certificates) a minute or two.
 - The network adapter (`axl0`) needs root or `CAP_NET_ADMIN`. Instead of `sudo`,
   `sudo setcap cap_net_admin+ep ./axlinkd` should work; that variant is not tested yet.
 - `-mtu` is the largest IP packet on the radio (default 256, the classic AX.25 information
@@ -85,7 +91,10 @@ bash scripts/lab-netns.sh f4hwn 576       # adapter MTU 576 as on Windows
 
 Two stations in their own user and network namespaces (no root, no Docker) with real kernel IP
 stacks and TUN devices, connected through `axlinkd sim-channel`. They have no routes and must
-first find each other by their beacons; then the lab checks ping, UDP and HTTP from A to B. The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
+first find each other by their beacons; then the lab checks ping, UDP and HTTP from A to B, and
+the internet through B: B runs `-proxy 3128` and a web server on `192.0.2.80`, an address A has
+no route to; A fetches a file through the proxy and through a CONNECT tunnel, and B must refuse
+its own loopback. The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
 The result also lists frames the TNC model threw away before they reached the air (`drop` in
 the trace): `tnc-busy` when a frame arrived while another still waited for the channel,
 `usb-ring` when the 256-byte USB ring overflowed. The radio itself has no counter for either.
@@ -114,6 +123,7 @@ On Windows as administrator, with `wintun.dll` next to the test binary (`go test
 | `internal/airtime` | bit stuffing and airtime of a frame |
 | `internal/pacing` | how AXLink feeds a TNC (profiles) |
 | `internal/discovery` | station beacons: own announcements, the table of stations heard, learned addresses |
+| `internal/gateway` | the internet gateway: an HTTP proxy with CONNECT that keeps the operator's network out |
 | `internal/txqueue` | the transmit queue: small packets first, TCP retransmissions merged or dropped |
 | `internal/tnc` | the connection to a TNC: serial, KISS-TCP, Unix socket; reconnecting; paced sending |
 | `internal/tun` | the virtual network adapter (Linux: TUN; Windows: Wintun; macOS follows) |

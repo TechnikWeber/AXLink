@@ -51,6 +51,7 @@ type Beacon struct {
 	Addr  netip.Prefix  // IPv4 address with the prefix length of its subnet
 	Tags  []string      // roles, see the Tag constants; unknown tags are kept
 	Every time.Duration // until the sender's next periodic beacon
+	Proxy uint16        // TCP port of its HTTP proxy to the internet; 0 for none
 	Ask   bool          // the sender has just started and asks for beacons
 }
 
@@ -72,6 +73,9 @@ func (b Beacon) Marshal() ([]byte, error) {
 	}
 	if len(b.Tags) > 0 {
 		sb.WriteString(" tags=" + strings.Join(b.Tags, ","))
+	}
+	if b.Proxy != 0 {
+		sb.WriteString(" proxy=" + strconv.Itoa(int(b.Proxy)))
 	}
 	if b.Ask {
 		sb.WriteString(" ask=1")
@@ -121,6 +125,12 @@ func Parse(info []byte) (Beacon, error) {
 			if err := checkTags(b.Tags); err != nil {
 				return Beacon{}, err
 			}
+		case "proxy":
+			n, err := strconv.Atoi(v)
+			if err != nil || v != strconv.Itoa(n) || n < 1 || n > 65535 {
+				return Beacon{}, fmt.Errorf("%w: proxy %q", errInvalid, v)
+			}
+			b.Proxy = uint16(n)
 		case "ask":
 			if v != "1" {
 				return Beacon{}, fmt.Errorf("%w: ask %q", errInvalid, v)

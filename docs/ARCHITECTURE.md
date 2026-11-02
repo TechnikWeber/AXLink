@@ -20,6 +20,7 @@ suits small, text-based use.
 │                     routes, broadcast filter, MSS clamping,        │
 │                     fragmentation                                  │
 │ internal/discovery  station beacons, learned addresses             │
+│ internal/gateway    HTTP proxy that shares the internet            │
 │ internal/txqueue    transmit queue: small first, repeats merged    │
 │ internal/tnc        connection, reconnecting, paced sending        │
 │ internal/pacing     profile per TNC                                │
@@ -73,7 +74,7 @@ behaves like a router in front of a smaller link:
 |---|---|---|
 | `generic-kiss` | TNCs with a queue (Dire Wolf, most hardware TNCs) | whole frames, no waiting |
 | `f4hwn-kisstnc` | the KISS TNC app of the F4HWN firmware as it is | one frame in flight; writes of ≤ 64 B every 40 ms (the app drains 1.6 kB/s); the next frame after the estimated airtime, later if the radio heard another station before the frame could have gone out; PERSIST 255 with channel access left to the host |
-| `f4hwn-kisstnc-ackmode` | AXLink TNC with ACKMODE | as above, but waits for the ACKMODE echo instead of an estimate |
+| `f4hwn-kisstnc-ackmode` | AXLink TNC with ACKMODE | as above, but waits for the ACKMODE echo instead of an estimate, and PERSIST 63: the app randomises channel access, so two stations waiting for a busy channel do not both start in the first clear slot |
 
 Why: the F4HWN app holds one frame and its USB ring has no back-pressure; see section 4 of
 [REVIEW_2026-11-02.md](REVIEW_2026-11-02.md).
@@ -82,8 +83,10 @@ The estimate assumes a clear channel. The app sends only when the channel is cle
 handed over while another station transmits goes out late; a next frame written during that
 transmission would lap the app's USB ring. Every frame the radio receives therefore goes into a
 small log: if one began before the own frame could have ended, the own frame waited for it, and
-the next frame waits accordingly longer. A frame still on the air when the wait ends cannot be
-known yet; only ACKMODE covers that case.
+the next frame waits accordingly longer. The check runs again before every next frame, because a
+long frame of the other station may end only after the estimate, and the next own frame is
+often the answer to it (a TCP acknowledgement). A frame still on the air when the next one is
+ready cannot be known yet; only ACKMODE covers that case.
 
 After a USB reset (RF on the cable at key-up) the port dials again, finding the radio by USB ID
 `36B7:FFFF`. It then sends `FESC 00 FEND`, which makes the app drop a frame the reset cut off, and
@@ -106,6 +109,27 @@ authenticated, just as ARP is not.
 Private addresses (e.g. `10.73.0.0/24`) suit tests and private networks; AMPRNet (44/8)
 addresses come with an allocation.
 
+## Internet gateway
+
+A station with an internet connection shares it as an HTTP proxy (`internal/gateway`,
+`run -proxy 8080`) on its radio address, and announces `tags=INET proxy=8080` in its beacon.
+Clients use it deliberately, by setting it as their HTTP proxy; no default route goes over the
+radio, so updates and background traffic of the client stay off the air.
+
+- Requests with full URLs are forwarded; HTTPS goes through CONNECT tunnels, end to end
+  encrypted between client and server.
+- The gateway resolves names itself: DNS costs no airtime.
+- It does not connect to private, shared (100.64/10), loopback or link-local addresses unless
+  `-proxy-lan` allows it; radio users get the internet, not the operator's own network. The
+  check runs on every resolved address, right before the connection. This protects the
+  operator's network; it is no rule about content (D2).
+- At most 16 client connections at a time; a connection silent for 10 minutes is closed. The
+  log names the client's callsign (from its beacon) for each request.
+
+Planned: the gateway's rules in its beacon (services, rate, contact), a local proxy on the client
+that picks a heard gateway, pages shrunk for 1200 bit/s, and a transparent gateway in userspace
+(gVisor netstack) for other protocols.
+
 ## Simulation and lab
 
 - `internal/sim/f4hwnkiss`: a behavioural model of the F4HWN KISS app, written from its source,
@@ -114,8 +138,10 @@ addresses come with an allocation.
   JSON trace; in front of each station either an ideal TNC or the F4HWN model (optionally with
   ACKMODE). The trace also records frames the model drops before the air.
 - `scripts/lab-netns.sh`: two stations in their own network namespaces with real kernel IP
-  stacks; ping, UDP and HTTP; optionally with adapter MTU 576 as on Windows, which adds a
-  fragmented ping and a 2 KB download. Also in CI.
+  stacks. They find each other by beacons; then ping, UDP, HTTP and the internet through B as a
+  gateway (a proxied request, a CONNECT tunnel, the own network refused). Optionally with
+  adapter MTU 576 as on Windows, which adds a fragmented ping and a 2 KB download. Also in CI.
+  The model draws its p-persistence from a seeded random source, as the app does.
 
 Results from the model are not hardware results.
 
@@ -132,8 +158,8 @@ Results from the model are not hardware results.
 
 ## Planned
 
-- Gateways chosen deliberately: a client picks an `INET` station (proxy or route), and the
-  gateway announces its rules (services, rate, contact) in its beacon.
+- Gateway rules in the beacon, a client-side proxy that picks a gateway, shrunk pages, a
+  transparent userspace gateway (see Internet gateway).
 - Chat in the APRS message format, so that messenger radios can take part.
 - A transmit queue with priorities and duplicate suppression.
 - A link gateway (AXUDP between radio islands) and an internet gateway in userspace (gVisor

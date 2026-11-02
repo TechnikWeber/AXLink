@@ -9,15 +9,18 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/netip"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
+	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/pacing"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
@@ -61,6 +64,8 @@ type nodeConfig struct {
 	allowBroadcast bool
 	tags           []string
 	beacon         time.Duration
+	proxy          uint16 // port of the gateway's HTTP proxy; 0 for none
+	proxyLAN       bool
 }
 
 func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
@@ -80,6 +85,8 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	allowBroadcast := fs.Bool("allow-broadcast", false, "let broadcast and multicast packets onto the radio")
 	tagList := fs.String("tags", "", "roles to announce, comma-separated: RELAY, INET, LINK, AUTO")
 	beacon := fs.Duration("beacon", discovery.DefaultEvery, "interval of the station beacon; 0 sends none, stations are still learned")
+	proxy := fs.Int("proxy", 0, "share this station's internet connection: an HTTP proxy on this port of the radio address (e.g. 8080); adds the tag INET")
+	proxyLAN := fs.Bool("proxy-lan", false, "let the proxy also reach private, loopback and link-local addresses (the own network)")
 	if err := fs.Parse(args); err != nil {
 		return nodeConfig{}, err
 	}
@@ -147,6 +154,13 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 		return cfg, fmt.Errorf("-tags: %w", err)
 	}
 	cfg.beacon = *beacon
+	if *proxy < 0 || *proxy > 65535 {
+		return cfg, fmt.Errorf("-proxy: %d is not a port", *proxy)
+	}
+	cfg.proxy, cfg.proxyLAN = uint16(*proxy), *proxyLAN
+	if cfg.proxy != 0 && !slices.Contains(cfg.tags, discovery.TagInet) {
+		cfg.tags = append(cfg.tags, discovery.TagInet)
+	}
 	if err := cfg.discovery().Check(); err != nil {
 		return cfg, fmt.Errorf("-beacon/-tags: %w", err)
 	}
@@ -154,7 +168,7 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 }
 
 func (cfg nodeConfig) discovery() discovery.Config {
-	return discovery.Config{Call: cfg.call, Addr: cfg.tun.Address, Tags: cfg.tags, Every: cfg.beacon}
+	return discovery.Config{Call: cfg.call, Addr: cfg.tun.Address, Tags: cfg.tags, Every: cfg.beacon, Proxy: cfg.proxy}
 }
 
 func btoi(b bool) int {
@@ -210,6 +224,20 @@ func runNode(args []string, stderr io.Writer) int {
 		return 1
 	}
 
+	var gw *gateway.Proxy
+	if cfg.proxy != 0 {
+		addr := netip.AddrPortFrom(cfg.tun.Address.Addr(), cfg.proxy).String()
+		ln, err := net.Listen("tcp", addr)
+		if err != nil {
+			dev.Close()
+			fmt.Fprintln(stderr, "run: gateway:", err)
+			return 1
+		}
+		gw = gateway.New(gateway.Config{AllowLAN: cfg.proxyLAN, Who: disc.Lookup, Logger: log})
+		go gw.Serve(ctx, ln)
+		log.Info("gateway: HTTP proxy for the radio network", "listen", addr, "lan", cfg.proxyLAN)
+	}
+
 	portDone := make(chan error, 1)
 	go func() { portDone <- port.Run(ctx) }()
 	go disc.Run(ctx)
@@ -227,8 +255,12 @@ func runNode(args []string, stderr io.Writer) int {
 	}()
 
 	logStats := func() {
-		log.Info("stats", "port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
-			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary())
+		args := []any{"port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
+			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary()}
+		if gw != nil {
+			args = append(args, "gateway", fmt.Sprintf("%+v", gw.Stats()))
+		}
+		log.Info("stats", args...)
 	}
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()

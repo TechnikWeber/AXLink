@@ -26,6 +26,15 @@ CC BY 4.0), the repository in English.
   addresses become routes; configured ones for the exact address come first. `run -tags` and
   `-beacon`; `decode` shows beacon texts. The lab now runs without routes: the stations find each
   other in 3–5 s (model).
+- `internal/gateway`: the internet gateway. `run -proxy 8080` shares the station's internet
+  connection as an HTTP proxy on its radio address (full URLs and CONNECT), resolves names on the
+  gateway, refuses the operator's own network unless `-proxy-lan`, logs the client's callsign,
+  and announces `tags=INET proxy=8080` in the beacon. In the lab a client fetches a file from an
+  address it has no route to in 11-13 s through the proxy and in 16-18 s through CONNECT (model).
+- Pacing: before each frame the sender checks the previous one again against the frames heard
+  meanwhile; ACKMODE uses PERSIST 63 so that two waiting stations do not start in the same
+  slot; the app model draws its p-persistence from a random source. Six labs at once: no frame
+  dropped, none lost on the air.
 - `internal/txqueue`: the transmit queue. Packets of up to 128 bytes go first (at most three in
   a row while a larger one waits, never ahead of their own flow); a TCP retransmission replaces
   its waiting original or is dropped if the original has just gone out; a newer pure ACK

@@ -34,8 +34,9 @@ type sender struct {
 	sink        sink
 	tag         uint16
 	ackTimeouts uint64
-	wroteAll    bool      // the last frame reached the TNC completely
-	heard       *heardLog // frames the radio received; nil for none
+	wroteAll    bool         // the last frame reached the TNC completely
+	heard       *heardLog    // frames the radio received; nil for none
+	last        *pacing.Plan // the frame handed over last, without ACKMODE
 }
 
 func (s *sender) init() error {
@@ -57,6 +58,15 @@ func (s *sender) init() error {
 }
 
 func (s *sender) send(ctx context.Context, frame []byte) error {
+	// The frame before may still be waiting in the TNC: a frame the radio
+	// has heard since may have kept the channel busy for longer than the
+	// estimate assumed. That is often known only now, e.g. when the frame
+	// to send is the answer to the one just heard.
+	if s.last != nil {
+		if err := s.waitSent(ctx, s.last); err != nil {
+			return err
+		}
+	}
 	f := kiss.Data(s.port, frame)
 	var tag uint16
 	if s.profile.AckMode {
@@ -86,7 +96,8 @@ func (s *sender) send(ctx context.Context, frame []byte) error {
 		return nil
 	}
 	if !s.profile.AckMode {
-		return s.waitSent(ctx, plan)
+		s.last = &plan
+		return s.waitSent(ctx, s.last)
 	}
 	ok, err := s.sink.waitAck(ctx, tag, s.clock.now()+s.ackTimeout(frame))
 	if err != nil {
@@ -103,23 +114,23 @@ func (s *sender) send(ctx context.Context, frame []byte) error {
 // frame could have ended, this frame had to wait for it, and so does the
 // next one. A frame still on the air when the wait ends is not known yet;
 // only ACKMODE covers that.
-func (s *sender) waitSent(ctx context.Context, plan pacing.Plan) error {
-	done, start := plan.Done, plan.TxStart
+// It moves plan.TxStart and plan.Done as it learns more.
+func (s *sender) waitSent(ctx context.Context, plan *pacing.Plan) error {
 	for {
-		if err := s.clock.sleepUntil(ctx, done); err != nil {
+		if err := s.clock.sleepUntil(ctx, plan.Done); err != nil {
 			return err
 		}
-		later := done
-		for _, h := range s.heard.since(start, s.clock.now()) {
-			if h.start < start+plan.Airtime {
-				start = max(start, h.end)
-				later = max(later, s.profile.DoneAfterHeard(h.end, plan))
+		later := plan.Done
+		for _, h := range s.heard.since(plan.TxStart, s.clock.now()) {
+			if h.start < plan.TxStart+plan.Airtime {
+				plan.TxStart = max(plan.TxStart, h.end)
+				later = max(later, s.profile.DoneAfterHeard(h.end, *plan))
 			}
 		}
-		if later <= done {
+		if later <= plan.Done {
 			return nil
 		}
-		done = later
+		plan.Done = later
 	}
 }
 

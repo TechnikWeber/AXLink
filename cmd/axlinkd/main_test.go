@@ -89,6 +89,10 @@ func TestRunFlags(t *testing.T) {
 	if err != nil || strings.Join(gw.tags, ",") != "INET,AUTO" || gw.beacon != 0 {
 		t.Fatalf("gateway flags: %+v %v", gw, err)
 	}
+	proxy, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-tags", "AUTO", "-proxy", "8080"}, &errs)
+	if err != nil || proxy.proxy != 8080 || strings.Join(proxy.tags, ",") != "AUTO,INET" || proxy.proxyLAN {
+		t.Fatalf("proxy flags: %+v %v", proxy, err)
+	}
 	big, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-adapter-mtu", "576"}, &errs)
 	if err != nil || big.linkMTU != 256 || big.tun.MTU != 576 {
 		t.Fatalf("adapter MTU: %+v %v", big, err)
@@ -110,6 +114,7 @@ func TestRunFlags(t *testing.T) {
 		"tiny MTU":         {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-mtu", "40"},
 		"bad tag":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-tags", "IN-ET"},
 		"short beacon":     {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-beacon", "10s"},
+		"no port":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "70000"},
 	} {
 		if _, err := parseNodeFlags(args, &errs); err == nil {
 			t.Errorf("%s: accepted", name)

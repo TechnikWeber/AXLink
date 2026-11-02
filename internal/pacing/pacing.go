@@ -71,11 +71,16 @@ var F4HWNKissTNC = Profile{
 	Margin:       100 * time.Millisecond,
 }
 
-// F4HWNKissTNCAck is the same app with the proposed ACKMODE extension.
+// F4HWNKissTNCAck is the same app with the proposed ACKMODE extension. The
+// host knows when a frame has gone out, so the app may randomise channel
+// access again (PERSIST 63, the app's default: a quarter of the 50 ms slots).
+// With 255 two stations waiting for the same busy channel would both start
+// in the first clear slot and collide.
 var F4HWNKissTNCAck = func() Profile {
 	p := F4HWNKissTNC
 	p.Name = "f4hwn-kisstnc-ackmode"
 	p.AckMode = true
+	p.PersistParam = 63
 	return p
 }()
 

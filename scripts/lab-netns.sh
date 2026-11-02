@@ -4,7 +4,9 @@
 # Two AXLink stations in their own network namespaces (no root, no Docker),
 # connected through the simulated radio channel. The stations have no routes:
 # they find each other by their beacons. Then the lab checks ping, UDP and HTTP
-# from A to B with real kernel IP stacks. No radio hardware.
+# from A to B with real kernel IP stacks, and the internet through B as a
+# gateway: B's HTTP proxy reaches a web server on 192.0.2.80, an address A has
+# no route to. No radio hardware.
 #
 #   bash scripts/lab-netns.sh [f4hwn|f4hwn-ackmode|ideal] [ADAPTER_MTU]
 #
@@ -52,8 +54,9 @@ trap cleanup EXIT
 echo "lab: $WORK (mode $MODE${ADAPTER_MTU:+, adapter MTU $ADAPTER_MTU})"
 (cd "$ROOT" && "$GO" build -o "$WORK/axlinkd" ./cmd/axlinkd)
 NONCE="$(python3 -I -c 'import secrets; print(secrets.token_hex(8))')"
-mkdir -p "$WORK/www"
+mkdir -p "$WORK/www" "$WORK/inet"
 echo "AXLink $NONCE" > "$WORK/www/hello.txt"
+echo "from the internet $NONCE" > "$WORK/inet/inet.txt"
 # 2 KB in 32 lines: more than ten TCP segments at the radio's MSS of 216.
 python3 -I -c 'import secrets, sys
 for i in range(32): print(f"{i:02d} {sys.argv[1]} " + secrets.token_hex(22))' "$NONCE" > "$WORK/www/big.txt"
@@ -92,14 +95,20 @@ set -eu
 WORK=$1; NAME=$2; CALL=$3; IP=$4; PEER_IP=$5; PEER_CALL=$6; PROFILE=$7; SOCK=$8; ADAPTER_MTU=${9:-}
 ip link set lo up
 started=$(date +%s%N)
+GATEWAY=
+if [ "$NAME" = b ]; then
+    GATEWAY="-proxy 3128"                       # B shares its "internet"
+    ip addr add 192.0.2.80/32 dev lo            # TEST-NET-1: the internet stand-in
+fi
 "$WORK/axlinkd" run -call "$CALL" -kiss-unix "$SOCK/$NAME.sock" -profile "$PROFILE" \
-    -ip "$IP/24" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} 2> "$WORK/node-$NAME.log" &
+    -ip "$IP/24" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} $GATEWAY 2> "$WORK/node-$NAME.log" &
 NODE=$!
 for _ in $(seq 100); do ip -4 addr show axl0 2>/dev/null | grep -q "$IP" && break; sleep 0.1; done
 ip -4 addr show axl0 | grep -q "$IP" || { echo "axl0 did not come up" >&2; kill $NODE; exit 1; }
 if [ "$NAME" = b ]; then
     python3 -I "$WORK/udp_echo.py" "$IP" &
     python3 -I -m http.server 8080 --bind "$IP" --directory "$WORK/www" > /dev/null 2>&1 &
+    python3 -I -m http.server 8081 --bind 192.0.2.80 --directory "$WORK/inet" > /dev/null 2>&1 &
     sleep 1
     touch "$WORK/b.ready"
     while [ ! -e "$WORK/stop" ]; do sleep 0.2; done
@@ -131,6 +140,22 @@ if [ -n "$ADAPTER_MTU" ]; then
     start=$(date +%s%N)
     curl -sS --max-time 300 "http://$PEER_IP:8080/big.txt" > "$WORK/big.out" 2> "$WORK/big.err" || status=1
     echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/big.ms"
+fi
+# The internet through B: a request through the proxy, the same through a
+# CONNECT tunnel (as HTTPS uses it), the gateway's own network refused, and
+# no direct way to the server.
+proxy="http://$PEER_IP:3128"
+start=$(date +%s%N)
+curl -sS --max-time 180 -x "$proxy" "http://192.0.2.80:8081/inet.txt" > "$WORK/gw.out" 2> "$WORK/gw.err" || status=1
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/gw.ms"
+start=$(date +%s%N)
+curl -sS --max-time 180 -p -x "$proxy" "http://192.0.2.80:8081/inet.txt" > "$WORK/gwc.out" 2> "$WORK/gwc.err" || status=1
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/gwc.ms"
+curl -s --max-time 120 -o /dev/null -w '%{http_code}' -x "$proxy" "http://127.0.0.1:8081/" > "$WORK/gwlan.code" 2> /dev/null || true
+if curl -s --max-time 5 -o /dev/null "http://192.0.2.80:8081/inet.txt" 2> /dev/null; then
+    echo reachable > "$WORK/gwdirect"
+else
+    echo unreachable > "$WORK/gwdirect"
 fi
 kill $NODE 2>/dev/null || true
 wait $NODE 2>/dev/null || true
@@ -167,6 +192,17 @@ if grep -qx "AXLink $NONCE" "$WORK/http.out" 2>/dev/null; then
     echo "HTTP:  ok ($(( $(cat "$WORK/http.ms") / 1000 )).$(( $(cat "$WORK/http.ms") % 1000 / 100 )) s)"
 else
     echo "HTTP:  FAILED $(cat "$WORK/http.err" 2>/dev/null)"
+    status=1
+fi
+secs() { echo "$(( $(cat "$1") / 1000 )).$(( $(cat "$1") % 1000 / 100 )) s"; }
+want="from the internet $NONCE"
+if grep -qx "$want" "$WORK/gw.out" 2>/dev/null && grep -qx "$want" "$WORK/gwc.out" 2>/dev/null &&
+    [[ "$(cat "$WORK/gwlan.code" 2>/dev/null)" == 403 && "$(cat "$WORK/gwdirect" 2>/dev/null)" == unreachable ]] &&
+    grep -q 'msg=gateway client=TESTA-1 ' "$WORK/node-b.log"; then
+    echo "gateway: ok (proxy $(secs "$WORK/gw.ms"), CONNECT $(secs "$WORK/gwc.ms"); own network refused; no direct route)"
+else
+    echo "gateway: FAILED (proxy: $(cat "$WORK/gw.err" 2>/dev/null) CONNECT: $(cat "$WORK/gwc.err" 2>/dev/null)" \
+        "own network: $(cat "$WORK/gwlan.code" 2>/dev/null) direct: $(cat "$WORK/gwdirect" 2>/dev/null))"
     status=1
 fi
 if [[ -n "$ADAPTER_MTU" ]]; then

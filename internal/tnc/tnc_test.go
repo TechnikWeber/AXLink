@@ -354,6 +354,42 @@ func TestSenderWaitsLongerAfterHearingAnotherStation(t *testing.T) {
 	checkAllSent(t, run(heard), frames)
 }
 
+// The other station transmits until 3 s, longer than the estimate for the
+// first frame. The next frame comes only after that station has finished
+// (as a TCP acknowledgement does); the first frame is then still waiting or
+// on the air, and handing over the next one at once would lose it.
+func TestSenderRechecksThePreviousFrameBeforeTheNext(t *testing.T) {
+	busy := func(t time.Duration) bool { return t >= 150*time.Millisecond && t < 3*time.Second }
+	frames := fullFrames(t, 2)
+	run := func(hear bool) *f4hwnkiss.App {
+		app := f4hwnkiss.New(f4hwnkiss.Config{Busy: busy})
+		heard := &heardLog{}
+		s := &sender{profile: pacing.F4HWNKissTNC, clock: simClock{app}, sink: &simSink{app: app}, heard: heard}
+		if err := s.init(); err != nil {
+			t.Fatal(err)
+		}
+		if err := s.send(context.Background(), frames[0]); err != nil {
+			t.Fatal(err)
+		}
+		if app.Now() >= 3*time.Second {
+			t.Fatalf("the estimate ran to %v; the scenario needs it to end earlier", app.Now())
+		}
+		app.Advance(3050 * time.Millisecond)
+		if hear {
+			heard.add(150*time.Millisecond, 3*time.Second) // known only now
+		}
+		if err := s.send(context.Background(), frames[1]); err != nil {
+			t.Fatal(err)
+		}
+		app.Advance(app.Now() + 5*time.Second)
+		return app
+	}
+	if app := run(false); len(app.Transmitted()) == len(frames) {
+		t.Fatal("without the heard frame this scenario should lose a frame")
+	}
+	checkAllSent(t, run(true), frames)
+}
+
 func TestHeardLogOnlyShowsWhatHasEnded(t *testing.T) {
 	l := &heardLog{}
 	l.add(1*time.Second, 2*time.Second)

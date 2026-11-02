@@ -25,9 +25,10 @@ var (
 
 // Config sets up a Service.
 type Config struct {
-	Call ax25.Address
-	Addr netip.Prefix // own address and subnet
-	Tags []string
+	Call  ax25.Address
+	Addr  netip.Prefix // own address and subnet
+	Tags  []string
+	Proxy uint16 // port of the own HTTP proxy to the internet; 0 for none
 	// Every is the interval of periodic beacons; 0 sends none, the service
 	// then only listens.
 	Every  time.Duration
@@ -42,6 +43,7 @@ type Station struct {
 	Call  ax25.Address
 	Addr  netip.Prefix
 	Tags  []string
+	Proxy uint16 // its HTTP proxy port; 0 for none
 	Every time.Duration
 	Heard time.Time // its last beacon
 }
@@ -94,8 +96,12 @@ func (cfg Config) Check() error {
 	if cfg.Every == 0 {
 		return checkTags(cfg.Tags)
 	}
-	_, err := Beacon{Addr: cfg.Addr, Tags: cfg.Tags, Every: cfg.Every}.Marshal()
+	_, err := cfg.beacon(false).Marshal()
 	return err
+}
+
+func (cfg Config) beacon(ask bool) Beacon {
+	return Beacon{Addr: cfg.Addr, Tags: cfg.Tags, Every: cfg.Every, Proxy: cfg.Proxy, Ask: ask}
 }
 
 // between returns a random duration in [r[0], r[1]]; the caller holds mu
@@ -153,7 +159,7 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 }
 
 func (s *Service) send(now time.Time, ask bool) {
-	frame, err := Beacon{Addr: s.cfg.Addr, Tags: s.cfg.Tags, Every: s.cfg.Every, Ask: ask}.Frame(s.cfg.Call)
+	frame, err := s.cfg.beacon(ask).Frame(s.cfg.Call)
 	s.mu.Lock()
 	s.lastSent = now
 	s.first = false
@@ -197,7 +203,7 @@ func (s *Service) Handle(frame []byte) bool {
 		s.warnOnce("invalid:"+call.String(), "invalid beacon ignored", "call", call.String(), "err", err)
 		return true
 	case call.SameStation(s.cfg.Call):
-		echo := b.Addr == s.cfg.Addr && b.Every == s.cfg.Every && slices.Equal(b.Tags, s.cfg.Tags)
+		echo := b.Addr == s.cfg.Addr && b.Every == s.cfg.Every && b.Proxy == s.cfg.Proxy && slices.Equal(b.Tags, s.cfg.Tags)
 		if !echo { // an echo of our own beacon (some TNCs return what they sent) is fine
 			s.warnOnce("call", "another station sends beacons with our callsign", "call", call.String(), "ip", b.Addr.String())
 		}
@@ -211,8 +217,12 @@ func (s *Service) Handle(frame []byte) bool {
 	if known && old.expired(now) {
 		known = false
 	}
-	if !known || old.Addr != b.Addr || !slices.Equal(old.Tags, b.Tags) {
-		s.cfg.Logger.Info("station heard", "call", call.String(), "ip", b.Addr.String(), "tags", strings.Join(b.Tags, ","))
+	if !known || old.Addr != b.Addr || old.Proxy != b.Proxy || !slices.Equal(old.Tags, b.Tags) {
+		args := []any{"call", call.String(), "ip", b.Addr.String(), "tags", strings.Join(b.Tags, ",")}
+		if b.Proxy != 0 {
+			args = append(args, "proxy", netip.AddrPortFrom(b.Addr.Addr(), b.Proxy).String())
+		}
+		s.cfg.Logger.Info("station heard", args...)
 	}
 	for _, other := range s.stations {
 		if other.Call != call && other.Addr.Addr() == b.Addr.Addr() && !other.expired(now) {
@@ -221,7 +231,7 @@ func (s *Service) Handle(frame []byte) bool {
 				"ip", b.Addr.Addr().String(), "newer", call.String(), "older", other.Call.String())
 		}
 	}
-	s.stations[call] = &Station{Call: call, Addr: b.Addr, Tags: b.Tags, Every: b.Every, Heard: now}
+	s.stations[call] = &Station{Call: call, Addr: b.Addr, Tags: b.Tags, Proxy: b.Proxy, Every: b.Every, Heard: now}
 	if (b.Ask || !known) && s.cfg.Every > 0 {
 		if s.answerAt.IsZero() {
 			s.answerAt = now.Add(s.between(answerDelay))
@@ -282,6 +292,9 @@ func (s *Service) Summary() string {
 		p := st.Call.String() + " " + st.Addr.String()
 		if len(st.Tags) > 0 {
 			p += " " + strings.Join(st.Tags, ",")
+		}
+		if st.Proxy != 0 {
+			p += " proxy " + netip.AddrPortFrom(st.Addr.Addr(), st.Proxy).String()
 		}
 		parts = append(parts, p)
 	}

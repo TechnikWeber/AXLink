@@ -18,13 +18,14 @@ func TestMarshalAndParseRoundTrip(t *testing.T) {
 		"AXL1 ip=10.73.0.2/24":                             {Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery},
 		"AXL1 ip=10.73.0.2/24 tags=INET,AUTO":              {Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery, Tags: []string{"INET", "AUTO"}},
 		"AXL1 ip=44.128.1.7/32 every=300 tags=RELAY ask=1": {Addr: netip.MustParsePrefix("44.128.1.7/32"), Every: 5 * time.Minute, Tags: []string{"RELAY"}, Ask: true},
+		"AXL1 ip=10.73.0.2/24 tags=INET proxy=8080":        {Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery, Tags: []string{"INET"}, Proxy: 8080},
 	} {
 		got, err := b.Marshal()
 		if err != nil || string(got) != want {
 			t.Fatalf("Marshal %+v = %q, %v; want %q", b, got, err, want)
 		}
 		back, err := Parse(got)
-		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || !slices.Equal(back.Tags, b.Tags) {
+		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || back.Proxy != b.Proxy || !slices.Equal(back.Tags, b.Tags) {
 			t.Fatalf("Parse(%q) = %+v, %v", got, back, err)
 		}
 	}
@@ -65,6 +66,9 @@ func TestParseRejects(t *testing.T) {
 		"AXL1 ip=10.73.0.2/24 tags=TOOLONGTAG",
 		"AXL1 ip=10.73.0.2/24 tags=A,B,C,D,E,F,G,H,I",
 		"AXL1 ip=10.73.0.2/24 ask=0",
+		"AXL1 ip=10.73.0.2/24 proxy=0",
+		"AXL1 ip=10.73.0.2/24 proxy=65536",
+		"AXL1 ip=10.73.0.2/24 proxy=08080",
 		"AXL1 ip=10.73.0.2/24 Ask=1",
 		"AXL1 ip=10.73.0.2/24 x",
 		"AXL1 ip=10.73.0.2/24 note=\x01",
@@ -145,7 +149,7 @@ func FuzzParse(f *testing.F) {
 			t.Fatalf("accepted %q but cannot write %+v: %v", info, b, err)
 		}
 		back, err := Parse(out)
-		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || !slices.Equal(back.Tags, b.Tags) {
+		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || back.Proxy != b.Proxy || !slices.Equal(back.Tags, b.Tags) {
 			t.Fatalf("%q -> %q -> %+v, %v", info, out, back, err)
 		}
 	})

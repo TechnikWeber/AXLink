@@ -14,8 +14,10 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"hash/fnv"
 	"io"
 	"log/slog"
+	"math/rand/v2"
 	"net"
 	"sync"
 	"time"
@@ -102,9 +104,15 @@ func New(cfg Config) *Channel {
 func (c *Channel) AddStation(name string, ln net.Listener) {
 	st := &station{name: name, ln: ln}
 	if c.cfg.Mode == F4HWN {
+		// The app draws its p-persistence from rand32(); a fixed seed per
+		// station keeps runs comparable.
+		h := fnv.New64a()
+		h.Write([]byte(name))
+		r := rand.New(rand.NewPCG(h.Sum64(), 0x41584c))
 		st.app = f4hwnkiss.New(f4hwnkiss.Config{
 			AckMode: c.cfg.AckMode,
 			Busy:    func(t time.Duration) bool { return c.othersOnAir(st, t) },
+			Rand:    r.Uint32,
 		})
 	}
 	c.stations = append(c.stations, st)

@@ -16,9 +16,13 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 - [ ] ICMP "fragmentation needed" for packets with DF that are larger than the radio MTU
       (path-MTU discovery); today they are dropped.
 - [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
-- [ ] Gateways: a client chooses an `INET` station deliberately (proxy or route); the gateway
-      announces its rules (services, rate, contact) in its beacon. Show the stations in the
-      web UI.
+- [ ] Gateway, next steps: its rules in the beacon (services, rate, contact); a fair share per
+      callsign; a local proxy on the client that picks a heard gateway; pages shrunk for
+      1200 bit/s; a transparent gateway in userspace (netstack) for other protocols. Show the
+      stations and gateways in the web UI.
+- [ ] Channel access without ACKMODE with three or more stations: two stations waiting for the
+      same busy channel both send in the first clear slot (PERSIST 255); a random host backoff
+      after a heard frame.
 - [ ] Chat in the APRS message format, so that messenger radios can take part.
 - [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
 - [ ] Mesh: forwarding A↔B↔C, routing with an airtime budget.

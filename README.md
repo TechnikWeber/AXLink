@@ -31,6 +31,8 @@ app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
   supports ACKMODE.
 - Station discovery: each station announces its address and roles (`INET`, `RELAY`, …) in a
   short beacon, so stations in the same subnet reach each other without configured routes.
+- Internet gateway: a station with internet access shares it as an HTTP proxy (HTTPS through
+  CONNECT, names resolved on the gateway); clients choose it in their proxy setting.
 - A network adapter `axl0` on Linux (TUN) and Windows (Wintun) and IPv4 over AX.25 UI/PID
   `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter. Radio
   packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink lowers
