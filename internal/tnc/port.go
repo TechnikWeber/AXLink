@@ -33,9 +33,13 @@ type Config struct {
 type Stats struct {
 	Connects, Disconnects  uint64
 	FramesIn, FramesOut    uint64
+	BytesIn, BytesOut      uint64 // AX.25 frame bytes (without FCS)
 	QueueFull, Stale       uint64 // outgoing frames dropped
 	Replaced, Repeats      uint64 // merged with a waiting frame; dropped as a repeat
 	AckTimeouts, BadKISSIn uint64
+	// AirOut and AirHeard estimate the airtime of the frames sent and of the
+	// frames the radio decoded: together the busy share of the channel.
+	AirOut, AirHeard time.Duration
 }
 
 // Port is the connection to one TNC. Create it with NewPort and start Run.
@@ -47,6 +51,8 @@ type Port struct {
 	retry *queued // a frame cut off by a lost connection; owned by Run
 
 	connects, disconnects, framesIn, framesOut atomic.Uint64
+	bytesIn, bytesOut                          atomic.Uint64
+	airOut, airHeard                           atomic.Int64 // nanoseconds
 	staleRetries, ackTimeouts, badKISS         atomic.Uint64
 	connectedAt                                atomic.Int64 // Unix nanoseconds; 0 while not connected
 }
@@ -110,6 +116,12 @@ func (p *Port) Name() string { return p.cfg.Dialer.String() }
 // Profile returns the TNC profile in use.
 func (p *Port) Profile() pacing.Profile { return p.cfg.Profile }
 
+// QueueLen returns how many frames wait for the TNC.
+func (p *Port) QueueLen() int { return p.queue.Len() }
+
+// QueueCap returns how many frames may wait.
+func (p *Port) QueueCap() int { return p.cfg.QueueLen }
+
 // Connected reports whether the TNC is connected now, and since when.
 func (p *Port) Connected() (bool, time.Time) {
 	ns := p.connectedAt.Load()
@@ -125,6 +137,8 @@ func (p *Port) Stats() Stats {
 	return Stats{
 		Connects: p.connects.Load(), Disconnects: p.disconnects.Load(),
 		FramesIn: p.framesIn.Load(), FramesOut: p.framesOut.Load(),
+		BytesIn: p.bytesIn.Load(), BytesOut: p.bytesOut.Load(),
+		AirOut: time.Duration(p.airOut.Load()), AirHeard: time.Duration(p.airHeard.Load()),
 		QueueFull: q.Full, Stale: q.Stale + p.staleRetries.Load(),
 		Replaced: q.Replaced, Repeats: q.Repeats,
 		AckTimeouts: p.ackTimeouts.Load(), BadKISSIn: p.badKISS.Load(),
@@ -231,7 +245,9 @@ func (p *Port) session(ctx context.Context, conn io.ReadWriteCloser) error {
 			}
 			return finish(err)
 		}
-		p.framesOut.Add(1)
+		p.bytesOut.Add(uint64(len(q.frame)))
+		p.airOut.Add(int64(airtimeOf(p.cfg.Profile, q.frame)))
+		p.framesOut.Add(1) // last: whoever sees the frame counted sees its bytes too
 	}
 }
 
@@ -253,8 +269,10 @@ func (p *Port) readLoop(r io.Reader, acks chan<- uint16, heard *heardLog, clk cl
 			}
 			if f.Command == kiss.CmdData {
 				// Any frame the radio decoded kept the channel busy until now.
-				now := clk.now()
-				heard.add(now-airtimeOf(p.cfg.Profile, f.Payload), now)
+				now, air := clk.now(), airtimeOf(p.cfg.Profile, f.Payload)
+				heard.add(now-air, now)
+				p.airHeard.Add(int64(air))
+				p.bytesIn.Add(uint64(len(f.Payload)))
 			}
 			if f.Command == kiss.CmdData && f.Port == p.cfg.KISSPort {
 				p.framesIn.Add(1)

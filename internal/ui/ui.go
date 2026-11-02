@@ -19,6 +19,10 @@ import (
 	"net/netip"
 	"strings"
 	"time"
+
+	"github.com/TechnikWeber/AXLink/internal/firewall"
+	"github.com/TechnikWeber/AXLink/internal/monitor"
+	"github.com/TechnikWeber/AXLink/internal/settings"
 )
 
 //go:embed assets
@@ -38,6 +42,26 @@ type Status struct {
 	Internet Internet  `json:"internet"`
 	Gateway  *Gateway  `json:"gateway,omitempty"` // nil unless this station is a gateway
 	Counters []Counter `json:"counters"`
+	Monitor  Monitor   `json:"monitor"`
+	Firewall Firewall  `json:"firewall"`
+	Welcome  string    `json:"welcome,omitempty"` // the own welcome page on the radio address
+	Settings string    `json:"settings_file"`     // where the settings are stored; "" for nowhere
+}
+
+// Monitor is the live view: one sample every Interval seconds.
+type Monitor struct {
+	Interval int              `json:"interval_s"`
+	QueueCap int              `json:"queue_cap"`
+	Samples  []monitor.Sample `json:"samples"`
+}
+
+// Firewall is what the firewall did.
+type Firewall struct {
+	Mode    string             `json:"mode"`
+	Ping    bool               `json:"ping"`
+	Passed  uint64             `json:"passed"`
+	Blocked uint64             `json:"blocked"`
+	Recent  []firewall.Blocked `json:"recent"`
 }
 
 // Adapter is the virtual network adapter.
@@ -62,6 +86,7 @@ type Station struct {
 	Tags     []string `json:"tags"`
 	Proxy    string   `json:"proxy,omitempty"` // its internet gateway, address:port
 	HeardAgo int64    `json:"heard_s"`
+	Page     string   `json:"page"` // its welcome page
 }
 
 // Internet is the client's way to the internet.
@@ -75,8 +100,9 @@ type Internet struct {
 
 // Gateway is this station's own gateway.
 type Gateway struct {
-	Listen string `json:"listen"`
-	LAN    bool   `json:"lan"`
+	Listen string   `json:"listen"`
+	LAN    bool     `json:"lan"`
+	Only   []string `json:"only,omitempty"`
 }
 
 // Counter is one number in the traffic section. Key names it ("c."+Key in
@@ -92,7 +118,13 @@ type Counter struct {
 type Config struct {
 	Status     func() Status
 	SetGateway func(mode, call string) error
-	Logger     *slog.Logger
+	// Settings returns the stored settings; Save checks, applies and stores
+	// new ones and returns what is now in effect.
+	Settings func() settings.Settings
+	Save     func(settings.Settings) (settings.Settings, error)
+	// Welcome serves the own welcome page for the preview under /welcome/.
+	Welcome http.Handler
+	Logger  *slog.Logger
 }
 
 // Server is the web interface.
@@ -165,6 +197,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, s.cfg.Status())
 	case r.URL.Path == "/api/gateway" && r.Method == http.MethodPost:
 		s.gateway(w, r)
+	case r.URL.Path == "/api/settings" && r.Method == http.MethodGet && s.cfg.Settings != nil:
+		h.Set("Cache-Control", "no-store")
+		writeJSON(w, http.StatusOK, s.cfg.Settings())
+	case r.URL.Path == "/api/settings" && r.Method == http.MethodPost && s.cfg.Save != nil:
+		s.save(w, r)
+	case strings.HasPrefix(r.URL.Path, "/welcome/") && r.Method == http.MethodGet && s.cfg.Welcome != nil:
+		http.StripPrefix("/welcome", s.cfg.Welcome).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/static/") && r.Method == http.MethodGet:
 		h.Set("Cache-Control", "no-cache")
 		s.static.ServeHTTP(w, r)
@@ -206,6 +245,23 @@ func (s *Server) gateway(w http.ResponseWriter, r *http.Request) {
 	}
 	s.cfg.Logger.Info("ui: internet gateway chosen", "mode", req.Mode, "call", req.Call)
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) save(w http.ResponseWriter, r *http.Request) {
+	var next settings.Settings
+	dec := json.NewDecoder(io.LimitReader(r.Body, 64<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&next); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "bad request: " + err.Error()})
+		return
+	}
+	saved, err := s.cfg.Save(next)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "settings": saved})
+		return
+	}
+	s.cfg.Logger.Info("ui: settings saved")
+	writeJSON(w, http.StatusOK, saved)
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {

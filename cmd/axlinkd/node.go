@@ -20,9 +20,12 @@ import (
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
+	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
+	"github.com/TechnikWeber/AXLink/internal/monitor"
 	"github.com/TechnikWeber/AXLink/internal/pacing"
+	"github.com/TechnikWeber/AXLink/internal/settings"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
 	"github.com/TechnikWeber/AXLink/internal/tun"
 	"github.com/TechnikWeber/AXLink/internal/txqueue"
@@ -62,14 +65,29 @@ type nodeConfig struct {
 	linkMTU        int
 	routes         []ipbridge.Route
 	allowBroadcast bool
-	tags           []string
+	tags           []string // given with -tags; INET is added while sharing
 	beacon         time.Duration
-	proxy          uint16 // port of the gateway's HTTP proxy; 0 for none
-	proxyLAN       bool
 	ui             string // address of the web interface; "" for none
 	localProxy     string // address of the local proxy to the chosen gateway; "" for none
-	gwMode         gateway.Mode
-	gwCall         string
+	configPath     string // the settings file; "" keeps the settings in memory
+	// overrides are the options that change stored settings (-proxy,
+	// -proxy-lan, -gateway, -open, -firewall); they are applied and stored at
+	// the start, like a change in the web interface.
+	overrides []func(*settings.Settings)
+}
+
+// ruleFlags collects -open PORT/PROTO[=CALL,CALL].
+type ruleFlags []firewall.Rule
+
+func (r *ruleFlags) String() string { return fmt.Sprint(*r) }
+
+func (r *ruleFlags) Set(v string) error {
+	rule, err := firewall.ParseRule(v)
+	if err != nil {
+		return err
+	}
+	*r = append(*r, rule)
+	return nil
 }
 
 func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
@@ -89,11 +107,15 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	allowBroadcast := fs.Bool("allow-broadcast", false, "let broadcast and multicast packets onto the radio")
 	tagList := fs.String("tags", "", "roles to announce, comma-separated: RELAY, INET, LINK, AUTO")
 	beacon := fs.Duration("beacon", discovery.DefaultEvery, "interval of the station beacon; 0 sends none, stations are still learned")
-	proxy := fs.Int("proxy", 0, "share this station's internet connection: an HTTP proxy on this port of the radio address (e.g. 8080); adds the tag INET")
-	proxyLAN := fs.Bool("proxy-lan", false, "let the proxy also reach private, loopback and link-local addresses (the own network)")
+	proxy := fs.Int("proxy", 0, "share this station's internet connection: an HTTP proxy on this port of the radio address (e.g. 8080; 0 stops sharing); adds the tag INET; stored")
+	proxyLAN := fs.Bool("proxy-lan", false, "let the gateway also reach private, loopback and link-local addresses (the own network); stored")
 	uiAddr := fs.String("ui", "127.0.0.1:7373", `address of the web interface; "" turns it off`)
 	localProxy := fs.String("local-proxy", "127.0.0.1:7374", `address of the local proxy to the chosen internet gateway; "" turns it off`)
-	gwChoice := fs.String("gateway", "off", "internet gateway at the start: off, auto or a station's callsign; the web interface can change it")
+	gwChoice := fs.String("gateway", "off", "internet gateway to use: off, auto or a station's callsign; stored, the web interface can change it")
+	configPath := fs.String("config", settings.DefaultPath(), `file for the settings; "" keeps them in memory only`)
+	var open ruleFlags
+	fs.Var(&open, "open", "PORT/tcp or PORT/udp, optionally =CALL,CALL: let radio stations reach this port of this computer (repeatable; stored)")
+	fwMode := fs.String("firewall", "", "what radio stations may send to this computer: protect (the default) or open; stored")
 	if err := fs.Parse(args); err != nil {
 		return nodeConfig{}, err
 	}
@@ -161,13 +183,6 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 		return cfg, fmt.Errorf("-tags: %w", err)
 	}
 	cfg.beacon = *beacon
-	if *proxy < 0 || *proxy > 65535 {
-		return cfg, fmt.Errorf("-proxy: %d is not a port", *proxy)
-	}
-	cfg.proxy, cfg.proxyLAN = uint16(*proxy), *proxyLAN
-	if cfg.proxy != 0 && !slices.Contains(cfg.tags, discovery.TagInet) {
-		cfg.tags = append(cfg.tags, discovery.TagInet)
-	}
 	if err := cfg.discovery().Check(); err != nil {
 		return cfg, fmt.Errorf("-beacon/-tags: %w", err)
 	}
@@ -176,24 +191,60 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 			return cfg, fmt.Errorf("%s: want host:port, e.g. 127.0.0.1:7373", name)
 		}
 	}
-	cfg.ui, cfg.localProxy = *uiAddr, *localProxy
-	switch strings.ToLower(*gwChoice) {
-	case "off", "":
-		cfg.gwMode = gateway.ModeOff
-	case "auto":
-		cfg.gwMode = gateway.ModeAuto
-	default:
-		c, err := ax25.ParseAddress(*gwChoice)
-		if err != nil {
-			return cfg, fmt.Errorf("-gateway: off, auto or a callsign: %w", err)
+	cfg.ui, cfg.localProxy, cfg.configPath = *uiAddr, *localProxy, *configPath
+
+	given := map[string]bool{}
+	fs.Visit(func(f *flag.Flag) { given[f.Name] = true })
+	if given["proxy"] {
+		if *proxy < 0 || *proxy > 65535 {
+			return cfg, fmt.Errorf("-proxy: %d is not a port", *proxy)
 		}
-		cfg.gwMode, cfg.gwCall = gateway.ModeStation, c.String()
+		port := uint16(*proxy)
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) {
+			s.Share.Enabled = port != 0
+			if port != 0 {
+				s.Share.Port = port
+			}
+		})
+	}
+	if given["proxy-lan"] {
+		lan := *proxyLAN
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) { s.Share.LAN = lan })
+	}
+	if given["gateway"] {
+		choice := settings.Gateway{Mode: strings.ToLower(*gwChoice)}
+		if choice.Mode != "off" && choice.Mode != "auto" {
+			c, err := ax25.ParseAddress(*gwChoice)
+			if err != nil {
+				return cfg, fmt.Errorf("-gateway: off, auto or a callsign: %w", err)
+			}
+			choice = settings.Gateway{Mode: "station", Call: c.String()}
+		}
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) { s.Gateway = choice })
+	}
+	if len(open) > 0 {
+		rules := []firewall.Rule(open)
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) {
+			for _, r := range rules {
+				s.Firewall.Rules = slices.DeleteFunc(s.Firewall.Rules, func(x firewall.Rule) bool {
+					return x.Proto == r.Proto && x.Port == r.Port
+				})
+				s.Firewall.Rules = append(s.Firewall.Rules, r)
+			}
+		})
+	}
+	if given["firewall"] {
+		mode := strings.ToLower(*fwMode)
+		if mode != firewall.ModeProtect && mode != firewall.ModeOpen {
+			return cfg, fmt.Errorf("-firewall: protect or open")
+		}
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) { s.Firewall.Mode = mode })
 	}
 	return cfg, nil
 }
 
 func (cfg nodeConfig) discovery() discovery.Config {
-	return discovery.Config{Call: cfg.call, Addr: cfg.tun.Address, Tags: cfg.tags, Every: cfg.beacon, Proxy: cfg.proxy}
+	return discovery.Config{Call: cfg.call, Addr: cfg.tun.Address, Tags: cfg.tags, Every: cfg.beacon}
 }
 
 func btoi(b bool) int {
@@ -215,6 +266,26 @@ func runNode(args []string, stderr io.Writer) int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	store, err := settings.Open(cfg.configPath)
+	if err != nil {
+		fmt.Fprintln(stderr, "run:", err)
+		return 1
+	}
+	if len(cfg.overrides) > 0 {
+		if _, err := store.Update(func(s *settings.Settings) {
+			for _, o := range cfg.overrides {
+				o(s)
+			}
+		}); err != nil {
+			fmt.Fprintln(stderr, "run:", err)
+			return 2
+		}
+	}
+	st := store.Get()
+	if store.Path() != "" {
+		log.Info("settings", "file", store.Path())
+	}
+
 	dev, err := tun.Open(cfg.tun)
 	if err != nil {
 		fmt.Fprintln(stderr, "run:", err)
@@ -226,6 +297,8 @@ func runNode(args []string, stderr io.Writer) int {
 			"adapter", dev.MTU(), "radio", cfg.linkMTU)
 	}
 
+	n := &node{cfg: cfg, ctx: ctx, log: log, started: time.Now(), dev: dev, store: store}
+	n.fw = firewall.New(st.Firewall, n.systemRules)
 	var bridge *ipbridge.Bridge
 	var disc *discovery.Service
 	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
@@ -241,31 +314,24 @@ func runNode(args []string, stderr io.Writer) int {
 	}
 	disc = discovery.New(dcfg)
 	bridge, err = ipbridge.New(ipbridge.Config{MyCall: cfg.call, Local: cfg.tun.Address,
-		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU, Learned: disc.Lookup},
-		port.SendMeta, dev.WritePacket)
+		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU, Learned: disc.Lookup,
+		Filter: n.fw}, port.SendMeta, dev.WritePacket)
 	if err != nil {
 		dev.Close()
 		fmt.Fprintln(stderr, "run:", err)
 		return 1
 	}
-
-	n := &node{cfg: cfg, started: time.Now(), dev: dev, port: port, bridge: bridge, disc: disc}
-	if cfg.proxy != 0 {
-		n.gwAddr = netip.AddrPortFrom(cfg.tun.Address.Addr(), cfg.proxy).String()
-		ln, err := net.Listen("tcp", n.gwAddr)
-		if err != nil {
-			dev.Close()
-			fmt.Fprintln(stderr, "run: gateway:", err)
-			return 1
-		}
-		n.gw = gateway.New(gateway.Config{AllowLAN: cfg.proxyLAN, Who: disc.Lookup, Logger: log})
-		go n.gw.Serve(ctx, ln)
-		log.Info("gateway: HTTP proxy for the radio network", "listen", n.gwAddr, "lan", cfg.proxyLAN)
-	}
+	n.port, n.bridge, n.disc = port, bridge, disc
+	n.gw = gateway.New(gateway.Config{AllowLAN: st.Share.LAN, Only: st.Share.Only, Who: disc.Lookup, Logger: log})
 	n.choice = gateway.NewChoice(n.candidates)
-	_ = n.choice.Set(cfg.gwMode, cfg.gwCall) // checked when the flags were read
-	startLocal(ctx, n, log)
-	startUI(ctx, n, log)
+	_ = n.choice.Set(gateway.Mode(st.Gateway.Mode), st.Gateway.Call) // checked when the settings were read
+	n.applyShare(st.Share)
+	n.applyWelcome(st.Welcome)
+	log.Info("firewall", "mode", st.Firewall.Mode, "ping", st.Firewall.Ping, "rules", len(st.Firewall.Rules))
+	n.mon = monitor.New(2*time.Second, 300, n.totals)
+	go n.mon.Run(ctx)
+	startLocal(n)
+	startUI(n)
 
 	portDone := make(chan error, 1)
 	go func() { portDone <- port.Run(ctx) }()
@@ -285,8 +351,12 @@ func runNode(args []string, stderr io.Writer) int {
 
 	logStats := func() {
 		args := []any{"port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
-			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary()}
-		if n.gw != nil {
+			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary(),
+			"firewall", fmt.Sprintf("%+v", n.fw.Stats())}
+		n.mu.Lock()
+		sharing := n.gwAddr != ""
+		n.mu.Unlock()
+		if sharing {
 			args = append(args, "gateway", fmt.Sprintf("%+v", n.gw.Stats()))
 		}
 		if n.local != nil {

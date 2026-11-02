@@ -39,6 +39,16 @@ type Config struct {
 	// discovery); nil for none. A configured route for exactly that address
 	// comes first, a learned address before configured shorter prefixes.
 	Learned func(addr netip.Addr) (ax25.Address, bool)
+	// Filter decides about packets from the radio (the firewall); nil lets
+	// every packet for the own address through.
+	Filter Filter
+}
+
+// Filter decides about packets from the radio and learns from the station's
+// own packets which answers to expect.
+type Filter interface {
+	Outbound(pkt []byte)
+	Inbound(pkt []byte, from ax25.Address) bool
 }
 
 // Stats counts packets.
@@ -49,6 +59,7 @@ type Stats struct {
 	NotForUs, BadPacket, OtherPID uint64 // dropped on the way in
 	DeliverErrors                 uint64
 	Clamped, Fragmented, TooBig   uint64 // MSS lowered; packets split; dropped with DF set
+	WrongAddress, Blocked         uint64 // from the radio: not for the own address; refused by the filter
 }
 
 // Bridge moves packets in both directions.
@@ -60,6 +71,7 @@ type Bridge struct {
 	toRadio, fromRadio, noRoute, filtered, notIPv4, queueFull atomic.Uint64
 	notForUs, badPacket, otherPID, deliverErrors              atomic.Uint64
 	clamped, fragmented, tooBig                               atomic.Uint64
+	wrongAddress, blocked                                     atomic.Uint64
 }
 
 // New returns a bridge. send hands an AX.25 frame and what the transmit
@@ -95,6 +107,7 @@ func (b *Bridge) Stats() Stats {
 		NotForUs:  b.notForUs.Load(), BadPacket: b.badPacket.Load(), OtherPID: b.otherPID.Load(),
 		DeliverErrors: b.deliverErrors.Load(),
 		Clamped:       b.clamped.Load(), Fragmented: b.fragmented.Load(), TooBig: b.tooBig.Load(),
+		WrongAddress: b.wrongAddress.Load(), Blocked: b.blocked.Load(),
 	}
 }
 
@@ -122,6 +135,9 @@ func (b *Bridge) FromAdapter(pkt []byte) {
 	pkt = pkt[:h.totalLen]
 	if clampMSS(pkt, b.cfg.LinkMTU-40) {
 		b.clamped.Add(1)
+	}
+	if b.cfg.Filter != nil {
+		b.cfg.Filter.Outbound(pkt)
 	}
 	packets := [][]byte{pkt}
 	if len(pkt) > b.cfg.LinkMTU {
@@ -169,6 +185,17 @@ func (b *Bridge) FromRadio(frame []byte) {
 	h, err := parseIPv4(f.Info, true)
 	if err != nil {
 		b.badPacket.Add(1)
+		return
+	}
+	// Only packets for the own address reach the system: a station must not
+	// use this computer to get into other networks, even when the system
+	// forwards packets (Docker, for example, switches that on).
+	if h.dst != b.cfg.Local.Addr() && !(b.cfg.AllowBroadcast && b.isBroadcast(h.dst)) {
+		b.wrongAddress.Add(1)
+		return
+	}
+	if b.cfg.Filter != nil && !b.cfg.Filter.Inbound(f.Info[:h.totalLen], f.Src) {
+		b.blocked.Add(1)
 		return
 	}
 	pkt := append([]byte(nil), f.Info[:h.totalLen]...)

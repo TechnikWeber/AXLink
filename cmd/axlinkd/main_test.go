@@ -15,6 +15,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
+	"github.com/TechnikWeber/AXLink/internal/settings"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
 	"github.com/TechnikWeber/AXLink/internal/ui"
 )
@@ -94,16 +95,33 @@ func TestRunFlags(t *testing.T) {
 	if err != nil || strings.Join(gw.tags, ",") != "INET,AUTO" || gw.beacon != 0 {
 		t.Fatalf("gateway flags: %+v %v", gw, err)
 	}
-	proxy, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-tags", "AUTO", "-proxy", "8080"}, &errs)
-	if err != nil || proxy.proxy != 8080 || strings.Join(proxy.tags, ",") != "AUTO,INET" || proxy.proxyLAN {
-		t.Fatalf("proxy flags: %+v %v", proxy, err)
+	if cfg.ui != "127.0.0.1:7373" || cfg.localProxy != "127.0.0.1:7374" || len(cfg.overrides) != 0 {
+		t.Fatalf("web defaults: %q %q, %d overrides", cfg.ui, cfg.localProxy, len(cfg.overrides))
 	}
-	if cfg.ui != "127.0.0.1:7373" || cfg.localProxy != "127.0.0.1:7374" || cfg.gwMode != gateway.ModeOff {
-		t.Fatalf("web defaults: %q %q %q", cfg.ui, cfg.localProxy, cfg.gwMode)
+	// Options that change stored settings become overrides of those settings.
+	opts, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "3128", "-proxy-lan",
+		"-gateway", "testb-1", "-open", "8080/tcp", "-open", "22/tcp=TESTB", "-firewall", "open", "-config", "", "-ui", ""}, &errs)
+	if err != nil {
+		t.Fatal(err)
 	}
-	pick, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-gateway", "testb-1", "-ui", ""}, &errs)
-	if err != nil || pick.gwMode != gateway.ModeStation || pick.gwCall != "TESTB-1" || pick.ui != "" {
-		t.Fatalf("gateway choice: %+v %v", pick, err)
+	s := settings.Defaults()
+	for _, o := range opts.overrides {
+		o(&s)
+	}
+	if !s.Share.Enabled || s.Share.Port != 3128 || !s.Share.LAN || s.Gateway.Mode != "station" || s.Gateway.Call != "TESTB-1" ||
+		len(s.Firewall.Rules) != 2 || s.Firewall.Rules[1].Calls[0] != "TESTB" || s.Firewall.Mode != "open" ||
+		opts.configPath != "" || opts.ui != "" {
+		t.Fatalf("overrides gave %+v", s)
+	}
+	if err := s.Check(); err != nil {
+		t.Fatal(err)
+	}
+	stop, _ := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "0"}, &errs)
+	s = settings.Defaults()
+	s.Share.Enabled = true
+	stop.overrides[0](&s)
+	if s.Share.Enabled {
+		t.Fatal("-proxy 0 must stop sharing")
 	}
 	big, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-adapter-mtu", "576"}, &errs)
 	if err != nil || big.linkMTU != 256 || big.tun.MTU != 576 {
@@ -128,6 +146,8 @@ func TestRunFlags(t *testing.T) {
 		"short beacon":     {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-beacon", "10s"},
 		"no port":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "70000"},
 		"bad gateway":      {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-gateway", "not a call"},
+		"bad open":         {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-open", "22"},
+		"bad firewall":     {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-firewall", "sometimes"},
 		"bad ui address":   {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-ui", "7373"},
 	} {
 		if _, err := parseNodeFlags(args, &errs); err == nil {

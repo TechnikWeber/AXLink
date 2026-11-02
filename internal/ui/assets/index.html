@@ -12,6 +12,10 @@
   <span class="brand">AXLink</span>
   <span class="call">{{.Call}}</span>
   <span class="tnc"><span id="tnc-dot" class="dot"></span><span id="tnc-text"></span></span>
+  <nav class="tabs">
+    <a href="#overview" id="tab-overview">{{index .T "nav.overview"}}</a>
+    <a href="#settings" id="tab-settings">{{index .T "nav.settings"}}</a>
+  </nav>
   <span class="spacer"></span>
   <nav class="lang" aria-label="{{index .T "lang.label"}}">
     <a href="?lang=en"{{if eq .Lang "en"}} aria-current="true"{{end}}>English</a>
@@ -19,7 +23,26 @@
   </nav>
 </header>
 <p id="offline" class="notice" hidden>{{index .T "offline"}}</p>
-<main>
+
+<main id="view-overview">
+  <section class="card wide">
+    <h2>{{index .T "monitor.title"}}</h2>
+    <div class="monitor">
+      <div class="gauges">
+        <figure><div id="gauge-load"></div><figcaption><strong>{{index .T "monitor.load"}}</strong><span id="load-sub"></span></figcaption></figure>
+        <figure><div id="gauge-queue"></div><figcaption><strong>{{index .T "monitor.queue"}}</strong><span id="queue-sub"></span></figcaption></figure>
+      </div>
+      <div class="chart">
+        <div class="chart-head">
+          <strong>{{index .T "monitor.rate"}}</strong>
+          <span class="legend"><span class="key in"></span>{{index .T "monitor.in"}} <span class="key out"></span>{{index .T "monitor.out"}}</span>
+        </div>
+        <div id="chart"></div>
+        <div id="rate-now" class="small muted"></div>
+      </div>
+    </div>
+    <p class="small muted monitor-note">{{index .T "monitor.est"}}</p>
+  </section>
   <section class="card">
     <h2>{{index .T "station.title"}}</h2>
     <dl id="station"></dl>
@@ -34,7 +57,7 @@
       <table id="stations">
         <thead><tr>
           <th>{{index .T "th.call"}}</th><th>{{index .T "th.ip"}}</th><th>{{index .T "th.roles"}}</th>
-          <th>{{index .T "th.gateway"}}</th><th>{{index .T "th.heard"}}</th><th></th>
+          <th>{{index .T "th.gateway"}}</th><th>{{index .T "th.heard"}}</th><th>{{index .T "th.page"}}</th><th></th>
         </tr></thead>
         <tbody></tbody>
       </table>
@@ -46,10 +69,70 @@
     <dl id="gateway"></dl>
   </section>
   <section class="card wide">
+    <h2>{{index .T "fw.title"}}</h2>
+    <div id="firewall"></div>
+  </section>
+  <section class="card wide">
     <h2>{{index .T "traffic.title"}}</h2>
     <div id="counters"></div>
   </section>
 </main>
+
+<main id="view-settings" hidden>
+  <p id="settings-file" class="muted wide"></p>
+  <section class="card">
+    <h2>{{index .T "share.title"}}</h2>
+    <form id="form-share" class="form">
+      <label class="check"><input type="checkbox" id="share-enabled"> {{index .T "share.enabled"}}</label>
+      <label>{{index .T "share.port"}} <input type="number" id="share-port" min="1" max="65535" class="short"></label>
+      <label class="check"><input type="checkbox" id="share-lan"> {{index .T "share.lan"}}</label>
+      <label>{{index .T "share.only"}} <input type="text" id="share-only" class="mono" spellcheck="false"></label>
+      <p class="small muted">{{index .T "share.hint"}}</p>
+      <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
+    </form>
+  </section>
+  <section class="card">
+    <h2>{{index .T "wel.title"}}</h2>
+    <form id="form-welcome" class="form">
+      <label class="check"><input type="checkbox" id="wel-enabled"> {{index .T "wel.enabled"}}</label>
+      <div class="row">
+        <label>{{index .T "wel.name"}} <input type="text" id="wel-name" maxlength="60"></label>
+        <label>{{index .T "wel.port"}} <input type="number" id="wel-port" min="1" max="65535" class="short"></label>
+      </div>
+      <div class="row">
+        <label>{{index .T "wel.locator"}} <input type="text" id="wel-locator" maxlength="10" class="mono"></label>
+        <label>{{index .T "wel.qth"}} <input type="text" id="wel-qth" maxlength="60"></label>
+      </div>
+      <label>{{index .T "wel.equipment"}} <input type="text" id="wel-equipment" maxlength="200"></label>
+      <label>{{index .T "wel.text"}} <textarea id="wel-text" rows="5" maxlength="1000"></textarea></label>
+      <p class="small muted">{{index .T "wel.hint"}} <a href="/welcome/" target="_blank" rel="noopener">{{index .T "wel.view"}}</a></p>
+      <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
+    </form>
+  </section>
+  <section class="card wide">
+    <h2>{{index .T "fws.title"}}</h2>
+    <form id="form-firewall" class="form">
+      <div class="row">
+        <label class="fixed">{{index .T "fws.mode"}}
+          <select id="fw-mode"><option value="protect">{{index .T "fws.protect"}}</option><option value="open">{{index .T "fws.open"}}</option></select>
+        </label>
+        <label class="check"><input type="checkbox" id="fw-ping"> {{index .T "fws.ping"}}</label>
+      </div>
+      <h3>{{index .T "fws.rules"}}</h3>
+      <div class="scroll">
+        <table id="fw-rules">
+          <thead><tr><th>{{index .T "fws.proto"}}</th><th>{{index .T "fws.port"}}</th><th>{{index .T "fws.calls"}}</th><th>{{index .T "fws.note"}}</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="fw-none" class="muted small" hidden>{{index .T "fws.none"}}</p>
+      <p><button type="button" id="fw-add">{{index .T "fws.add"}}</button></p>
+      <p class="small muted">{{index .T "fws.hint"}}</p>
+      <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
+    </form>
+  </section>
+</main>
+
 <footer>AXLink {{.Version}} · {{index .T "footer.operator"}}</footer>
 <script id="texts" type="application/json">{{.T}}</script>
 <script src="/static/app.js"></script>

@@ -22,6 +22,10 @@ type LocalConfig struct {
 	// Upstream returns the chosen gateway's proxy and its callsign; ok is
 	// false while none is chosen or the chosen one is not heard.
 	Upstream func() (proxy netip.AddrPort, call string, ok bool)
+	// Direct resolves hosts of the radio network, which the local proxy
+	// reaches itself, without a gateway: an address in the radio network or
+	// "<callsign>.axl". nil sends everything to the gateway.
+	Direct func(host string) (netip.Addr, bool)
 	// Hint tells the user where to choose a gateway, e.g. the web UI's URL.
 	Hint   string
 	Idle   time.Duration // a tunnel silent this long is closed; 0 means 10 min
@@ -31,7 +35,8 @@ type LocalConfig struct {
 // LocalStats counts what the local proxy did.
 type LocalStats struct {
 	Requests, Tunnels, NoGateway, Failed uint64
-	BytesIn, BytesOut                    uint64 // from the gateway; to the gateway
+	Direct                               uint64 // requests to radio stations, without a gateway
+	BytesIn, BytesOut                    uint64 // from the radio; to the radio
 }
 
 // Local is the client side of the internet gateway: a proxy on the own
@@ -40,10 +45,11 @@ type LocalStats struct {
 // gateway is chosen in the web UI. Connections to the gateway are reused,
 // which saves the TCP handshake over the radio.
 type Local struct {
-	cfg       LocalConfig
-	transport *http.Transport
+	cfg        LocalConfig
+	viaGateway *http.Transport
+	toStations *http.Transport
 
-	requests, tunnels, noGateway, failed, bytesIn, bytesOut atomic.Uint64
+	requests, tunnels, noGateway, failed, direct, bytesIn, bytesOut atomic.Uint64
 }
 
 type upstreamKey struct{}
@@ -57,12 +63,20 @@ func NewLocal(cfg LocalConfig) *Local {
 		cfg.Logger = slog.Default()
 	}
 	l := &Local{cfg: cfg}
-	l.transport = &http.Transport{
+	l.viaGateway = &http.Transport{
 		Proxy: func(r *http.Request) (*url.URL, error) {
 			ap, _ := r.Context().Value(upstreamKey{}).(netip.AddrPort)
 			return &url.URL{Scheme: "http", Host: ap.String()}, nil
 		},
 		DialContext:           (&net.Dialer{Timeout: time.Minute}).DialContext, // a SYN over the radio may need repeats
+		DisableCompression:    true,
+		ResponseHeaderTimeout: 3 * time.Minute,
+		IdleConnTimeout:       2 * time.Minute,
+		MaxIdleConnsPerHost:   2,
+	}
+	l.toStations = &http.Transport{
+		Proxy:                 nil,
+		DialContext:           (&net.Dialer{Timeout: time.Minute}).DialContext,
 		DisableCompression:    true,
 		ResponseHeaderTimeout: 3 * time.Minute,
 		IdleConnTimeout:       2 * time.Minute,
@@ -74,7 +88,7 @@ func NewLocal(cfg LocalConfig) *Local {
 // Stats returns a snapshot of the counters.
 func (l *Local) Stats() LocalStats {
 	return LocalStats{Requests: l.requests.Load(), Tunnels: l.tunnels.Load(), NoGateway: l.noGateway.Load(),
-		Failed: l.failed.Load(), BytesIn: l.bytesIn.Load(), BytesOut: l.bytesOut.Load()}
+		Failed: l.failed.Load(), Direct: l.direct.Load(), BytesIn: l.bytesIn.Load(), BytesOut: l.bytesOut.Load()}
 }
 
 // Serve answers proxy requests on ln until ctx ends.
@@ -84,7 +98,8 @@ func (l *Local) Serve(ctx context.Context, ln net.Listener) error {
 	go func() {
 		<-ctx.Done()
 		srv.Close()
-		l.transport.CloseIdleConnections()
+		l.viaGateway.CloseIdleConnections()
+		l.toStations.CloseIdleConnections()
 	}()
 	err := srv.Serve(ln)
 	if ctx.Err() != nil {
@@ -98,6 +113,10 @@ func (l *Local) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodConnect && (!r.URL.IsAbs() || r.URL.Host == "") {
 		http.Error(w, "AXLink: this is the local proxy to the internet gateway. Set it as the HTTP "+
 			"and HTTPS proxy of your browser or program. "+l.cfg.Hint, http.StatusBadRequest)
+		return
+	}
+	if a, ok := l.radioStation(r); ok {
+		l.toStation(w, r, a)
 		return
 	}
 	up, call, ok := l.cfg.Upstream()
@@ -114,7 +133,7 @@ func (l *Local) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	out.RequestURI = ""
 	removeHopHeaders(out.Header)
 	countBody(out, &l.bytesOut)
-	resp, err := l.transport.RoundTrip(out)
+	resp, err := l.viaGateway.RoundTrip(out)
 	if err != nil {
 		l.failed.Add(1)
 		http.Error(w, fmt.Sprintf("AXLink: gateway %s (%s): %v", call, up, err), http.StatusBadGateway)
@@ -127,6 +146,58 @@ func (l *Local) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(resp.StatusCode)
 	l.requests.Add(1)
+	_, _ = io.Copy(w, &counter{r: resp.Body, total: &l.bytesIn})
+}
+
+// radioStation reports whether the request goes to a station of the radio
+// network, and its address.
+func (l *Local) radioStation(r *http.Request) (netip.Addr, bool) {
+	if l.cfg.Direct == nil {
+		return netip.Addr{}, false
+	}
+	host := r.URL.Hostname()
+	if r.Method == http.MethodConnect {
+		host, _, _ = net.SplitHostPort(r.Host)
+	}
+	return l.cfg.Direct(host)
+}
+
+// toStation serves a request to a radio station without a gateway.
+func (l *Local) toStation(w http.ResponseWriter, r *http.Request, a netip.Addr) {
+	l.direct.Add(1)
+	if r.Method == http.MethodConnect {
+		_, port, _ := net.SplitHostPort(r.Host)
+		uc, err := (&net.Dialer{Timeout: time.Minute}).DialContext(r.Context(), "tcp", net.JoinHostPort(a.String(), port))
+		if err != nil {
+			l.failed.Add(1)
+			http.Error(w, fmt.Sprintf("AXLink: station %s: %v", a, err), http.StatusBadGateway)
+			return
+		}
+		defer uc.Close()
+		l.splice(w, uc, uc)
+		return
+	}
+	out := r.Clone(r.Context())
+	out.RequestURI = ""
+	port := out.URL.Port()
+	if port == "" {
+		port = "80"
+	}
+	out.URL.Host = net.JoinHostPort(a.String(), port)
+	removeHopHeaders(out.Header)
+	countBody(out, &l.bytesOut)
+	resp, err := l.toStations.RoundTrip(out)
+	if err != nil {
+		l.failed.Add(1)
+		http.Error(w, fmt.Sprintf("AXLink: station %s: %v", a, err), http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+	removeHopHeaders(resp.Header)
+	for k, v := range resp.Header {
+		w.Header()[k] = v
+	}
+	w.WriteHeader(resp.StatusCode)
 	_, _ = io.Copy(w, &counter{r: resp.Body, total: &l.bytesIn})
 }
 
@@ -163,6 +234,13 @@ func (l *Local) tunnel(w http.ResponseWriter, r *http.Request, up netip.AddrPort
 		io.Copy(w, resp.Body)
 		return
 	}
+	_ = uc.SetReadDeadline(time.Time{})
+	l.splice(w, uc, ur)
+}
+
+// splice answers the program's CONNECT and joins its connection to uc; ur
+// reads from uc and may hold bytes already received.
+func (l *Local) splice(w http.ResponseWriter, uc net.Conn, ur io.Reader) {
 	conn, rw, err := http.NewResponseController(w).Hijack()
 	if err != nil {
 		l.failed.Add(1)
@@ -170,7 +248,6 @@ func (l *Local) tunnel(w http.ResponseWriter, r *http.Request, up netip.AddrPort
 	}
 	defer conn.Close()
 	_ = conn.SetDeadline(time.Time{})
-	_ = uc.SetReadDeadline(time.Time{})
 	if _, err := io.WriteString(conn, "HTTP/1.1 200 Connection established\r\n\r\n"); err != nil {
 		return
 	}

@@ -19,8 +19,13 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 - [ ] Gateway, next steps: its rules in the beacon (services, rate, contact); a fair share per
       callsign; pages shrunk for 1200 bit/s; a transparent gateway in userspace (netstack) for
       other protocols.
-- [ ] Web interface, next steps: settings that survive a restart (beacon, tags, gateway
-      choice), the chat, a page that explains the proxy setting per browser.
+- [ ] Web interface, next steps: the chat; a page that explains the proxy setting per browser;
+      beacon interval and tags in the settings.
+- [ ] Forwarding to the home network on purpose: publish a service of a LAN host (e.g. a web
+      server on 192.168.1.10:80) on a port of the own radio address, with the same callsign
+      rules as the firewall (port forwarding in userspace).
+- [ ] Choosing among several gateways by link quality and load (needs RSSI from the TNC and
+      load in the beacon); give up a gateway that stops answering before its beacon expires.
 - [ ] Channel access without ACKMODE with three or more stations: two stations waiting for the
       same busy channel both send in the first clear slot (PERSIST 255); a random host backoff
       after a heard frame.

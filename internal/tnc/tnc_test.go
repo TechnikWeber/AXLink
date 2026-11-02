@@ -323,7 +323,7 @@ func TestPortDropsARepeatThatComesTooSoon(t *testing.T) {
 	for p.Stats().FramesOut < 2 && time.Now().Before(deadline) {
 		time.Sleep(5 * time.Millisecond)
 	}
-	if s := p.Stats(); s.Repeats != 1 || s.FramesOut != 2 {
+	if s := p.Stats(); s.Repeats != 1 || s.FramesOut != 2 || s.BytesOut != uint64(len(syn)+len(other)) || s.AirOut < 4*time.Second {
 		t.Fatalf("stats %+v", s)
 	}
 }

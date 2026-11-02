@@ -6,8 +6,9 @@
 # they find each other by their beacons. Then the lab checks ping, UDP and HTTP
 # from A to B with real kernel IP stacks, and the internet through B as a
 # gateway: B's HTTP proxy reaches a web server on 192.0.2.80, an address A has
-# no route to. Last, A chooses B in its web interface and fetches the same
-# file through its local proxy. No radio hardware.
+# no route to. Then A chooses B in its web interface and fetches the same
+# file through its local proxy, opens B's welcome page over the radio, and
+# finds B's firewall blocking a port B has not opened. No radio hardware.
 #
 # AXLINK_LAB_SCREENSHOTS=DIR saves screenshots of both web interfaces there
 # (A as a client, B as a gateway; English and German), if Google Chrome is
@@ -62,6 +63,18 @@ NONCE="$(python3 -I -c 'import secrets; print(secrets.token_hex(8))')"
 mkdir -p "$WORK/www" "$WORK/inet"
 echo "AXLink $NONCE" > "$WORK/www/hello.txt"
 echo "from the internet $NONCE" > "$WORK/inet/inet.txt"
+# Each station keeps its settings in the lab's short socket folder (it shows in
+# the screenshots), never in the user's own settings.
+cat > "$SOCK/settings-a.json" <<'JSON'
+{"welcome": {"enabled": true, "port": 80, "name": "Lab station A", "qth": "a network namespace",
+ "equipment": "the model of the F4HWN KISS app",
+ "text": "A client of the AXLink lab. It reaches the internet through TESTB-1."}}
+JSON
+cat > "$SOCK/settings-b.json" <<'JSON'
+{"welcome": {"enabled": true, "port": 80, "name": "Lab station B", "qth": "a network namespace",
+ "equipment": "the model of the F4HWN KISS app",
+ "text": "The gateway of the AXLink lab. It shares a stand-in internet (192.0.2.80) with the radio network.\n\nEvery station has a page like this one on its radio address."}}
+JSON
 # 2 KB in 32 lines: more than ten TCP segments at the radio's MSS of 216.
 python3 -I -c 'import secrets, sys
 for i in range(32): print(f"{i:02d} {sys.argv[1]} " + secrets.token_hex(22))' "$NONCE" > "$WORK/www/big.txt"
@@ -99,24 +112,35 @@ cat > "$WORK/node.sh" <<'SH'
 set -eu
 WORK=$1; NAME=$2; CALL=$3; IP=$4; PEER_IP=$5; PEER_CALL=$6; PROFILE=$7; SOCK=$8; ADAPTER_MTU=${9:-}
 ip link set lo up
-# shoot ROLE HEIGHT: screenshots of this station's web interface.
+# shoot NAME PAGE HEIGHT: screenshots of a page in English and German; PAGE
+# is a path of this station's web interface, or a full URL.
 shoot() {
+    [ -n "${AXLINK_LAB_SCREENSHOTS:-}" ] && command -v google-chrome > /dev/null || return 0
     for lang in en de; do
+        case "$2" in
+            http*) url=$2 ;;
+            *) url="http://127.0.0.1:7373/?lang=$lang${2#/}" ;;
+        esac
         # Chrome puts a socket into TMPDIR: the lab's short socket directory fits.
-        TMPDIR="$SOCK" google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars --no-first-run \
-            --user-data-dir="$WORK/chrome-$NAME" --window-size=1280,"$2" --virtual-time-budget=4000 \
-            --screenshot="$AXLINK_LAB_SCREENSHOTS/ui-$1-$lang.png" "http://127.0.0.1:7373/?lang=$lang" \
-            > "$WORK/chrome-$NAME-$lang.log" 2>&1 || true
+        # On Linux it takes the language from LANGUAGE/LANG, not from --lang.
+        locale=en_US.UTF-8
+        [ "$lang" = de ] && locale=de_DE.UTF-8
+        TMPDIR="$SOCK" LANGUAGE="$lang" LANG="$locale" google-chrome --headless=new --no-sandbox --disable-gpu \
+            --hide-scrollbars --no-first-run --user-data-dir="$WORK/chrome-$NAME-$lang" --lang="$lang" \
+            --window-size=1280,"$3" --virtual-time-budget=6000 \
+            --screenshot="$AXLINK_LAB_SCREENSHOTS/$1-$lang.png" "$url" > "$WORK/chrome-$NAME-$1-$lang.log" 2>&1 || true
     done
 }
 started=$(date +%s%N)
 GATEWAY=
 if [ "$NAME" = b ]; then
-    GATEWAY="-proxy 3128"                       # B shares its "internet"
+    # B shares its "internet" and opens the ports of the lab's test services.
+    GATEWAY="-proxy 3128 -open 8080/tcp -open 7070/udp"
     ip addr add 192.0.2.80/32 dev lo            # TEST-NET-1: the internet stand-in
 fi
 "$WORK/axlinkd" run -call "$CALL" -kiss-unix "$SOCK/$NAME.sock" -profile "$PROFILE" \
-    -ip "$IP/24" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} $GATEWAY 2> "$WORK/node-$NAME.log" &
+    -ip "$IP/24" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} $GATEWAY -config "$SOCK/settings-$NAME.json" \
+    2> "$WORK/node-$NAME.log" &
 NODE=$!
 for _ in $(seq 100); do ip -4 addr show axl0 2>/dev/null | grep -q "$IP" && break; sleep 0.1; done
 ip -4 addr show axl0 | grep -q "$IP" || { echo "axl0 did not come up" >&2; kill $NODE; exit 1; }
@@ -127,9 +151,11 @@ if [ "$NAME" = b ]; then
     sleep 1
     touch "$WORK/b.ready"
     while [ ! -e "$WORK/stop" ]; do
-        if [ -e "$WORK/b.shoot" ]; then         # A has finished and asks for B's screenshots
+        if [ -e "$WORK/b.shoot" ]; then         # A has finished: B's status and screenshots
             rm -f "$WORK/b.shoot"
-            shoot gateway 1340
+            curl -s --max-time 10 http://127.0.0.1:7373/api/status > "$WORK/b-status.json" 2> /dev/null || true
+            shoot gateway-overview / 1700
+            shoot gateway-settings "#settings" 1250
             touch "$WORK/b.shot"
         fi
         sleep 0.2
@@ -192,11 +218,20 @@ start=$(date +%s%N)
 curl -sS --max-time 180 -p -x http://127.0.0.1:7374 "http://192.0.2.80:8081/inet.txt" > "$WORK/localc.out" 2> "$WORK/localc.err" || status=1
 echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/localc.ms"
 curl -s --max-time 10 "$ui/api/status" > "$WORK/ui-after.json" 2> /dev/null || status=1
-if [ -n "${AXLINK_LAB_SCREENSHOTS:-}" ] && command -v google-chrome > /dev/null; then
-    shoot client 1180
-    touch "$WORK/b.shoot"
-    for _ in $(seq 900); do [ -e "$WORK/b.shot" ] && break; sleep 0.1; done
+# B's welcome page over the radio: directly, and by name through the local proxy.
+curl -s --compressed --max-time 120 "http://$PEER_IP/" > "$WORK/welcome.out" 2> /dev/null || status=1
+curl -s --compressed --max-time 120 -x http://127.0.0.1:7374 "http://testb-1.axl/" > "$WORK/welcome-name.out" 2> /dev/null || status=1
+# B's firewall: a port B has not opened gets no answer.
+if curl -s --max-time 8 -o /dev/null "http://$PEER_IP:9999/" 2> /dev/null; then
+    echo open > "$WORK/fw.result"
+else
+    echo blocked > "$WORK/fw.result"
 fi
+shoot client-overview / 1560
+shoot client-settings "#settings" 1250
+shoot welcome "http://$PEER_IP/" 640
+touch "$WORK/b.shoot"
+for _ in $(seq 1200); do [ -e "$WORK/b.shot" ] && break; sleep 0.1; done
 kill $NODE 2>/dev/null || true
 wait $NODE 2>/dev/null || true
 exit $status
@@ -264,6 +299,30 @@ then
 else
     echo "web UI: FAILED (choose: $(cat "$WORK/ui-choose.code" 2>/dev/null) local: $(cat "$WORK/local.err" 2>/dev/null)" \
         "CONNECT: $(cat "$WORK/localc.err" 2>/dev/null))"
+    status=1
+fi
+if python3 -I - "$WORK" <<'PY'
+import json, os, sys
+work = sys.argv[1]
+def read(name):
+    try:
+        with open(os.path.join(work, name)) as f:
+            return f.read()
+    except OSError:
+        return ""
+pages = read("welcome.out"), read("welcome-name.out")
+b = json.loads(read("b-status.json") or "{}")
+fw = b.get("firewall", {})
+blocked = [r for r in fw.get("recent") or [] if r.get("call") == "TESTA-1" and r.get("port") == 9999]
+ok = (all("TESTB-1" in p and "Lab station B" in p for p in pages) and read("fw.result").strip() == "blocked"
+      and fw.get("mode") == "protect" and blocked)
+raise SystemExit(0 if ok else 1)
+PY
+then
+    echo "welcome: ok (B's page over the radio, also as testb-1.axl); firewall: ok (TESTA-1 → tcp 9999 blocked)"
+else
+    echo "welcome/firewall: FAILED (page $(wc -c < "$WORK/welcome.out" 2>/dev/null) bytes, by name" \
+        "$(wc -c < "$WORK/welcome-name.out" 2>/dev/null) bytes, port 9999: $(cat "$WORK/fw.result" 2>/dev/null))"
     status=1
 fi
 if [[ -n "$ADAPTER_MTU" ]]; then

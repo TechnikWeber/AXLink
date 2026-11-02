@@ -14,12 +14,24 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/TechnikWeber/AXLink/internal/ax25"
 )
 
 // startLocal runs a local proxy in front of the gateway at gw ("" for none).
+// "testb-1.axl" and 127.0.0.2 count as radio stations reached directly.
 func startLocal(t *testing.T, gw string) (*Local, string) {
 	t.Helper()
 	l := NewLocal(LocalConfig{
+		Direct: func(host string) (netip.Addr, bool) {
+			switch host {
+			case "testb-1.axl":
+				return netip.MustParseAddr("127.0.0.1"), true
+			case "127.0.0.2":
+				return netip.MustParseAddr("127.0.0.1"), true
+			}
+			return netip.Addr{}, false
+		},
 		Upstream: func() (netip.AddrPort, string, bool) {
 			if gw == "" {
 				return netip.AddrPort{}, "", false
@@ -168,5 +180,80 @@ func TestChoice(t *testing.T) {
 	}
 	if c.Set(ModeStation, "") == nil || c.Set("sometimes", "") == nil {
 		t.Fatal("invalid choices accepted")
+	}
+}
+
+func TestLocalReachesRadioStationsWithoutAGateway(t *testing.T) {
+	station := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "welcome from "+r.Host)
+	}))
+	defer station.Close()
+	_, port, _ := net.SplitHostPort(station.Listener.Addr().String())
+	l, local := startLocal(t, "") // no gateway chosen: radio stations work anyway
+	resp, err := viaProxy(local).Get("http://testb-1.axl:" + port + "/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != 200 || string(body) != "welcome from testb-1.axl:"+port {
+		t.Fatalf("%d %q", resp.StatusCode, body)
+	}
+	if s := l.Stats(); s.Direct != 1 || s.NoGateway != 0 {
+		t.Fatalf("stats %+v", s)
+	}
+}
+
+func TestLocalTunnelsToRadioStations(t *testing.T) {
+	echo, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer echo.Close()
+	go func() {
+		if c, err := echo.Accept(); err == nil {
+			io.Copy(c, c)
+			c.Close()
+		}
+	}()
+	_, port, _ := net.SplitHostPort(echo.Addr().String())
+	_, local := startLocal(t, "")
+	c, err := net.Dial("tcp", local)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	c.SetDeadline(time.Now().Add(5 * time.Second))
+	io.WriteString(c, "CONNECT 127.0.0.2:"+port+" HTTP/1.1\r\nHost: 127.0.0.2:"+port+"\r\n\r\n")
+	br := bufio.NewReader(c)
+	if resp, err := http.ReadResponse(br, nil); err != nil || resp.StatusCode != 200 {
+		t.Fatalf("%v %v", resp, err)
+	}
+	io.WriteString(c, "ping")
+	got := make([]byte, 4)
+	if _, err := io.ReadFull(br, got); err != nil || string(got) != "ping" {
+		t.Fatalf("%q %v", got, err)
+	}
+}
+
+func TestGatewayOpenOnlyToListedStations(t *testing.T) {
+	up := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { io.WriteString(w, "ok") }))
+	defer up.Close()
+	for _, tc := range []struct {
+		only []string
+		want int
+	}{
+		{nil, 200}, {[]string{"TESTA"}, 200}, {[]string{"TESTA-2"}, 403}, {[]string{"TESTC"}, 403},
+	} {
+		_, addr, _ := startProxy(t, Config{AllowLAN: true, Only: tc.only,
+			Who: func(netip.Addr) (ax25.Address, bool) { return ax25.MustAddress("TESTA-1"), true }})
+		resp, err := viaProxy(addr).Get(up.URL)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != tc.want {
+			t.Errorf("only %v: %d, want %d", tc.only, resp.StatusCode, tc.want)
+		}
 	}
 }

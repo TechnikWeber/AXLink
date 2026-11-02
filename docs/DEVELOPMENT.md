@@ -36,9 +36,22 @@ sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
   roles, e.g. `-tags INET,AUTO` on a gateway that runs unattended. `-route IP/PREFIX=CALLSIGN`
   is needed only for stations that send no beacons or for addresses outside the own subnet.
 - Web interface: `http://127.0.0.1:7373` (`-ui`, `""` turns it off), in the browser's language,
-  English or German. It shows this station, the stations heard, the internet gateway and the
-  traffic counters, and refreshes every 3 seconds. It listens on the own computer only; it
-  refuses foreign host names and requests from other web pages.
+  English or German. The overview shows the live monitor (channel load, transmit queue,
+  throughput), this station, the stations heard, the internet gateway, the firewall and the
+  traffic counters, refreshed every 2 seconds. The settings view changes sharing, the welcome
+  page and the firewall. It listens on the own computer only; it refuses foreign host names and
+  requests from other web pages.
+- Settings are stored in `settings.json` in the user's configuration folder (Linux
+  `~/.config/axlink/`, as root `/root/.config/axlink/`; Windows `%AppData%\AXLink\`), or in
+  the file given with `-config` (`""`: not stored). `-proxy`, `-proxy-lan`, `-gateway`, `-open`
+  and `-firewall` are stored like a change in the web interface.
+- Firewall: by default only answers to own connections, pings and opened ports come in; the
+  own network is never reachable through the radio. Open a port with `-open 8080/tcp`, only for
+  some stations with `-open 22/tcp=<CALL>,<CALL>` (a callsign without SSID covers all its
+  SSIDs), or in the settings view. `-firewall open` lets everything for the own address through.
+- Welcome page: every station offers `http://<its address>/` (port 80) with what the operator
+  writes in the settings view; through the local proxy also as `http://<callsign>.axl/`.
+  Port 80 needs the same rights as the network adapter.
 - Internet gateway: `-proxy 8080` on a station with internet access starts an HTTP proxy on its
   radio address and adds the tag `INET`; other stations list it as a gateway. On a client the
   web interface chooses the gateway (`Use` in the station list, or `Automatic`; at the start
@@ -101,9 +114,11 @@ stacks and TUN devices, connected through `axlinkd sim-channel`. They have no ro
 first find each other by their beacons; then the lab checks ping, UDP and HTTP from A to B, and
 the internet through B: B runs `-proxy 3128` and a web server on `192.0.2.80`, an address A has
 no route to; A fetches a file through the proxy and through a CONNECT tunnel, and B must refuse
-its own loopback. Last, A chooses B in its web interface (its API) and fetches the file through
-its local proxy. With `AXLINK_LAB_SCREENSHOTS=<dir>` and Google Chrome installed, the lab saves
-screenshots of both web interfaces (the pictures in the README). The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
+its own loopback. Then A chooses B in its web interface (its API), fetches the file through its
+local proxy, opens B's welcome page over the radio (directly and as `testb-1.axl`), and must
+find a port B has not opened blocked by B's firewall. The stations keep their settings in the
+lab's own folder. With `AXLINK_LAB_SCREENSHOTS=<dir>` and Google Chrome installed, the lab saves
+screenshots of both web interfaces and of the welcome page (the pictures in the README). The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
 The result also lists frames the TNC model threw away before they reached the air (`drop` in
 the trace): `tnc-busy` when a frame arrived while another still waited for the channel,
 `usb-ring` when the 256-byte USB ring overflowed. The radio itself has no counter for either.
@@ -135,6 +150,10 @@ On Windows as administrator, with `wintun.dll` next to the test binary (`go test
 | `internal/airtime` | bit stuffing and airtime of a frame |
 | `internal/pacing` | how AXLink feeds a TNC (profiles) |
 | `internal/discovery` | station beacons: own announcements, the table of stations heard, learned addresses |
+| `internal/firewall` | what radio stations may send to this computer: answers, ping, opened ports, per callsign |
+| `internal/welcome` | the station's own page on its radio address, and `/station.json` |
+| `internal/settings` | the settings the web interface changes, stored in `settings.json` |
+| `internal/monitor` | samples throughput, airtime and queue for the live monitor |
 | `internal/gateway` | the internet gateway: the proxy on the gateway, the local proxy and the choice of the gateway on the client |
 | `internal/ui` | the web interface (English, German), built in: page, style and script |
 | `internal/txqueue` | the transmit queue: small packets first, TCP retransmissions merged or dropped |

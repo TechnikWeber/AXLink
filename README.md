@@ -24,13 +24,15 @@ app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 > real kernel IP stacks. On Windows the network adapter passes its test in CI. Real radios and
 > macOS come next. Nothing has been on the air yet.
 
-![The web interface of a station that reaches the internet through a gateway](docs/images/ui-client-en.png)
+![The web interface: live monitor, stations heard, internet gateway and firewall](docs/images/client-overview-en.png)
 
-*The web interface (`http://127.0.0.1:7373`) of station A in the lab: it found B by its beacon
-and uses B as its internet gateway. Taken with headless Chrome during a lab run on 2026-11-02;
-the numbers come from the simulated channel, not from a radio. Also in German
-([screenshot](docs/images/ui-client-de.png)) and as seen on a gateway
-([English](docs/images/ui-gateway-en.png), [German](docs/images/ui-gateway-de.png)).*
+*The web interface (`http://127.0.0.1:7373`) of station A in the lab: the live monitor, B found by
+its beacon and used as the internet gateway, the firewall and the counters. Taken with headless
+Chrome during a lab run on 2026-11-03; the numbers come from the simulated channel, not from a
+radio. More: [German](docs/images/client-overview-de.png) ·
+settings ([English](docs/images/client-settings-en.png), [German](docs/images/client-settings-de.png)) ·
+a gateway ([overview](docs/images/gateway-overview-en.png), [settings](docs/images/gateway-settings-en.png)) ·
+a welcome page over the radio ([English](docs/images/welcome-en.png), [German](docs/images/welcome-de.png)).*
 
 ## What works
 
@@ -42,8 +44,13 @@ the numbers come from the simulated channel, not from a radio. Also in German
 - Internet gateway: a station with internet access shares it as an HTTP proxy (HTTPS through
   CONNECT, names resolved on the gateway). A client chooses the gateway in its web interface;
   browser and programs use the local proxy `127.0.0.1:7374`, set up once.
-- A web interface in English and German: this station, the stations heard, the choice of the
-  gateway and the traffic counters. It runs on the own computer and needs no internet.
+- A web interface in English and German with a live monitor (channel load, transmit queue,
+  throughput as in a task manager), the stations heard, the choice of the gateway and settings
+  that survive a restart. It runs on the own computer and needs no internet.
+- A firewall, on by default: radio stations reach only answers to own connections, ping and the
+  ports you open, optionally per callsign; your home network is never reachable over the radio.
+- A welcome page per station on its radio address, written in the web interface: who runs it,
+  where, with what.
 - A network adapter `axl0` on Linux (TUN) and Windows (Wintun) and IPv4 over AX.25 UI/PID
   `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter. Radio
   packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink lowers

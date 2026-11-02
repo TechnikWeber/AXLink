@@ -26,6 +26,23 @@ CC BY 4.0), the repository in English.
   addresses become routes; configured ones for the exact address come first. `run -tags` and
   `-beacon`; `decode` shows beacon texts. The lab now runs without routes: the stations find each
   other in 3–5 s (model).
+- `internal/firewall`, on by default: radio stations reach this computer only with answers to
+  its own connections, pings (switchable) and ports opened by rules, optionally per callsign;
+  everything else is dropped and listed. The bridge now passes only packets for the own address,
+  so a radio station can no longer use a computer that forwards packets to get into other
+  networks. `run -open`, `-firewall`.
+- `internal/settings`: the settings the web interface changes are stored (`settings.json`,
+  `-config`) and take effect without a restart; sharing the internet is switched on and off in
+  the web interface and announced within seconds; the gateway can be open to listed callsigns
+  only.
+- `internal/welcome`: every station offers a small page on its radio address (name, locator,
+  QTH, equipment, text, roles, gateway; under 1 KB, compressed) and `/station.json`. The local
+  proxy reaches radio stations itself, also as `<callsign>.axl`.
+- Live monitor (`internal/monitor`): gauges for the channel load and the transmit queue and a
+  throughput chart of the last 5 minutes; the TNC port counts bytes and estimated airtime in both
+  directions. The web interface gets a settings view.
+- The lab opens B's welcome page over the radio, finds a closed port blocked, and takes
+  screenshots of both interfaces and the welcome page.
 - `internal/ui`: a web interface in English and German on `127.0.0.1:7373`: this station, the
   stations heard, the choice of the internet gateway, the own gateway and the traffic counters,
   refreshed every 3 s. Built in, no internet needed; radio data shown as text only; foreign host

@@ -18,10 +18,14 @@ suits small, text-based use.
 │ internal/tun        virtual network adapter (Linux, Windows)       │
 │ internal/ipbridge   IPv4 ↔ AX.25 UI/PID 0xCC, destination filter,  │
 │                     routes, broadcast filter, MSS clamping,        │
-│                     fragmentation                                  │
+│                     fragmentation; only the own address comes in   │
+│ internal/firewall   what radio stations may send to this computer  │
 │ internal/discovery  station beacons, learned addresses             │
 │ internal/gateway    gateway proxy, local proxy, choice of gateway  │
-│ internal/ui         web interface (English, German)                │
+│ internal/welcome    the station's own page on its radio address    │
+│ internal/ui         web interface (English, German), live monitor  │
+│ internal/settings   settings that survive a restart                │
+│ internal/monitor    throughput and channel load, sampled           │
 │ internal/txqueue    transmit queue: small first, repeats merged    │
 │ internal/tnc        connection, reconnecting, paced sending        │
 │ internal/pacing     profile per TNC                                │
@@ -53,9 +57,12 @@ so the order matters. The bridge tells the queue what each packet is:
   second, while the answer over the radio takes about two.
 - Frames that waited longer than 60 s are dropped.
 
-**In:** the KISS decoder hands every data frame to the bridge. Only UI frames with PID `0xCC`
-addressed to the own callsign and SSID pass, and only with a valid IPv4 header (checksum,
-length). The packet then goes to `axl0`.
+**In:** the KISS decoder hands every data frame to the bridge (beacons go to station discovery).
+Only UI frames with PID `0xCC` addressed to the own callsign and SSID pass, only with a valid
+IPv4 header (checksum, length), and only for the own IP address: a station must not use this
+computer to get into other networks, even when the system forwards packets (Docker, for example,
+switches that on). Broadcasts pass only with `-allow-broadcast`. The firewall decides last;
+then the packet goes to `axl0`.
 
 **MTU:** an IP packet on the radio has at most 256 bytes (`-mtu`), the classic AX.25
 information field. Linux gives the adapter the same MTU. Windows does not accept an IPv4 MTU
@@ -126,9 +133,18 @@ radio, so updates and background traffic of the client stay off the air.
   operator's network; it is no rule about content (D2).
 - At most 16 client connections at a time; a connection silent for 10 minutes is closed. The
   log names the client's callsign (from its beacon) for each request.
+- It can be open to listed callsigns only; others get a clear refusal.
+- Sharing is switched on and off in the web interface (or with `-proxy`) without a restart.
+
+Several gateways: a client uses the one it chose, or in `auto` mode the gateway heard most
+recently, kept while it is heard. There is no load sharing and no measure of link quality yet;
+a gateway that falls silent is replaced in `auto` mode once its entry expires (three missed
+beacons).
 
 On the client, a local proxy (`127.0.0.1:7374`) forwards every request to the chosen gateway's
-proxy over the radio; browser and programs are set up once. The choice is `off`, `auto` (the
+proxy over the radio; browser and programs are set up once. Requests for stations of the radio
+network (an address in the own subnet, a station heard, or `<callsign>.axl`) it serves itself,
+without a gateway, so that welcome pages open with the same proxy setting. The choice is `off`, `auto` (the
 gateway heard most recently, kept while it is heard) or one station, made in the web interface
 or with `-gateway`. Connections to the gateway are kept open between requests, which saves the
 TCP handshake over the radio.
@@ -136,12 +152,62 @@ TCP handshake over the radio.
 Planned: the gateway's rules in its beacon (services, rate, contact), pages shrunk for
 1200 bit/s, and a transparent gateway in userspace (gVisor netstack) for other protocols.
 
+## Firewall
+
+`internal/firewall` decides which packets from the radio reach this computer, before the
+operating system sees them. The default mode is **protect**:
+
+- answers to connections this computer started pass (TCP, UDP and pings are tracked; TCP for
+  30 minutes, UDP for 3 minutes of silence);
+- pings to this station pass (switchable), ICMP error messages always;
+- a rule opens a port (TCP or UDP), for every station or only for listed callsigns; a callsign
+  without SSID stands for all its SSIDs. The welcome page and the gateway open their own ports;
+- later fragments pass if their first fragment did;
+- everything else is dropped and counted; the last eight show in the web interface with the
+  sender's callsign.
+
+Mode **open** lets every packet for the own address through, as before. Callsigns identify the
+sender without authentication, as everywhere in amateur radio; a rule per callsign keeps casual
+use out, not a determined attacker. The own network (home network) cannot be reached through
+the radio at all: the bridge passes only packets for the own address, and the gateway refuses
+private addresses unless `-proxy-lan` or the setting allows them.
+
+## Welcome page
+
+Every station offers a small page on its radio address (`http://10.73.0.2/`, port 80 by
+default): callsign, name, locator, QTH, equipment, a short text, its roles and its gateway. The
+operator writes it in the web interface. It has no pictures and no extra files, carries an
+inline icon so that the browser does not ask for `/favicon.ico`, and goes out compressed when
+the browser accepts that; a typical page is under 1 KB. `/station.json` gives the same to
+programs. Through the local proxy a station's page is also reachable by its callsign:
+`http://testb-1.axl/`.
+
+## Settings
+
+What the web interface changes is stored in `settings.json` in the user's configuration folder
+(`-config` chooses another file, `""` none): the choice of the gateway, sharing the internet,
+the welcome page and the firewall. Changes take effect at once, without a restart: sharing
+starts or stops the gateway and announces it in a beacon within seconds. The file is written
+atomically and readable by the owner only. Options on the command line that cover the same
+things (`-proxy`, `-proxy-lan`, `-gateway`, `-open`, `-firewall`) are stored like a change in the
+web interface.
+
 ## Web interface
 
-`internal/ui` serves one page on `127.0.0.1:7373`: this station, the stations heard, the choice
-of the internet gateway, the own gateway and the traffic counters. The page asks
-`/api/status` every 3 seconds; `POST /api/gateway` changes the choice. Page, style and script are
-built into `axlinkd`, so it works on a computer without internet.
+`internal/ui` serves one page on `127.0.0.1:7373` with two views. **Overview:** the live monitor,
+this station, the stations heard with links to their welcome pages, the choice of the internet
+gateway, the own gateway, the firewall with the packets it blocked, and the traffic counters.
+**Settings:** sharing the internet, the welcome page and the firewall rules. The overview asks
+`/api/status` every 2 seconds; `POST /api/gateway` and `POST /api/settings` change things. Page,
+style and script are built into `axlinkd`, so it works on a computer without internet.
+
+The live monitor (`internal/monitor`) takes a sample every 2 seconds and keeps 10 minutes:
+bytes per second in both directions, the queue, and the airtime of the frames sent and heard,
+estimated from their length. Two gauges show the channel load of the last minute (own and heard
+airtime as a share of the time) and the transmit queue; a chart shows the throughput of the
+last 5 minutes, smoothed over 6 seconds. Signals the radio cannot decode are not counted, so the
+channel load is a lower bound. Costs: a few kilobytes of memory and one small request every 2
+seconds while the page is open.
 
 - Language: an explicit choice (`?lang=`, kept in a cookie), else the browser's language, else
   English (D7). Both languages have the same texts; a test checks it.

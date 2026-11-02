@@ -159,8 +159,8 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 }
 
 func (s *Service) send(now time.Time, ask bool) {
-	frame, err := s.cfg.beacon(ask).Frame(s.cfg.Call)
 	s.mu.Lock()
+	frame, err := s.cfg.beacon(ask).Frame(s.cfg.Call)
 	s.lastSent = now
 	s.first = false
 	s.answerAt = time.Time{} // this beacon answers everything heard before
@@ -177,6 +177,37 @@ func (s *Service) send(now time.Time, ask bool) {
 	if !s.cfg.Send(frame) {
 		s.cfg.Logger.Warn("beacon dropped: transmit queue full")
 	}
+}
+
+// SetAnnounce changes the tags and the proxy port this station announces;
+// a beacon with them goes out within a few seconds.
+func (s *Service) SetAnnounce(tags []string, proxy uint16) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := s.cfg
+	next.Tags, next.Proxy = append([]string(nil), tags...), proxy
+	if err := next.Check(); err != nil {
+		return err
+	}
+	if slices.Equal(next.Tags, s.cfg.Tags) && next.Proxy == s.cfg.Proxy {
+		return nil
+	}
+	s.cfg = next
+	if s.cfg.Every > 0 {
+		s.answerAt = s.cfg.Now().Add(s.between(answerDelay))
+		select {
+		case s.wake <- struct{}{}:
+		default:
+		}
+	}
+	return nil
+}
+
+// Announce returns the tags and the proxy port this station announces.
+func (s *Service) Announce() ([]string, uint16) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]string(nil), s.cfg.Tags...), s.cfg.Proxy
 }
 
 // Handle takes a frame heard on the radio. It reports whether the frame was

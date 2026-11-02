@@ -89,6 +89,52 @@ func TestLearnedAddressesComeBetweenExactAndShorterRoutes(t *testing.T) {
 	}
 }
 
+func TestPacketsForOtherAddressesNeverReachTheSystem(t *testing.T) {
+	h := newHarness(t, stationA())
+	for _, dst := range []string{"192.168.1.5", "10.73.0.9", "10.73.0.255"} {
+		h.b.FromRadio(frameTo(t, "TESTA-1", ax25.PIDIPv4, udpPacket("10.73.0.2", dst, "x")))
+	}
+	if len(h.delivered) != 0 || h.b.Stats().WrongAddress != 3 {
+		t.Fatalf("delivered %d, stats %+v", len(h.delivered), h.b.Stats())
+	}
+	cfg := stationA()
+	cfg.AllowBroadcast = true
+	h = newHarness(t, cfg)
+	h.b.FromRadio(frameTo(t, "TESTA-1", ax25.PIDIPv4, udpPacket("10.73.0.2", "10.73.0.255", "x")))
+	if len(h.delivered) != 1 {
+		t.Fatal("with broadcasts allowed, a subnet broadcast must pass")
+	}
+}
+
+type fakeFilter struct {
+	out  int
+	pass bool
+	from string
+}
+
+func (f *fakeFilter) Outbound([]byte) { f.out++ }
+func (f *fakeFilter) Inbound(_ []byte, from ax25.Address) bool {
+	f.from = from.String()
+	return f.pass
+}
+
+func TestTheFilterSeesBothDirections(t *testing.T) {
+	ff := &fakeFilter{}
+	cfg := stationA()
+	cfg.Filter = ff
+	h := newHarness(t, cfg)
+	h.b.FromAdapter(udpPacket("10.73.0.1", "10.73.0.2", "out"))
+	h.b.FromRadio(frameTo(t, "TESTA-1", ax25.PIDIPv4, udpPacket("10.73.0.2", "10.73.0.1", "in")))
+	if ff.out != 1 || ff.from != "TESTB-1" || len(h.delivered) != 0 || h.b.Stats().Blocked != 1 {
+		t.Fatalf("filter %+v, delivered %d, stats %+v", ff, len(h.delivered), h.b.Stats())
+	}
+	ff.pass = true
+	h.b.FromRadio(frameTo(t, "TESTA-1", ax25.PIDIPv4, udpPacket("10.73.0.2", "10.73.0.1", "in")))
+	if len(h.delivered) != 1 {
+		t.Fatal("a packet the filter passes must be delivered")
+	}
+}
+
 func TestKnownGoodPacketHasValidChecksum(t *testing.T) {
 	// The IPv4/UDP packet from the v0.1 destination-filter tests (built independently).
 	p := []byte{0x45, 0x00, 0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x40, 0x11, 0x66, 0x38,

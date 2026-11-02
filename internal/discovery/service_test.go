@@ -264,3 +264,22 @@ func TestRunSendsBeaconsInRealTime(t *testing.T) {
 		t.Fatal("no beacon")
 	}
 }
+
+func TestAChangedAnnouncementGoesOutSoon(t *testing.T) {
+	ts := newTestService(t, DefaultEvery)
+	ts.step(ts.after(time.Minute)) // the first beacon is out
+	changed := ts.now
+	if err := ts.SetAnnounce([]string{"INET"}, 8080); err != nil {
+		t.Fatal(err)
+	}
+	ts.step(changed.Add(30 * time.Second)) // at most one answer in 30 s still applies
+	if len(ts.sent) != 2 || ts.sent[1].Proxy != 8080 || ts.sent[1].Tags[0] != "INET" {
+		t.Fatalf("sent %+v", ts.sent)
+	}
+	if tags, proxy := ts.Announce(); proxy != 8080 || len(tags) != 1 {
+		t.Fatalf("%v %v", tags, proxy)
+	}
+	if ts.SetAnnounce([]string{"not a tag"}, 0) == nil {
+		t.Fatal("a bad tag was accepted")
+	}
+}

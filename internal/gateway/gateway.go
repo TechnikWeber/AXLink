@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/firewall"
 )
 
 // Config sets up a proxy.
@@ -32,9 +33,12 @@ type Config struct {
 	// AllowLAN lets clients reach private (RFC 1918, fc00::/7), shared
 	// (100.64.0.0/10), loopback and link-local addresses.
 	AllowLAN bool
-	// Who names the station behind a client address for the log; nil for
-	// none (station discovery provides it).
-	Who      func(addr netip.Addr) (ax25.Address, bool)
+	// Who names the station behind a client address (station discovery
+	// provides it); nil for none.
+	Who func(addr netip.Addr) (ax25.Address, bool)
+	// Only lists the stations that may use the gateway; empty: every station.
+	// A callsign without SSID stands for all its SSIDs.
+	Only     []string
 	MaxConns int           // client connections at a time; 0 means 16
 	Idle     time.Duration // a connection silent this long is closed; 0 means 10 min
 	Logger   *slog.Logger
@@ -51,6 +55,7 @@ type Stats struct {
 // Proxy is an HTTP proxy for the radio network.
 type Proxy struct {
 	cfg       Config
+	access    atomic.Pointer[access] // AllowLAN and Only, changeable while running
 	dialer    *net.Dialer
 	transport *http.Transport
 
@@ -60,6 +65,17 @@ type Proxy struct {
 }
 
 var errRefused = errors.New("gateway: destination not allowed")
+
+type access struct {
+	allowLAN bool
+	only     []string
+}
+
+// SetAccess changes who may use the gateway and whether it reaches the own
+// network, without a restart.
+func (p *Proxy) SetAccess(allowLAN bool, only []string) {
+	p.access.Store(&access{allowLAN: allowLAN, only: append([]string(nil), only...)})
+}
 
 // New returns a proxy; start it with Serve.
 func New(cfg Config) *Proxy {
@@ -73,6 +89,7 @@ func New(cfg Config) *Proxy {
 		cfg.Logger = slog.Default()
 	}
 	p := &Proxy{cfg: cfg}
+	p.SetAccess(cfg.AllowLAN, cfg.Only)
 	// The check runs on every address a name resolves to, right before the
 	// connection, so a name cannot lead into the local network either.
 	p.dialer = &net.Dialer{Timeout: 30 * time.Second, Control: func(_, address string, _ syscall.RawConn) error {
@@ -103,7 +120,7 @@ func (p *Proxy) Allowed(addr netip.Addr) bool {
 		addr == netip.AddrFrom4([4]byte{255, 255, 255, 255}) || thisNetwork.Contains(addr) {
 		return false
 	}
-	if p.cfg.AllowLAN {
+	if p.access.Load().allowLAN {
 		return true
 	}
 	return addr.IsGlobalUnicast() && !addr.IsPrivate() && !shared.Contains(addr)
@@ -145,7 +162,13 @@ func (p *Proxy) Serve(ctx context.Context, ln net.Listener) error {
 
 // ServeHTTP handles one proxy request.
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	client := p.who(r.RemoteAddr)
+	client, call, known := p.who(r.RemoteAddr)
+	if only := p.access.Load().only; len(only) > 0 && (!known || !firewall.Admits(only, call)) {
+		p.refused.Add(1)
+		http.Error(w, "AXLink gateway: open only to "+strings.Join(only, ", ")+".", http.StatusForbidden)
+		p.cfg.Logger.Info("gateway", "client", client, "method", r.Method, "status", http.StatusForbidden, "err", "not admitted")
+		return
+	}
 	if r.Method == http.MethodConnect {
 		p.tunnel(w, r, client)
 		return
@@ -230,17 +253,18 @@ func (p *Proxy) upstreamError(err error) int {
 	return http.StatusBadGateway
 }
 
-func (p *Proxy) who(remote string) string {
+// who names the client: its callsign if known, else its address.
+func (p *Proxy) who(remote string) (string, ax25.Address, bool) {
 	ap, err := netip.ParseAddrPort(remote)
 	if err != nil {
-		return remote
+		return remote, ax25.Address{}, false
 	}
 	if p.cfg.Who != nil {
 		if call, ok := p.cfg.Who(ap.Addr()); ok {
-			return call.String()
+			return call.String(), call, true
 		}
 	}
-	return ap.Addr().String()
+	return ap.Addr().String(), ax25.Address{}, false
 }
 
 // Hop-by-hop headers belong to one connection, not to the request (RFC 9110).
