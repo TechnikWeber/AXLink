@@ -40,7 +40,8 @@ sudo ./axlinkd run -call <RUFZEICHEN>-1 -port auto -ip 10.73.0.1/24 -route 10.73
 - Windows und macOS: serielle Ports gehen, der Netzadapter folgt (Wintun, utun).
 
 Taktung je TNC: `-profile f4hwn-kisstnc` (Standard für serielle Ports),
-`f4hwn-kisstnc-ackmode` (für KISS TNC+ mit ACKMODE), `generic-kiss` (Standard sonst).
+`f4hwn-kisstnc-ackmode` (für die eigene App mit ACKMODE, Arbeitstitel AXLink TNC),
+`generic-kiss` (Standard sonst).
 
 ## Labor ohne Funkgerät
 
