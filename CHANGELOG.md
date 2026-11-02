@@ -17,8 +17,9 @@ CC BY 4.0), the repository in English.
   (256-byte ring, 16 bytes per 10 ms, one transmit slot, interrupts masked while sending),
   optionally with ACKMODE. It counts the frames it drops; the lab trace shows them (`drop`).
 - `internal/pacing`: pacing per TNC profile. In the model a full packet without pacing is lost;
-  with the profile `f4hwn-kisstnc` all arrive (~104 B/s); with a busy channel only ACKMODE avoids
-  losses.
+  with the profile `f4hwn-kisstnc` all arrive (~104 B/s). With a busy channel the estimate alone
+  loses frames; the port then also uses the frames the radio heard (below), and ACKMODE avoids
+  losses fully.
 - `internal/txqueue`: the transmit queue. Packets of up to 128 bytes go first (at most three in
   a row while a larger one waits, never ahead of their own flow); a TCP retransmission replaces
   its waiting original or is dropped if the original has just gone out; a newer pure ACK
@@ -27,7 +28,9 @@ CC BY 4.0), the repository in English.
 - `internal/tnc`: the connection to a TNC over serial (DTR set, exclusive), KISS-TCP or a Unix
   socket. Reconnects by itself after USB resets, then sends a resync and the KISS parameters
   again and repeats an interrupted frame once. Finds the radio by its USB ID 36B7:FFFF. Waits for
-  ACKMODE echoes.
+  ACKMODE echoes. Without ACKMODE it waits longer when the radio heard another station before its
+  own frame could have gone out; in the lab the original app then drops nothing in a 2 KB
+  download (39 s instead of 110 s).
 - `internal/tun`: the network adapter on Linux (wireguard-go without GSO offloads), IPv6 off on
   the adapter; on Windows through Wintun with a fixed GUID per name, address, routes and MTU
   through the IP Helper API. `scripts/fetch-wintun.ps1` fetches `wintun.dll` (not shipped) with a
@@ -39,9 +42,8 @@ CC BY 4.0), the repository in English.
 - `internal/sim/channel` and `scripts/lab-netns.sh`: two stations in their own network
   namespaces without root or Docker. With the model of the F4HWN app: ping 3/3 (RTT ~2.1 s),
   UDP 1.7 s, HTTP 9 s, nothing lost on the air or in the app. With adapter MTU 576 as on
-  Windows also a 400-byte ping without DF (2/2, RTT ~10 s) and a 2 KB download: 110 s with the
-  original app, which drops 5 frames before the air (USB ring overflow after waiting for a busy
-  channel), 38 s with ACKMODE without a drop. All from the model, not hardware.
+  Windows also a 400-byte ping without DF (2/2, RTT ~10 s) and a 2 KB download: 39 s with the
+  original app, 38 s with ACKMODE, no frame dropped. All from the model, not hardware.
 - Finding in the app's source: a frame cut off by a USB reset would be closed by the next FEND
   and sent truncated. The f4hwn profile therefore sends `FESC 00 FEND` on connecting.
 - `cmd/axlinkd`: `run`, `ports`, `decode`, `sim-channel`, `version`. `run -mtu` sets the radio

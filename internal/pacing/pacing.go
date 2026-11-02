@@ -117,6 +117,17 @@ type Plan struct {
 	// AckMode it is the estimated end of the transmission plus a margin;
 	// with AckMode the host waits for the echo instead.
 	Done time.Duration
+	// TxStart is the earliest moment the TNC can start sending (it has read
+	// the whole frame), Airtime the frame's time on the air. Both are set
+	// only with OneInFlight and without AckMode.
+	TxStart, Airtime time.Duration
+}
+
+// DoneAfterHeard returns when the next frame may start if the radio heard a
+// frame that ended at end while this one could not have been on the air yet:
+// the TNC sends only on a clear channel, so this frame went out after it.
+func (p Profile) DoneAfterHeard(end time.Duration, plan Plan) time.Duration {
+	return end + p.SlotTime + plan.Airtime + p.Margin
 }
 
 // Plan schedules one encoded KISS frame that carries ax25 (the AX.25 frame
@@ -149,6 +160,7 @@ func (p Profile) Plan(start time.Duration, encoded, ax25 []byte) Plan {
 	}
 	drained += p.PollEvery // the poll phase is unknown
 	tx := airtime.Duration(airtime.Bits(ax25, p.TxDelayFlags, p.TailFlags), p.Baud)
+	plan.TxStart, plan.Airtime = drained, tx
 	plan.Done = drained + p.SlotTime + tx + p.Margin
 	return plan
 }

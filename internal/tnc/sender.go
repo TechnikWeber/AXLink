@@ -5,6 +5,7 @@ package tnc
 import (
 	"context"
 	"io"
+	"sync"
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/airtime"
@@ -33,7 +34,8 @@ type sender struct {
 	sink        sink
 	tag         uint16
 	ackTimeouts uint64
-	wroteAll    bool // the last frame reached the TNC completely
+	wroteAll    bool      // the last frame reached the TNC completely
+	heard       *heardLog // frames the radio received; nil for none
 }
 
 func (s *sender) init() error {
@@ -84,7 +86,7 @@ func (s *sender) send(ctx context.Context, frame []byte) error {
 		return nil
 	}
 	if !s.profile.AckMode {
-		return s.clock.sleepUntil(ctx, plan.Done)
+		return s.waitSent(ctx, plan)
 	}
 	ok, err := s.sink.waitAck(ctx, tag, s.clock.now()+s.ackTimeout(frame))
 	if err != nil {
@@ -94,6 +96,67 @@ func (s *sender) send(ctx context.Context, frame []byte) error {
 		s.ackTimeouts++ // the frame may be lost; carry on with the next one
 	}
 	return nil
+}
+
+// waitSent waits until the TNC has probably sent the frame. A frame the
+// radio heard in the meantime kept the channel busy: if it began before this
+// frame could have ended, this frame had to wait for it, and so does the
+// next one. A frame still on the air when the wait ends is not known yet;
+// only ACKMODE covers that.
+func (s *sender) waitSent(ctx context.Context, plan pacing.Plan) error {
+	done, start := plan.Done, plan.TxStart
+	for {
+		if err := s.clock.sleepUntil(ctx, done); err != nil {
+			return err
+		}
+		later := done
+		for _, h := range s.heard.since(start, s.clock.now()) {
+			if h.start < start+plan.Airtime {
+				start = max(start, h.end)
+				later = max(later, s.profile.DoneAfterHeard(h.end, plan))
+			}
+		}
+		if later <= done {
+			return nil
+		}
+		done = later
+	}
+}
+
+// heardLog keeps the last frames the radio received, in the sender's clock.
+type heardLog struct {
+	mu     sync.Mutex
+	frames []heardFrame
+}
+
+type heardFrame struct{ start, end time.Duration }
+
+func (l *heardLog) add(start, end time.Duration) {
+	if l == nil {
+		return
+	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.frames = append(l.frames, heardFrame{start, end})
+	if n := len(l.frames); n > 16 {
+		l.frames = append(l.frames[:0], l.frames[n-16:]...)
+	}
+}
+
+// since returns the frames that ended after t and by now, oldest first.
+func (l *heardLog) since(t, now time.Duration) []heardFrame {
+	if l == nil {
+		return nil
+	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	var out []heardFrame
+	for _, f := range l.frames {
+		if f.end > t && f.end <= now {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // ackTimeout allows for the frame's airtime plus a long busy channel.

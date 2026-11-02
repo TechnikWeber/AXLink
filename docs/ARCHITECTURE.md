@@ -71,11 +71,18 @@ behaves like a router in front of a smaller link:
 | Profile | For | Behaviour |
 |---|---|---|
 | `generic-kiss` | TNCs with a queue (Dire Wolf, most hardware TNCs) | whole frames, no waiting |
-| `f4hwn-kisstnc` | the KISS TNC app of the F4HWN firmware as it is | one frame in flight; writes of ≤ 64 B every 40 ms (the app drains 1.6 kB/s); the next frame after the estimated airtime; PERSIST 255 with channel access left to the host |
+| `f4hwn-kisstnc` | the KISS TNC app of the F4HWN firmware as it is | one frame in flight; writes of ≤ 64 B every 40 ms (the app drains 1.6 kB/s); the next frame after the estimated airtime, later if the radio heard another station before the frame could have gone out; PERSIST 255 with channel access left to the host |
 | `f4hwn-kisstnc-ackmode` | AXLink TNC with ACKMODE | as above, but waits for the ACKMODE echo instead of an estimate |
 
 Why: the F4HWN app holds one frame and its USB ring has no back-pressure; see section 4 of
 [REVIEW_2026-11-02.md](REVIEW_2026-11-02.md).
+
+The estimate assumes a clear channel. The app sends only when the channel is clear, so a frame
+handed over while another station transmits goes out late; a next frame written during that
+transmission would lap the app's USB ring. Every frame the radio receives therefore goes into a
+small log: if one began before the own frame could have ended, the own frame waited for it, and
+the next frame waits accordingly longer. A frame still on the air when the wait ends cannot be
+known yet; only ACKMODE covers that case.
 
 After a USB reset (RF on the cable at key-up) the port dials again, finding the radio by USB ID
 `36B7:FFFF`. It then sends `FESC 00 FEND`, which makes the app drop a frame the reset cut off, and

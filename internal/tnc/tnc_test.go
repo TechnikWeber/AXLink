@@ -324,3 +324,50 @@ func TestPortDropsARepeatThatComesTooSoon(t *testing.T) {
 		t.Fatalf("stats %+v", s)
 	}
 }
+
+// The other station is on the air from 0.15 s to 2.15 s, so the first frame
+// has to wait. Without noting that frame, the estimate runs out while the
+// first frame is on the air: the next one reaches the app during that
+// transmission and laps the USB ring.
+func TestSenderWaitsLongerAfterHearingAnotherStation(t *testing.T) {
+	busy := func(t time.Duration) bool { return t >= 150*time.Millisecond && t < 2150*time.Millisecond }
+	frames := fullFrames(t, 3)
+	run := func(heard *heardLog) *f4hwnkiss.App {
+		app := f4hwnkiss.New(f4hwnkiss.Config{Busy: busy})
+		s := &sender{profile: pacing.F4HWNKissTNC, clock: simClock{app}, sink: &simSink{app: app}, heard: heard}
+		if err := s.init(); err != nil {
+			t.Fatal(err)
+		}
+		for _, f := range frames {
+			if err := s.send(context.Background(), f); err != nil {
+				t.Fatal(err)
+			}
+		}
+		app.Advance(app.Now() + 5*time.Second)
+		return app
+	}
+	if app := run(nil); len(app.Transmitted()) == len(frames) {
+		t.Fatal("without the heard frame this scenario should lose a frame")
+	}
+	heard := &heardLog{}
+	heard.add(150*time.Millisecond, 2150*time.Millisecond)
+	checkAllSent(t, run(heard), frames)
+}
+
+func TestHeardLogOnlyShowsWhatHasEnded(t *testing.T) {
+	l := &heardLog{}
+	l.add(1*time.Second, 2*time.Second)
+	l.add(3*time.Second, 4*time.Second)
+	if got := l.since(0, 3*time.Second); len(got) != 1 || got[0].end != 2*time.Second {
+		t.Fatalf("%v", got)
+	}
+	if got := l.since(2*time.Second, 5*time.Second); len(got) != 1 || got[0].start != 3*time.Second {
+		t.Fatalf("%v", got)
+	}
+	for i := 0; i < 40; i++ {
+		l.add(time.Duration(i)*time.Second, time.Duration(i+1)*time.Second)
+	}
+	if n := len(l.since(0, time.Hour)); n != 16 {
+		t.Fatalf("keeps %d frames", n)
+	}
+}

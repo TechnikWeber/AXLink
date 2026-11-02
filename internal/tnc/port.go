@@ -75,8 +75,13 @@ func NewPort(cfg Config, rx func(ax25 []byte)) *Port {
 
 // repeatWindow covers the frame's airtime and an answer of the same size: a
 // TCP retransmission within it cannot be a reaction to a lost answer yet.
-// Without timing in the profile it assumes 1200 bit/s.
 func repeatWindow(p pacing.Profile) func(frame []byte) time.Duration {
+	return func(frame []byte) time.Duration { return 2*airtimeOf(p, frame) + time.Second }
+}
+
+// airtimeOf estimates a frame's time on the air with the profile's timing;
+// without timing in the profile it assumes 1200 bit/s and 40 flags.
+func airtimeOf(p pacing.Profile, frame []byte) time.Duration {
 	baud, flags := p.Baud, p.TxDelayFlags
 	if baud == 0 {
 		baud = 1200
@@ -84,9 +89,7 @@ func repeatWindow(p pacing.Profile) func(frame []byte) time.Duration {
 	if flags == 0 {
 		flags = 40
 	}
-	return func(frame []byte) time.Duration {
-		return 2*airtime.Duration(airtime.Bits(frame, flags, 3), baud) + time.Second
-	}
+	return airtime.Duration(airtime.Bits(frame, flags, 3), baud)
 }
 
 // Send queues an ordinary AX.25 frame (without FCS). It reports false when
@@ -159,9 +162,11 @@ func (p *Port) session(ctx context.Context, conn io.ReadWriteCloser) error {
 	sctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	acks := make(chan uint16, 16)
+	clk := realClock{start: time.Now()}
+	heard := &heardLog{}
 	readDone := make(chan error, 1)
 	go func() {
-		readDone <- p.readLoop(conn, acks)
+		readDone <- p.readLoop(conn, acks, heard, clk)
 		cancel()
 	}()
 	finish := func(err error) error {
@@ -174,9 +179,8 @@ func (p *Port) session(ctx context.Context, conn io.ReadWriteCloser) error {
 		return err
 	}
 
-	clk := realClock{start: time.Now()}
 	s := &sender{profile: p.cfg.Profile, port: p.cfg.KISSPort, clock: clk,
-		sink: connSink{w: conn, acks: acks, clock: clk}}
+		sink: connSink{w: conn, acks: acks, clock: clk}, heard: heard}
 	// Send the profile's KISS parameters on every (re)connect: after a USB
 	// reset the app starts again with its defaults.
 	if err := s.init(); err != nil {
@@ -213,7 +217,9 @@ func (p *Port) session(ctx context.Context, conn io.ReadWriteCloser) error {
 	}
 }
 
-func (p *Port) readLoop(r io.Reader, acks chan<- uint16) error {
+// readLoop delivers received frames and ACKMODE echoes, and notes for the
+// sender when the radio heard a frame.
+func (p *Port) readLoop(r io.Reader, acks chan<- uint16, heard *heardLog, clk clock) error {
 	d := &kiss.Decoder{}
 	buf := make([]byte, 1024)
 	for {
@@ -226,6 +232,11 @@ func (p *Port) readLoop(r io.Reader, acks chan<- uint16) error {
 				default:
 				}
 				return
+			}
+			if f.Command == kiss.CmdData {
+				// Any frame the radio decoded kept the channel busy until now.
+				now := clk.now()
+				heard.add(now-airtimeOf(p.cfg.Profile, f.Payload), now)
 			}
 			if f.Command == kiss.CmdData && f.Port == p.cfg.KISSPort {
 				p.framesIn.Add(1)
