@@ -77,6 +77,22 @@ func TestBusyChannelDefers(t *testing.T) {
 	}
 }
 
+func TestFrameWhileOneWaitsIsDroppedAndCounted(t *testing.T) {
+	app := New(Config{Busy: func(t time.Duration) bool { return t < time.Second }})
+	first, second := uiFrame(t, "first"), uiFrame(t, "second")
+	app.Write(0, append([]byte{kiss.FESC, 0, kiss.FEND}, kissData(t, first)...)) // with a resync in front
+	app.Advance(200 * time.Millisecond)
+	app.Write(app.Now(), kissData(t, second)) // the first still waits for the channel
+	app.Advance(3 * time.Second)
+	tx := app.Transmitted()
+	if len(tx) != 1 || !bytes.Equal(tx[0].Frame, first) {
+		t.Fatalf("transmitted %+v", tx)
+	}
+	if app.DroppedFrames() != 1 {
+		t.Fatalf("dropped %d frames, want 1 (the resync is not a frame)", app.DroppedFrames())
+	}
+}
+
 func TestHostDataHeldDuringTransmission(t *testing.T) {
 	app := New(Config{})
 	app.Write(0, kissData(t, uiFrame(t, "first")))

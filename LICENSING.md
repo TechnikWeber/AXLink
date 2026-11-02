@@ -41,8 +41,24 @@ According to `go.mod`; all compatible with GPL-3.0.
 |---|---|---|
 | `go.bug.st/serial` v1.8.0 | BSD-3-Clause | serial ports, USB IDs |
 | `golang.zx2c4.com/wireguard` (commit `2631ce99a06f`) | MIT | network adapter (only the `tun` package) |
-| `golang.zx2c4.com/wintun` | MIT | Windows adapter (in future; `wintun.dll` is not shipped yet) |
+| `golang.zx2c4.com/wintun` | MIT | Go binding of `wintun.dll` (Windows) |
+| `golang.zx2c4.com/wireguard/windows` v1.1.1 | MIT | only `tunnel/winipcfg`: address, routes and MTU of the Windows adapter |
 | `golang.org/x/sys`, `golang.org/x/net` | BSD-3-Clause | system calls |
+
+## wintun.dll (Windows)
+
+The Windows adapter needs `wintun.dll`, a prebuilt driver library of WireGuard LLC under its own
+"Prebuilt Binaries License" (not an open-source licence): use is allowed; redistribution only
+together with software that uses the DLL through the API in `wintun.h`, as AXLink does through
+`golang.zx2c4.com/wintun`.
+
+AXLink does not ship `wintun.dll`. `scripts/fetch-wintun.ps1` downloads Wintun 0.14.1 from
+`https://www.wintun.net/builds/`, checks SHA-256
+`07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51` (checked on 2026-11-02) and
+puts the licence next to the DLL as `wintun-LICENSE.txt`.
+
+Before a Windows release that bundles `wintun.dll`: decide whether AXLink's licence gets an
+additional permission under GPL-3.0 section 7 for combining it with this non-free library.
 
 Planned: gVisor netstack (Apache-2.0) for gateways and for running without admin rights.
 

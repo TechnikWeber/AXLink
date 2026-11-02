@@ -7,11 +7,20 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 - [ ] Hardware test with two UV-K1 once they arrive: set up Multiboot
       ([MULTIBOOT_V6.md](MULTIBOOT_V6.md)), run `axlinkd run` with the original KISS app,
       measure the limits (frame size, USB ring, pacing, USB reset), a throughput table.
-- [ ] Network adapter for Windows (Wintun) and macOS (utun).
+- [ ] Windows: test the adapter on a real PC with a radio (so far only CI pings through it),
+      the firewall rules for incoming connections, a release (bundling `wintun.dll`, licence
+      question in [LICENSING.md](../LICENSING.md)), running as a service.
+- [ ] Network adapter for macOS (utun).
+- [ ] ICMP "fragmentation needed" for packets with DF that are larger than the radio MTU
+      (path-MTU discovery); today they are dropped.
 - [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
 - [ ] Station discovery with tags (`RELAY`, `INET`, `LINK`, `AUTO`).
 - [ ] Chat in the APRS message format, so that messenger radios can take part.
 - [ ] Transmit queue: priorities (small packets first) and dropping duplicate TCP retransmissions.
+- [ ] Pacing for the original F4HWN app: hold the next frame while the radio hears other
+      stations. In the lab (a 2 KB download: data one way, ACKs the other) the estimated end of
+      a transmission passes while the channel is busy, and the app drops 7 frames; with ACKMODE
+      none (44 s instead of 111 s).
 - [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
 - [ ] Mesh: forwarding A↔B↔C, routing with an airtime budget.
 - [ ] Segmentation (PID 0x08) per AX.25 2.2 and ARP (PID 0xCD), tested against Packet.NET.

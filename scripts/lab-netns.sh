@@ -5,14 +5,24 @@
 # connected through the simulated radio channel. Checks ping, UDP and HTTP
 # from A to B with real kernel IP stacks. No radio hardware.
 #
-#   bash scripts/lab-netns.sh [f4hwn|f4hwn-ackmode|ideal]
+#   bash scripts/lab-netns.sh [f4hwn|f4hwn-ackmode|ideal] [ADAPTER_MTU]
 #
 # f4hwn (default): the model of the F4HWN KISS app in front of each station,
 # AXLink with the profile f4hwn-kisstnc. Needs unshare (util-linux), ip
 # (iproute2), python3, curl, ping and unprivileged user namespaces.
+#
+# ADAPTER_MTU (e.g. 576, the Windows minimum) gives both adapters a larger
+# MTU than the radio's 256 bytes. The lab then also checks that the bridge
+# lowers the TCP MSS and fragments: a 400-byte ping without DF and a 2 KB
+# HTTP download.
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:-f4hwn}"
+ADAPTER_MTU="${2:-}"
+if [[ -n "$ADAPTER_MTU" && ! "$ADAPTER_MTU" =~ ^[0-9]+$ ]]; then
+    echo "ADAPTER_MTU: a number, e.g. 576" >&2
+    exit 2
+fi
 case "$MODE" in
     f4hwn) CHANNEL=(-mode f4hwn); PROFILE=f4hwn-kisstnc ;;
     f4hwn-ackmode) CHANNEL=(-mode f4hwn -ackmode); PROFILE=f4hwn-kisstnc-ackmode ;;
@@ -38,11 +48,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "lab: $WORK (mode $MODE)"
+echo "lab: $WORK (mode $MODE${ADAPTER_MTU:+, adapter MTU $ADAPTER_MTU})"
 (cd "$ROOT" && "$GO" build -o "$WORK/axlinkd" ./cmd/axlinkd)
 NONCE="$(python3 -I -c 'import secrets; print(secrets.token_hex(8))')"
 mkdir -p "$WORK/www"
 echo "AXLink $NONCE" > "$WORK/www/hello.txt"
+# 2 KB in 32 lines: more than ten TCP segments at the radio's MSS of 216.
+python3 -I -c 'import secrets, sys
+for i in range(32): print(f"{i:02d} {sys.argv[1]} " + secrets.token_hex(22))' "$NONCE" > "$WORK/www/big.txt"
 
 cat > "$WORK/udp_echo.py" <<'PY'
 import socket, sys
@@ -75,10 +88,10 @@ PY
 # One script per station, run inside its own user + network namespace.
 cat > "$WORK/node.sh" <<'SH'
 set -eu
-WORK=$1; NAME=$2; CALL=$3; IP=$4; PEER_IP=$5; PEER_CALL=$6; PROFILE=$7; SOCK=$8
+WORK=$1; NAME=$2; CALL=$3; IP=$4; PEER_IP=$5; PEER_CALL=$6; PROFILE=$7; SOCK=$8; ADAPTER_MTU=${9:-}
 ip link set lo up
 "$WORK/axlinkd" run -call "$CALL" -kiss-unix "$SOCK/$NAME.sock" -profile "$PROFILE" \
-    -ip "$IP/24" -route "$PEER_IP=$PEER_CALL" 2> "$WORK/node-$NAME.log" &
+    -ip "$IP/24" -route "$PEER_IP=$PEER_CALL" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} 2> "$WORK/node-$NAME.log" &
 NODE=$!
 for _ in $(seq 100); do ip -4 addr show axl0 2>/dev/null | grep -q "$IP" && break; sleep 0.1; done
 ip -4 addr show axl0 | grep -q "$IP" || { echo "axl0 did not come up" >&2; kill $NODE; exit 1; }
@@ -98,6 +111,13 @@ python3 -I "$WORK/udp_probe.py" "$PEER_IP" "$NONCE_ENV" > "$WORK/udp.log" 2>&1 |
 start=$(date +%s%N)
 curl -sS --max-time 180 "http://$PEER_IP:8080/hello.txt" > "$WORK/http.out" 2> "$WORK/http.err" || status=1
 echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/http.ms"
+if [ -n "$ADAPTER_MTU" ]; then
+    # 428-byte packets: the bridges fragment them in both directions.
+    LC_ALL=C ping -c 2 -i 8 -W 60 -M dont -s 400 "$PEER_IP" > "$WORK/bigping.log" 2>&1 || status=1
+    start=$(date +%s%N)
+    curl -sS --max-time 300 "http://$PEER_IP:8080/big.txt" > "$WORK/big.out" 2> "$WORK/big.err" || status=1
+    echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/big.ms"
+fi
 kill $NODE 2>/dev/null || true
 wait $NODE 2>/dev/null || true
 exit $status
@@ -113,14 +133,14 @@ if [[ ! -S "$SOCK/a.sock" || ! -S "$SOCK/b.sock" ]]; then
     exit 1
 fi
 
-unshare -Urn sh "$WORK/node.sh" "$WORK" b TESTB-1 10.73.0.2 10.73.0.1 TESTA-1 "$PROFILE" "$SOCK" &
+unshare -Urn sh "$WORK/node.sh" "$WORK" b TESTB-1 10.73.0.2 10.73.0.1 TESTA-1 "$PROFILE" "$SOCK" "$ADAPTER_MTU" &
 PIDS+=($!)
 started=$(date +%s)
 status=0
-NONCE_ENV="$NONCE" unshare -Urn sh "$WORK/node.sh" "$WORK" a TESTA-1 10.73.0.1 10.73.0.2 TESTB-1 "$PROFILE" "$SOCK" || status=1
+NONCE_ENV="$NONCE" unshare -Urn sh "$WORK/node.sh" "$WORK" a TESTA-1 10.73.0.1 10.73.0.2 TESTB-1 "$PROFILE" "$SOCK" "$ADAPTER_MTU" || status=1
 
 echo
-echo "== Result ($MODE, $(( $(date +%s) - started )) s) =="
+echo "== Result ($MODE${ADAPTER_MTU:+, adapter MTU $ADAPTER_MTU}, $(( $(date +%s) - started )) s) =="
 echo "ping:  $(grep -E 'packets transmitted|rtt' "$WORK/ping.log" | tr '\n' ' ')"
 echo "UDP:   $(cat "$WORK/udp.log")"
 if grep -qx "AXLink $NONCE" "$WORK/http.out" 2>/dev/null; then
@@ -129,9 +149,25 @@ else
     echo "HTTP:  FAILED $(cat "$WORK/http.err" 2>/dev/null)"
     status=1
 fi
+if [[ -n "$ADAPTER_MTU" ]]; then
+    echo "ping 400 B without DF: $(grep -E 'packets transmitted' "$WORK/bigping.log" 2>/dev/null)"
+    if cmp -s "$WORK/www/big.txt" "$WORK/big.out" 2>/dev/null; then
+        echo "HTTP 2 KB: ok ($(( $(cat "$WORK/big.ms") / 1000 )).$(( $(cat "$WORK/big.ms") % 1000 / 100 )) s)"
+    else
+        echo "HTTP 2 KB: FAILED $(cat "$WORK/big.err" 2>/dev/null)"
+        status=1
+    fi
+    # Station A's last statistics line, written when it stops.
+    counters="$(grep -o 'Clamped:[0-9]* Fragmented:[0-9]* TooBig:[0-9]*' "$WORK/node-a.log" | tail -n 1)"
+    echo "bridge A: ${counters:-no statistics}"
+    if [[ ! "$counters" =~ Clamped:[1-9].*Fragmented:[1-9] ]]; then
+        echo "FAILED: station A neither lowered an MSS nor fragmented a packet"
+        status=1
+    fi
+fi
 python3 -I - "$WORK/trace.jsonl" <<'PY' || status=1
 import json, sys
-tx = {"a": 0, "b": 0}; ip = {"a": 0, "b": 0}; rx = 0; lost = {}
+tx = {"a": 0, "b": 0}; ip = {"a": 0, "b": 0}; rx = 0; lost = {}; dropped = {}
 air = 0.0
 for line in open(sys.argv[1]):
     e = json.loads(line)
@@ -142,10 +178,14 @@ for line in open(sys.argv[1]):
             ip[e["from"]] += 1
     elif e["ev"] == "rx":
         rx += 1
+    elif e["ev"] == "drop":  # inside the TNC model, never on the air
+        key = e["from"].upper() + " " + e["why"]
+        dropped[key] = dropped.get(key, 0) + 1
     else:
         lost[e["why"]] = lost.get(e["why"], 0) + 1
 print(f"channel: {tx['a']} frames from A, {tx['b']} from B (IPv4/PID 0xCC: {ip['a']} / {ip['b']}),"
-      f" {rx} received, lost {lost or 0}, airtime {air:.0f} s")
+      f" {rx} received, lost on the air {lost or 0}, airtime {air:.0f} s")
+print(f"TNC:     frames dropped before the air {dropped or 0}")
 if not (ip["a"] and ip["b"]):
     print("FAILED: no IP frames in both directions on the channel")
     raise SystemExit(1)

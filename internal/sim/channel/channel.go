@@ -62,8 +62,8 @@ type station struct {
 	conn net.Conn
 
 	// F4HWN mode
-	app             *f4hwnkiss.App
-	seenTx, seenAck int
+	app                                 *f4hwnkiss.App
+	seenTx, seenAck, seenDrop, seenLoss int
 	// ideal mode
 	dec   kiss.Decoder
 	queue []pending
@@ -222,6 +222,15 @@ func (c *Channel) step(now time.Duration) {
 			for ; st.seenAck < len(acks); st.seenAck++ {
 				tag := acks[st.seenAck].Tag
 				st.toHost(kiss.Frame{Command: kiss.CmdAckMode, Payload: []byte{byte(tag >> 8), byte(tag)}})
+			}
+			// Losses inside the app never reach the air; the trace shows them too.
+			for ; st.seenDrop < st.app.DroppedFrames(); st.seenDrop++ {
+				c.trace(map[string]any{"t": now.Seconds(), "ev": "drop", "from": st.name, "why": "tnc-busy"})
+			}
+			losses := st.app.Losses()
+			for ; st.seenLoss < len(losses); st.seenLoss++ {
+				l := losses[st.seenLoss]
+				c.trace(map[string]any{"t": l.At.Seconds(), "ev": "drop", "from": st.name, "why": "usb-ring", "bytes": l.Bytes})
 			}
 		}
 	} else if !c.busy(now) {

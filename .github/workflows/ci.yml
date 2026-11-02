@@ -51,13 +51,19 @@ jobs:
           if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
             sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           fi
+      - name: Network adapter (TUN inside a user namespace)
+        run: |
+          go test -c -o "$RUNNER_TEMP/tun.test" ./internal/tun
+          AXLINK_TUN_TEST=1 unshare -Urn sh -c 'ip link set lo up && "$0" -test.v -test.run TestAdapterCarriesPing' "$RUNNER_TEMP/tun.test"
       - name: ping, UDP and HTTP through the simulated channel
         run: |
           bash scripts/lab-netns.sh f4hwn
           bash scripts/lab-netns.sh f4hwn-ackmode
+      - name: Adapter MTU 576 as on Windows (MSS clamping, fragmentation)
+        run: bash scripts/lab-netns.sh f4hwn 576
 
   windows:
-    name: Windows (tests)
+    name: Windows (tests, Wintun adapter)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
@@ -65,6 +71,17 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go test ./...
+      - name: Network adapter (Wintun; the runner has administrator rights)
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'tuntest'
+          ./scripts/fetch-wintun.ps1 -Destination $dir
+          # wintun.dll is loaded from the folder of the program, as for axlinkd.exe.
+          go test -c -o (Join-Path $dir 'tun.test.exe') ./internal/tun
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:AXLINK_TUN_TEST = '1'
+          & (Join-Path $dir 'tun.test.exe') '-test.v' '-test.run=TestAdapterCarriesPing|TestWindowsMTUFloor|TestAdapterGUID'
+          exit $LASTEXITCODE
 
   macos:
     name: macOS (tests)

@@ -30,6 +30,10 @@ type Config struct {
 	// Off by default: they are mostly chatter (mDNS, LLMNR, SSDP, NetBIOS)
 	// that would fill a 1200 bit/s channel. A technical filter, not a rule.
 	AllowBroadcast bool
+	// LinkMTU is the largest IP packet on the radio; 0 means 256. When the
+	// adapter's MTU is larger (Windows: at least 576), the bridge lowers the
+	// TCP MSS in both directions and fragments larger packets without DF.
+	LinkMTU int
 }
 
 // Stats counts packets.
@@ -39,6 +43,7 @@ type Stats struct {
 	QueueFull                     uint64
 	NotForUs, BadPacket, OtherPID uint64 // dropped on the way in
 	DeliverErrors                 uint64
+	Clamped, Fragmented, TooBig   uint64 // MSS lowered; packets split; dropped with DF set
 }
 
 // Bridge moves packets in both directions.
@@ -49,6 +54,7 @@ type Bridge struct {
 
 	toRadio, fromRadio, noRoute, filtered, notIPv4, queueFull atomic.Uint64
 	notForUs, badPacket, otherPID, deliverErrors              atomic.Uint64
+	clamped, fragmented, tooBig                               atomic.Uint64
 }
 
 // New returns a bridge. send hands an AX.25 frame to the radio port and
@@ -65,6 +71,12 @@ func New(cfg Config, send func(frame []byte) bool, deliver func(pkt []byte) erro
 		routes = append(routes, Route{Prefix: r.Prefix.Masked(), Call: r.Call})
 	}
 	cfg.Routes = routes
+	if cfg.LinkMTU == 0 {
+		cfg.LinkMTU = DefaultLinkMTU
+	}
+	if cfg.LinkMTU < 68 {
+		return nil, fmt.Errorf("ipbridge: link MTU %d below the IPv4 minimum of 68", cfg.LinkMTU)
+	}
 	return &Bridge{cfg: cfg, send: send, deliver: deliver}, nil
 }
 
@@ -76,6 +88,7 @@ func (b *Bridge) Stats() Stats {
 		QueueFull: b.queueFull.Load(),
 		NotForUs:  b.notForUs.Load(), BadPacket: b.badPacket.Load(), OtherPID: b.otherPID.Load(),
 		DeliverErrors: b.deliverErrors.Load(),
+		Clamped:       b.clamped.Load(), Fragmented: b.fragmented.Load(), TooBig: b.tooBig.Load(),
 	}
 }
 
@@ -100,16 +113,34 @@ func (b *Bridge) FromAdapter(pkt []byte) {
 		b.noRoute.Add(1)
 		return
 	}
-	frame, err := ax25.NewUI(call, b.cfg.MyCall, nil, ax25.PIDIPv4, pkt[:h.totalLen]).Encode()
-	if err != nil {
-		b.badPacket.Add(1)
-		return
+	pkt = pkt[:h.totalLen]
+	if clampMSS(pkt, b.cfg.LinkMTU-40) {
+		b.clamped.Add(1)
 	}
-	if !b.send(frame) {
-		b.queueFull.Add(1)
-		return
+	packets := [][]byte{pkt}
+	if len(pkt) > b.cfg.LinkMTU {
+		if binary.BigEndian.Uint16(pkt[6:8])&flagDF != 0 {
+			b.tooBig.Add(1)
+			return
+		}
+		if packets, err = fragment(pkt, b.cfg.LinkMTU); err != nil {
+			b.badPacket.Add(1)
+			return
+		}
+		b.fragmented.Add(1)
 	}
-	b.toRadio.Add(1)
+	for _, p := range packets {
+		frame, err := ax25.NewUI(call, b.cfg.MyCall, nil, ax25.PIDIPv4, p).Encode()
+		if err != nil {
+			b.badPacket.Add(1)
+			return
+		}
+		if !b.send(frame) {
+			b.queueFull.Add(1)
+			return
+		}
+		b.toRadio.Add(1)
+	}
 }
 
 // FromRadio takes an AX.25 frame (without FCS) heard on the radio.
@@ -134,7 +165,12 @@ func (b *Bridge) FromRadio(frame []byte) {
 		b.badPacket.Add(1)
 		return
 	}
-	if err := b.deliver(append([]byte(nil), f.Info[:h.totalLen]...)); err != nil {
+	pkt := append([]byte(nil), f.Info[:h.totalLen]...)
+	// Keep the other side's TCP segments within the radio's MTU too.
+	if clampMSS(pkt, b.cfg.LinkMTU-40) {
+		b.clamped.Add(1)
+	}
+	if err := b.deliver(pkt); err != nil {
 		b.deliverErrors.Add(1)
 		return
 	}

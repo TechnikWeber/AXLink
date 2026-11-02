@@ -24,3 +24,8 @@ __pycache__/
 /axlinkd
 /axlinkd.exe
 dist/
+# fetched by scripts/fetch-wintun.ps1, not shipped (LICENSING.md)
+wintun.dll
+wintun-LICENSE.txt
+*.test
+*.test.exe

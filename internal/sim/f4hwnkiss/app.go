@@ -89,6 +89,8 @@ type App struct {
 	nextPoll  time.Duration
 	nextSlot  time.Duration
 	discarded int
+	busyRun   int // bytes thrown away since the last FEND while a frame waited
+	dropped   int
 
 	sent   []Transmission
 	losses []Loss
@@ -122,6 +124,10 @@ func (a *App) Acks() []Ack { return a.acks }
 // Discarded returns how many host bytes the parser threw away, mostly while
 // a frame was waiting. The radio shows no counter for this.
 func (a *App) Discarded() int { return a.discarded }
+
+// DroppedFrames returns how many host frames the parser threw away because a
+// frame was still waiting for the channel. The radio shows no counter.
+func (a *App) DroppedFrames() int { return a.dropped }
 
 // Transmitting reports whether a frame is on the air.
 func (a *App) Transmitting() bool { return a.inTx }
@@ -191,6 +197,10 @@ func (a *App) poll() {
 // kissByte follows the app's kissByte(), plus the ACKMODE command.
 func (a *App) kissByte(b byte) {
 	if b == kiss.FEND {
+		if a.busyRun >= minDataLen {
+			a.dropped++
+		}
+		a.busyRun = 0
 		if a.kIn && a.kLen > 1 {
 			cmd, v := kiss.Command(a.tx[0]&0x0F), int(a.tx[1])
 			switch {
@@ -219,6 +229,9 @@ func (a *App) kissByte(b byte) {
 	}
 	if !a.kIn {
 		a.discarded++
+		if a.txReady {
+			a.busyRun++
+		}
 		return
 	}
 	if a.kEsc {

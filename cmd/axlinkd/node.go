@@ -54,6 +54,7 @@ type nodeConfig struct {
 	dialer         tnc.Dialer
 	profile        pacing.Profile
 	tun            tun.Config
+	linkMTU        int
 	routes         []ipbridge.Route
 	allowBroadcast bool
 }
@@ -68,7 +69,8 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	profile := fs.String("profile", "", "TNC profile: f4hwn-kisstnc (default for serial), f4hwn-kisstnc-ackmode, generic-kiss (default otherwise)")
 	tunName := fs.String("tun", "axl0", "name of the network adapter")
 	ip := fs.String("ip", "", "own IPv4 address with prefix length, e.g. 10.73.0.1/24 (required)")
-	mtu := fs.Int("mtu", 256, "MTU of the network adapter")
+	mtu := fs.Int("mtu", ipbridge.DefaultLinkMTU, "largest IP packet on the radio (the AX.25 information field)")
+	adapterMTU := fs.Int("adapter-mtu", 0, "MTU of the network adapter; 0 = the radio MTU, raised to the system minimum (Windows: 576)")
 	var routes routeFlags
 	fs.Var(&routes, "route", "IP/PREFIX=CALLSIGN: send packets for these addresses to that station (repeatable)")
 	allowBroadcast := fs.Bool("allow-broadcast", false, "let broadcast and multicast packets onto the radio")
@@ -119,7 +121,15 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	if err != nil || !local.Addr().Is4() {
 		return cfg, fmt.Errorf("-ip: want an IPv4 address with prefix length, e.g. 10.73.0.1/24")
 	}
-	cfg.tun = tun.Config{Name: *tunName, MTU: *mtu, Address: local}
+	if *mtu < 68 || *mtu > 65535 {
+		return cfg, fmt.Errorf("-mtu: %d is outside 68..65535", *mtu)
+	}
+	cfg.linkMTU = *mtu
+	osMTU := *adapterMTU
+	if osMTU == 0 {
+		osMTU = *mtu
+	}
+	cfg.tun = tun.Config{Name: *tunName, MTU: osMTU, Address: local}
 	for _, r := range routes {
 		if !local.Masked().Contains(r.Prefix.Addr()) || r.Prefix.Bits() < local.Bits() {
 			cfg.tun.Routes = append(cfg.tun.Routes, r.Prefix.Masked()) // outside the own subnet
@@ -154,13 +164,17 @@ func runNode(args []string, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "run:", err)
 		return 1
 	}
-	log.Info("network adapter up", "name", dev.Name(), "ip", cfg.tun.Address, "mtu", cfg.tun.MTU)
+	log.Info("network adapter up", "name", dev.Name(), "ip", cfg.tun.Address, "mtu", dev.MTU())
+	if dev.MTU() > cfg.linkMTU {
+		log.Info("adapter MTU above the radio MTU: TCP MSS is lowered and larger packets are fragmented",
+			"adapter", dev.MTU(), "radio", cfg.linkMTU)
+	}
 
 	var bridge *ipbridge.Bridge
 	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
 		func(frame []byte) { bridge.FromRadio(frame) })
 	bridge, err = ipbridge.New(ipbridge.Config{MyCall: cfg.call, Local: cfg.tun.Address,
-		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast}, port.Send, dev.WritePacket)
+		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU}, port.Send, dev.WritePacket)
 	if err != nil {
 		dev.Close()
 		fmt.Fprintln(stderr, "run:", err)

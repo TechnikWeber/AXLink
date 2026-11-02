@@ -13,11 +13,12 @@ suits small, text-based use.
  ordinary programs (ping, curl, servers)
           │ sockets
    operating-system IPv4 stack
-          │ axl0 (TUN, MTU 256)
+          │ axl0 (Linux: TUN, MTU 256 · Windows: Wintun, MTU 576)
 ┌──────────────────────────── axlinkd ─────────────────────────────┐
-│ internal/tun        virtual network adapter (Linux)               │
+│ internal/tun        virtual network adapter (Linux, Windows)      │
 │ internal/ipbridge   IPv4 ↔ AX.25 UI/PID 0xCC, destination filter, │
-│                     routes, broadcast filter                       │
+│                     routes, broadcast filter, MSS clamping,        │
+│                     fragmentation                                  │
 │ internal/tnc        connection, reconnecting, paced sending        │
 │ internal/pacing     profile per TNC                                │
 │ internal/kiss · internal/ax25 · internal/airtime                   │
@@ -37,6 +38,18 @@ queue; the sender encodes it as KISS (or ACKMODE) and writes it as the TNC profi
 **In:** the KISS decoder hands every data frame to the bridge. Only UI frames with PID `0xCC`
 addressed to the own callsign and SSID pass, and only with a valid IPv4 header (checksum,
 length). The packet then goes to `axl0`.
+
+**MTU:** an IP packet on the radio has at most 256 bytes (`-mtu`), the classic AX.25
+information field. Linux gives the adapter the same MTU. Windows does not accept an IPv4 MTU
+below 576 on an adapter, so there the adapter MTU is larger than the radio's. The bridge then
+behaves like a router in front of a smaller link:
+
+- It lowers the MSS option of TCP SYNs in both directions to the radio MTU − 40 (216), so TCP
+  segments fit; it corrects the TCP checksum.
+- It fragments other packets without DF (RFC 791); each fragment travels in its own UI frame
+  and the receiving IP stack reassembles them.
+- It drops packets with DF that do not fit (counter `TooBig`). It does not answer with ICMP
+  "fragmentation needed" yet.
 
 ## TNC profiles
 
@@ -65,9 +78,10 @@ addresses come with an allocation. Automatic addressing comes with station disco
   in virtual time.
 - `internal/sim/channel`: a frame-level radio channel in real time: half duplex, collisions, a
   JSON trace; in front of each station either an ideal TNC or the F4HWN model (optionally with
-  ACKMODE).
+  ACKMODE). The trace also records frames the model drops before the air.
 - `scripts/lab-netns.sh`: two stations in their own network namespaces with real kernel IP
-  stacks; ping, UDP and HTTP. Also in CI.
+  stacks; ping, UDP and HTTP; optionally with adapter MTU 576 as on Windows, which adds a
+  fragmented ping and a 2 KB download. Also in CI.
 
 Results from the model are not hardware results.
 
@@ -75,7 +89,11 @@ Results from the model are not hardware results.
 
 - Linux: TUN through wireguard-go without offloads (one packet per read), configured with
   iproute2; root or `CAP_NET_ADMIN`. Builds for amd64, arm64 and ARMv6 (Pi Zero W).
-- Windows: serial ports work; the adapter (Wintun through wireguard-go) is planned.
+- Windows: Wintun through wireguard-go, with a fixed GUID per adapter name so that Windows
+  recognises the network again; address, routes and MTU through the IP Helper API (`winipcfg`
+  of WireGuard for Windows). Needs administrator rights and `wintun.dll` next to `axlinkd.exe`
+  (`scripts/fetch-wintun.ps1`; not shipped). Adapter MTU at least 576, see MTU above. CI creates
+  a real adapter and pings through it; not yet tested with a radio.
 - macOS: serial ports work (USB details need cgo); the adapter (utun) is planned.
 
 ## Planned

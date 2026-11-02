@@ -10,31 +10,15 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"sync"
 	"syscall"
 
 	"golang.org/x/sys/unix"
 	wgtun "golang.zx2c4.com/wireguard/tun"
 )
 
-// headroom in front of each packet buffer, as wireguard-go expects.
-const headroom = 16
-
-type linuxDevice struct {
-	dev   wgtun.Device
-	name  string
-	rbufs [][]byte
-	sizes []int
-
-	wmu  sync.Mutex // WritePacket may be called from several goroutines
-	wbuf []byte
-}
+const minMTU = 68
 
 func open(cfg Config) (Device, error) {
-	name := cfg.Name
-	if name == "" {
-		name = "axl0"
-	}
 	// Open the device ourselves without IFF_VNET_HDR: wireguard-go then
 	// disables GSO offloads. With MTU 256 a 64 KB offload packet would split
 	// into more segments than one read can return.
@@ -42,7 +26,7 @@ func open(cfg Config) (Device, error) {
 	if err != nil {
 		return nil, fmt.Errorf("tun: open /dev/net/tun: %w", err)
 	}
-	ifr, err := unix.NewIfreq(name)
+	ifr, err := unix.NewIfreq(cfg.Name)
 	if err != nil {
 		unix.Close(fd)
 		return nil, err
@@ -50,7 +34,7 @@ func open(cfg Config) (Device, error) {
 	ifr.SetUint16(unix.IFF_TUN | unix.IFF_NO_PI)
 	if err := unix.IoctlIfreq(fd, unix.TUNSETIFF, ifr); err != nil {
 		unix.Close(fd)
-		return nil, fmt.Errorf("tun: create %s: %w (needs CAP_NET_ADMIN)", name, err)
+		return nil, fmt.Errorf("tun: create %s: %w (needs CAP_NET_ADMIN)", cfg.Name, err)
 	}
 	if err := unix.SetNonblock(fd, true); err != nil {
 		unix.Close(fd)
@@ -60,16 +44,15 @@ func open(cfg Config) (Device, error) {
 	if err != nil {
 		return nil, fmt.Errorf("tun: %w", err)
 	}
+	name := cfg.Name
 	if real, err := dev.Name(); err == nil {
 		name = real
 	}
-	d := &linuxDevice{dev: dev, name: name, sizes: make([]int, 1), wbuf: make([]byte, headroom+65535)}
-	d.rbufs = [][]byte{make([]byte, headroom+65535)}
 	if err := configure(name, cfg); err != nil {
 		dev.Close()
 		return nil, err
 	}
-	return d, nil
+	return newWGDevice(dev, name, cfg.MTU), nil
 }
 
 // configure sets the address, MTU and routes with iproute2 and turns IPv6
@@ -99,28 +82,3 @@ func configure(name string, cfg Config) error {
 	}
 	return nil
 }
-
-func (d *linuxDevice) Name() string { return d.name }
-
-func (d *linuxDevice) ReadPacket(buf []byte) (int, error) {
-	for {
-		n, err := d.dev.Read(d.rbufs, d.sizes, headroom)
-		if err != nil {
-			return 0, err
-		}
-		if n == 0 || d.sizes[0] == 0 {
-			continue
-		}
-		return copy(buf, d.rbufs[0][headroom:headroom+d.sizes[0]]), nil
-	}
-}
-
-func (d *linuxDevice) WritePacket(pkt []byte) error {
-	d.wmu.Lock()
-	defer d.wmu.Unlock()
-	n := copy(d.wbuf[headroom:], pkt)
-	_, err := d.dev.Write([][]byte{d.wbuf[:headroom+n]}, headroom)
-	return err
-}
-
-func (d *linuxDevice) Close() error { return d.dev.Close() }
