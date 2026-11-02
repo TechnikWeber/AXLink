@@ -29,6 +29,8 @@ app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 - `axlinkd run`: a radio over USB (F4HWN radios are found by their USB ID `36B7:FFFF`), KISS
   over TCP or a Unix socket. It reconnects after USB resets, paces frames per TNC profile and
   supports ACKMODE.
+- Station discovery: each station announces its address and roles (`INET`, `RELAY`, …) in a
+  short beacon, so stations in the same subnet reach each other without configured routes.
 - A network adapter `axl0` on Linux (TUN) and Windows (Wintun) and IPv4 over AX.25 UI/PID
   `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter. Radio
   packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink lowers
@@ -46,7 +48,7 @@ go test ./...
 bash scripts/lab-netns.sh                # the two-station lab
 go build -o axlinkd ./cmd/axlinkd
 ./axlinkd ports
-sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
 ```
 
 Windows: an administrator PowerShell and `wintun.dll` next to `axlinkd.exe`

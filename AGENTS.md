@@ -8,8 +8,8 @@ and [docs/TODO.md](docs/TODO.md).
 
 Ordinary IPv4 programs over KISS radios and TNCs, as one portable Go program (`axlinkd`):
 Linux first, then Windows and macOS. Tuned first to the Quansheng UV-K1 / UV-K5 V3 with the
-F4HWN KISS TNC app; any standard KISS TNC must keep working. Later: station discovery, chat,
-gateways, mesh.
+F4HWN KISS TNC app; any standard KISS TNC must keep working. Station discovery works; later:
+chat, gateways, mesh.
 
 ## Rules
 
@@ -32,3 +32,6 @@ gateways, mesh.
 - Respect upstream licences: Packet.NET and pdn-net (AGPL) are test peers only; F4HWN code is
   Apache-2.0.
 - Keep `docs/TODO.md` and `CHANGELOG.md` current with each change.
+- Upstream threads (F4HWN, the KISS TNC app) are listed in
+  [docs/upstream/README.md](docs/upstream/README.md). When a change or finding affects what we
+  told them, add it there under "To tell them next time"; never post for the owner.

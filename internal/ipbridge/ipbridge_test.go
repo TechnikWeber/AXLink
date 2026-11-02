@@ -59,6 +59,36 @@ func stationA() Config {
 	}
 }
 
+func TestLearnedAddressesComeBetweenExactAndShorterRoutes(t *testing.T) {
+	cfg := stationA()
+	cfg.Routes = []Route{
+		{netip.MustParsePrefix("10.73.0.0/24"), ax25.MustAddress("TESTGW")},
+		{netip.MustParsePrefix("10.73.0.9/32"), ax25.MustAddress("TESTD-1")},
+	}
+	cfg.Learned = func(a netip.Addr) (ax25.Address, bool) {
+		if a == netip.MustParseAddr("10.73.0.2") || a == netip.MustParseAddr("10.73.0.9") {
+			return ax25.MustAddress("TESTB-1"), true
+		}
+		return ax25.Address{}, false
+	}
+	h := newHarness(t, cfg)
+	for dst, want := range map[string]string{
+		"10.73.0.2": "TESTB-1", // learned, before the /24
+		"10.73.0.9": "TESTD-1", // the configured /32 comes first
+		"10.73.0.7": "TESTGW",  // nothing learned: the /24
+	} {
+		h.sent = nil
+		h.b.FromAdapter(udpPacket("10.73.0.1", dst, "x"))
+		if len(h.sent) != 1 {
+			t.Fatalf("%s: nothing sent", dst)
+		}
+		f, _ := ax25.Decode(h.sent[0])
+		if f.Dest.String() != want {
+			t.Errorf("%s went to %s, want %s", dst, f.Dest, want)
+		}
+	}
+}
+
 func TestKnownGoodPacketHasValidChecksum(t *testing.T) {
 	// The IPv4/UDP packet from the v0.1 destination-filter tests (built independently).
 	p := []byte{0x45, 0x00, 0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x40, 0x11, 0x66, 0x38,

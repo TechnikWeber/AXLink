@@ -62,7 +62,7 @@ Fusion.
 
 ```sh
 ./axlinkd ports      # shows the radio with USB 36B7:FFFF
-sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
 ```
 
 The profile `f4hwn-kisstnc` is the default for serial ports. Details:

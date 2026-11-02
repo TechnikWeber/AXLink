@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
 )
 
@@ -71,6 +72,7 @@ type frameJSON struct {
 	Control *uint8   `json:"control,omitempty"`
 	PID     *uint8   `json:"pid,omitempty"`
 	Info    string   `json:"info,omitempty"`
+	Beacon  string   `json:"beacon,omitempty"` // the text of an AXLink station beacon
 	Payload string   `json:"payload,omitempty"`
 	Error   string   `json:"error,omitempty"`
 }
@@ -145,5 +147,11 @@ func describe(f kiss.Frame) frameJSON {
 		out.PID = &p
 	}
 	out.Info = hex.EncodeToString(fr.Info)
+	if _, _, ok, err := discovery.FromFrame(fr); ok {
+		out.Beacon = string(fr.Info)
+		if err != nil {
+			out.Error = err.Error()
+		}
+	}
 	return out
 }

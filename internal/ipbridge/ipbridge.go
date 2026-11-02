@@ -35,6 +35,10 @@ type Config struct {
 	// adapter's MTU is larger (Windows: at least 576), the bridge lowers the
 	// TCP MSS in both directions and fragments larger packets without DF.
 	LinkMTU int
+	// Learned returns the station that announced an address (station
+	// discovery); nil for none. A configured route for exactly that address
+	// comes first, a learned address before configured shorter prefixes.
+	Learned func(addr netip.Addr) (ax25.Address, bool)
 }
 
 // Stats counts packets.
@@ -185,6 +189,11 @@ func (b *Bridge) route(dst netip.Addr) (ax25.Address, bool) {
 	for _, r := range b.cfg.Routes {
 		if r.Prefix.Bits() > best && r.Prefix.Contains(dst) {
 			best, call = r.Prefix.Bits(), r.Call
+		}
+	}
+	if best < 32 && b.cfg.Learned != nil {
+		if c, ok := b.cfg.Learned(dst); ok {
+			return c, true
 		}
 	}
 	return call, best >= 0

@@ -14,11 +14,12 @@ suits small, text-based use.
           │ sockets
    operating-system IPv4 stack
           │ axl0 (Linux: TUN, MTU 256 · Windows: Wintun, MTU 576)
-┌──────────────────────────── axlinkd ─────────────────────────────┐
-│ internal/tun        virtual network adapter (Linux, Windows)      │
-│ internal/ipbridge   IPv4 ↔ AX.25 UI/PID 0xCC, destination filter, │
+┌───────────────────────────── axlinkd ──────────────────────────────┐
+│ internal/tun        virtual network adapter (Linux, Windows)       │
+│ internal/ipbridge   IPv4 ↔ AX.25 UI/PID 0xCC, destination filter,  │
 │                     routes, broadcast filter, MSS clamping,        │
 │                     fragmentation                                  │
+│ internal/discovery  station beacons, learned addresses             │
 │ internal/txqueue    transmit queue: small first, repeats merged    │
 │ internal/tnc        connection, reconnecting, paced sending        │
 │ internal/pacing     profile per TNC                                │
@@ -90,9 +91,20 @@ the KISS parameters again. A frame that did not reach the TNC completely is sent
 
 ## Addressing
 
-For now static: the own address and prefix on the adapter, routes `IP/PREFIX=CALLSIGN`.
+Each station has its own address and prefix on the adapter (`-ip`, still set by hand). It
+announces both, with its tags, in a beacon ([protocol/beacon.md](protocol/beacon.md), CC BY 4.0):
+a short UI frame to `AXLINK` with PID `0xF0`, e.g. `AXL1 ip=10.73.0.2/24 tags=INET`, once
+shortly after the start and then every 10 minutes. A station that has just started asks the
+others for their beacons (`ask=1`); they answer after 2–8 s, at most once in 30 s. Others thus
+learn which callsign has which address; an entry is forgotten after three missed beacons.
+
+Packets for a learned address go to that callsign. A configured route `IP/PREFIX=CALLSIGN` for
+exactly that address comes first, a learned address before configured shorter prefixes. Two
+stations with one address: the newer beacon wins, with a warning. Beacons are not
+authenticated, just as ARP is not.
+
 Private addresses (e.g. `10.73.0.0/24`) suit tests and private networks; AMPRNet (44/8)
-addresses come with an allocation. Automatic addressing comes with station discovery.
+addresses come with an allocation.
 
 ## Simulation and lab
 
@@ -120,7 +132,8 @@ Results from the model are not hardware results.
 
 ## Planned
 
-- Station discovery with tags `RELAY`, `INET`, `LINK`, `AUTO`.
+- Gateways chosen deliberately: a client picks an `INET` station (proxy or route), and the
+  gateway announces its rules (services, rate, contact) in its beacon.
 - Chat in the APRS message format, so that messenger radios can take part.
 - A transmit queue with priorities and duplicate suppression.
 - A link gateway (AXUDP between radio islands) and an internet gateway in userspace (gVisor

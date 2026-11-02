@@ -16,7 +16,9 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 - [ ] ICMP "fragmentation needed" for packets with DF that are larger than the radio MTU
       (path-MTU discovery); today they are dropped.
 - [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
-- [ ] Station discovery with tags (`RELAY`, `INET`, `LINK`, `AUTO`).
+- [ ] Gateways: a client chooses an `INET` station deliberately (proxy or route); the gateway
+      announces its rules (services, rate, contact) in its beacon. Show the stations in the
+      web UI.
 - [ ] Chat in the APRS message format, so that messenger radios can take part.
 - [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
 - [ ] Mesh: forwarding A↔B↔C, routing with an airtime budget.
@@ -35,7 +37,8 @@ Repository: [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC
 - [ ] **Entry in the UV Studio Community tab** (after the hardware test): Apps → Community →
       Propose an app, with the app running on a radio.
 - [ ] Reply in [Discussion #764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764)
-      once the extensions are built and tested.
+      once the extensions are built and tested; what to tell them is collected in
+      [upstream/README.md](upstream/README.md).
 
 ## After F4HWN v7
 

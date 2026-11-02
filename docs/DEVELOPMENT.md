@@ -25,11 +25,16 @@ Example with a radio (Linux; the callsigns are placeholders, enter your own):
 
 ```sh
 ./axlinkd ports
-sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
 ```
 
 - `-port auto` picks the one connected F4HWN radio; otherwise `-port /dev/ttyACM0`. Other TNCs:
   `-port` with `-profile generic-kiss`, or `-kiss-tcp host:port` (Dire Wolf).
+- Stations find each other by their beacons ([beacon.md](protocol/beacon.md)): every 10 minutes
+  (`-beacon`, `0` sends none but still listens), one shortly after the start. The log says
+  `station heard` for each new station, and the statistics list the known ones. `-tags` adds
+  roles, e.g. `-tags INET,AUTO` on a gateway that runs unattended. `-route IP/PREFIX=CALLSIGN`
+  is needed only for stations that send no beacons or for addresses outside the own subnet.
 - The network adapter (`axl0`) needs root or `CAP_NET_ADMIN`. Instead of `sudo`,
   `sudo setcap cap_net_admin+ep ./axlinkd` should work; that variant is not tested yet.
 - `-mtu` is the largest IP packet on the radio (default 256, the classic AX.25 information
@@ -50,7 +55,7 @@ Windows, in a PowerShell started as administrator (the adapter needs it):
 # wintun.dll next to axlinkd.exe; Bypass lets just this script run
 powershell -ExecutionPolicy Bypass -File .\scripts\fetch-wintun.ps1 -Destination C:\AXLink
 C:\AXLink\axlinkd.exe ports
-C:\AXLink\axlinkd.exe run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
+C:\AXLink\axlinkd.exe run -call <CALL>-1 -port auto -ip 10.73.0.1/24
 ```
 
 - There is no Windows package with `wintun.dll` yet (allowed by D8). Until then the script
@@ -79,8 +84,8 @@ bash scripts/lab-netns.sh f4hwn 576       # adapter MTU 576 as on Windows
 ```
 
 Two stations in their own user and network namespaces (no root, no Docker) with real kernel IP
-stacks and TUN devices, connected through `axlinkd sim-channel`. The lab checks ping, UDP and
-HTTP from A to B. The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
+stacks and TUN devices, connected through `axlinkd sim-channel`. They have no routes and must
+first find each other by their beacons; then the lab checks ping, UDP and HTTP from A to B. The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
 The result also lists frames the TNC model threw away before they reached the air (`drop` in
 the trace): `tnc-busy` when a frame arrived while another still waited for the channel,
 `usb-ring` when the 256-byte USB ring overflowed. The radio itself has no counter for either.
@@ -108,6 +113,7 @@ On Windows as administrator, with `wintun.dll` next to the test binary (`go test
 | `internal/ax25` | AX.25 v2.2 addresses and frames (without FCS, as over KISS), FCS |
 | `internal/airtime` | bit stuffing and airtime of a frame |
 | `internal/pacing` | how AXLink feeds a TNC (profiles) |
+| `internal/discovery` | station beacons: own announcements, the table of stations heard, learned addresses |
 | `internal/txqueue` | the transmit queue: small packets first, TCP retransmissions merged or dropped |
 | `internal/tnc` | the connection to a TNC: serial, KISS-TCP, Unix socket; reconnecting; paced sending |
 | `internal/tun` | the virtual network adapter (Linux: TUN; Windows: Wintun; macOS follows) |

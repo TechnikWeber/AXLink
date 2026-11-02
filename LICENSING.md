@@ -4,7 +4,7 @@
 
 - **Code** (Go core, scripts, tests, tools): **GPL-3.0-or-later**, text in [LICENSE](LICENSE).
   New source files start with `SPDX-License-Identifier: GPL-3.0-or-later`.
-- **Protocol specifications** (in future under `docs/protocol/`): **CC BY 4.0**, text in
+- **Protocol specifications** (under `docs/protocol/`, the first is the station beacon): **CC BY 4.0**, text in
   [licenses/CC-BY-4.0.txt](licenses/CC-BY-4.0.txt). Any project can implement the protocol
   freely, firmware under Apache-2.0 included.
 - Other documentation: like the code, unless stated otherwise.

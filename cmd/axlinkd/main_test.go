@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
@@ -81,6 +82,13 @@ func TestRunFlags(t *testing.T) {
 	if cfg.linkMTU != 256 || cfg.tun.MTU != 256 {
 		t.Fatalf("MTUs radio %d adapter %d", cfg.linkMTU, cfg.tun.MTU)
 	}
+	if cfg.beacon != 10*time.Minute || cfg.tags != nil {
+		t.Fatalf("beacon %v, tags %v", cfg.beacon, cfg.tags)
+	}
+	gw, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-tags", "inet,auto", "-beacon", "0"}, &errs)
+	if err != nil || strings.Join(gw.tags, ",") != "INET,AUTO" || gw.beacon != 0 {
+		t.Fatalf("gateway flags: %+v %v", gw, err)
+	}
 	big, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-adapter-mtu", "576"}, &errs)
 	if err != nil || big.linkMTU != 256 || big.tun.MTU != 576 {
 		t.Fatalf("adapter MTU: %+v %v", big, err)
@@ -100,10 +108,26 @@ func TestRunFlags(t *testing.T) {
 		"unknown profile":  {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-profile", "nope"},
 		"bad route":        {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-route", "10.73.0.2"},
 		"tiny MTU":         {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-mtu", "40"},
+		"bad tag":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-tags", "IN-ET"},
+		"short beacon":     {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-beacon", "10s"},
 	} {
 		if _, err := parseNodeFlags(args, &errs); err == nil {
 			t.Errorf("%s: accepted", name)
 		}
+	}
+}
+
+func TestDecodeShowsBeacons(t *testing.T) {
+	frame, _ := ax25.NewUI(ax25.MustAddress("AXLINK"), ax25.MustAddress("TESTB-1"), nil, ax25.PIDNoL3,
+		[]byte("AXL1 ip=10.73.0.2/24 tags=INET")).Encode()
+	stream, _ := kiss.Append(nil, kiss.Data(0, frame))
+	var out, errs bytes.Buffer
+	if code := run([]string{"decode"}, bytes.NewReader(stream), &out, &errs); code != 0 {
+		t.Fatalf("code %d: %s", code, errs.String())
+	}
+	var f frameJSON
+	if err := json.Unmarshal(bytes.TrimSpace(out.Bytes()), &f); err != nil || f.Beacon != "AXL1 ip=10.73.0.2/24 tags=INET" || f.Error != "" {
+		t.Fatalf("%q %v", out.String(), err)
 	}
 }
 

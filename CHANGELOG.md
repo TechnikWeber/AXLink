@@ -20,6 +20,12 @@ CC BY 4.0), the repository in English.
   with the profile `f4hwn-kisstnc` all arrive (~104 B/s). With a busy channel the estimate alone
   loses frames; the port then also uses the frames the radio heard (below), and ACKMODE avoids
   losses fully.
+- `internal/discovery` and [docs/protocol/beacon.md](docs/protocol/beacon.md) (CC BY 4.0): station
+  beacons with address and tags (`RELAY`, `INET`, `LINK`, `AUTO`), one after the start that asks
+  for the others' beacons, then every 10 minutes; answers at most once in 30 s. Learned
+  addresses become routes; configured ones for the exact address come first. `run -tags` and
+  `-beacon`; `decode` shows beacon texts. The lab now runs without routes: the stations find each
+  other in 3–5 s (model).
 - `internal/txqueue`: the transmit queue. Packets of up to 128 bytes go first (at most three in
   a row while a larger one waits, never ahead of their own flow); a TCP retransmission replaces
   its waiting original or is dropped if the original has just gone out; a newer pure ACK

@@ -17,10 +17,12 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/pacing"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
 	"github.com/TechnikWeber/AXLink/internal/tun"
+	"github.com/TechnikWeber/AXLink/internal/txqueue"
 )
 
 // routeFlags collects -route IP/PREFIX=CALLSIGN.
@@ -57,6 +59,8 @@ type nodeConfig struct {
 	linkMTU        int
 	routes         []ipbridge.Route
 	allowBroadcast bool
+	tags           []string
+	beacon         time.Duration
 }
 
 func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
@@ -72,8 +76,10 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	mtu := fs.Int("mtu", ipbridge.DefaultLinkMTU, "largest IP packet on the radio (the AX.25 information field)")
 	adapterMTU := fs.Int("adapter-mtu", 0, "MTU of the network adapter; 0 = the radio MTU, raised to the system minimum (Windows: 576)")
 	var routes routeFlags
-	fs.Var(&routes, "route", "IP/PREFIX=CALLSIGN: send packets for these addresses to that station (repeatable)")
+	fs.Var(&routes, "route", "IP/PREFIX=CALLSIGN: send packets for these addresses to that station (repeatable); stations that send beacons are found without it")
 	allowBroadcast := fs.Bool("allow-broadcast", false, "let broadcast and multicast packets onto the radio")
+	tagList := fs.String("tags", "", "roles to announce, comma-separated: RELAY, INET, LINK, AUTO")
+	beacon := fs.Duration("beacon", discovery.DefaultEvery, "interval of the station beacon; 0 sends none, stations are still learned")
 	if err := fs.Parse(args); err != nil {
 		return nodeConfig{}, err
 	}
@@ -137,7 +143,18 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	}
 	cfg.routes = routes
 	cfg.allowBroadcast = *allowBroadcast
+	if cfg.tags, err = discovery.ParseTags(*tagList); err != nil {
+		return cfg, fmt.Errorf("-tags: %w", err)
+	}
+	cfg.beacon = *beacon
+	if err := cfg.discovery().Check(); err != nil {
+		return cfg, fmt.Errorf("-beacon/-tags: %w", err)
+	}
 	return cfg, nil
+}
+
+func (cfg nodeConfig) discovery() discovery.Config {
+	return discovery.Config{Call: cfg.call, Addr: cfg.tun.Address, Tags: cfg.tags, Every: cfg.beacon}
 }
 
 func btoi(b bool) int {
@@ -171,10 +188,22 @@ func runNode(args []string, stderr io.Writer) int {
 	}
 
 	var bridge *ipbridge.Bridge
+	var disc *discovery.Service
 	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
-		func(frame []byte) { bridge.FromRadio(frame) })
+		func(frame []byte) {
+			if !disc.Handle(frame) {
+				bridge.FromRadio(frame)
+			}
+		})
+	dcfg := cfg.discovery()
+	dcfg.Logger = log
+	dcfg.Send = func(frame []byte) bool {
+		return port.SendMeta(frame, txqueue.Meta{Urgent: true, Replace: "beacon"})
+	}
+	disc = discovery.New(dcfg)
 	bridge, err = ipbridge.New(ipbridge.Config{MyCall: cfg.call, Local: cfg.tun.Address,
-		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU}, port.SendMeta, dev.WritePacket)
+		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU, Learned: disc.Lookup},
+		port.SendMeta, dev.WritePacket)
 	if err != nil {
 		dev.Close()
 		fmt.Fprintln(stderr, "run:", err)
@@ -183,6 +212,7 @@ func runNode(args []string, stderr io.Writer) int {
 
 	portDone := make(chan error, 1)
 	go func() { portDone <- port.Run(ctx) }()
+	go disc.Run(ctx)
 	adapterDone := make(chan error, 1)
 	go func() {
 		buf := make([]byte, 65535)
@@ -197,7 +227,8 @@ func runNode(args []string, stderr io.Writer) int {
 	}()
 
 	logStats := func() {
-		log.Info("stats", "port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()))
+		log.Info("stats", "port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
+			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary())
 	}
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()

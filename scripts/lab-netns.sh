@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Two AXLink stations in their own network namespaces (no root, no Docker),
-# connected through the simulated radio channel. Checks ping, UDP and HTTP
+# connected through the simulated radio channel. The stations have no routes:
+# they find each other by their beacons. Then the lab checks ping, UDP and HTTP
 # from A to B with real kernel IP stacks. No radio hardware.
 #
 #   bash scripts/lab-netns.sh [f4hwn|f4hwn-ackmode|ideal] [ADAPTER_MTU]
@@ -90,8 +91,9 @@ cat > "$WORK/node.sh" <<'SH'
 set -eu
 WORK=$1; NAME=$2; CALL=$3; IP=$4; PEER_IP=$5; PEER_CALL=$6; PROFILE=$7; SOCK=$8; ADAPTER_MTU=${9:-}
 ip link set lo up
+started=$(date +%s%N)
 "$WORK/axlinkd" run -call "$CALL" -kiss-unix "$SOCK/$NAME.sock" -profile "$PROFILE" \
-    -ip "$IP/24" -route "$PEER_IP=$PEER_CALL" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} 2> "$WORK/node-$NAME.log" &
+    -ip "$IP/24" ${ADAPTER_MTU:+-adapter-mtu "$ADAPTER_MTU"} 2> "$WORK/node-$NAME.log" &
 NODE=$!
 for _ in $(seq 100); do ip -4 addr show axl0 2>/dev/null | grep -q "$IP" && break; sleep 0.1; done
 ip -4 addr show axl0 | grep -q "$IP" || { echo "axl0 did not come up" >&2; kill $NODE; exit 1; }
@@ -106,6 +108,18 @@ if [ "$NAME" = b ]; then
 fi
 for _ in $(seq 300); do [ -e "$WORK/b.ready" ] && break; sleep 0.1; done
 status=0
+# No routes: wait until both stations have heard each other's beacon.
+found=0
+for _ in $(seq 600); do
+    if grep -q "msg=\"station heard\" call=$PEER_CALL " "$WORK/node-$NAME.log" &&
+        grep -q "msg=\"station heard\" call=$CALL " "$WORK/node-b.log"; then
+        found=1
+        break
+    fi
+    sleep 0.1
+done
+echo $(( ($(date +%s%N) - started) / 1000000 )) > "$WORK/discovery.ms"
+[ $found = 1 ] || status=1
 LC_ALL=C ping -c 3 -i 4 -W 30 "$PEER_IP" > "$WORK/ping.log" 2>&1 || status=1
 python3 -I "$WORK/udp_probe.py" "$PEER_IP" "$NONCE_ENV" > "$WORK/udp.log" 2>&1 || status=1
 start=$(date +%s%N)
@@ -141,6 +155,12 @@ NONCE_ENV="$NONCE" unshare -Urn sh "$WORK/node.sh" "$WORK" a TESTA-1 10.73.0.1 1
 
 echo
 echo "== Result ($MODE${ADAPTER_MTU:+, adapter MTU $ADAPTER_MTU}, $(( $(date +%s) - started )) s) =="
+if grep -q "call=TESTB-1 " "$WORK/node-a.log" && grep -q "call=TESTA-1 " "$WORK/node-b.log"; then
+    echo "found: both stations by their beacons, $(( $(cat "$WORK/discovery.ms") / 1000 )).$(( $(cat "$WORK/discovery.ms") % 1000 / 100 )) s after A started"
+else
+    echo "found: FAILED, the stations did not hear each other's beacons"
+    status=1
+fi
 echo "ping:  $(grep -E 'packets transmitted|rtt' "$WORK/ping.log" | tr '\n' ' ')"
 echo "UDP:   $(cat "$WORK/udp.log")"
 if grep -qx "AXLink $NONCE" "$WORK/http.out" 2>/dev/null; then
@@ -167,7 +187,7 @@ if [[ -n "$ADAPTER_MTU" ]]; then
 fi
 python3 -I - "$WORK/trace.jsonl" <<'PY' || status=1
 import json, sys
-tx = {"a": 0, "b": 0}; ip = {"a": 0, "b": 0}; rx = 0; lost = {}; dropped = {}
+tx = {"a": 0, "b": 0}; ip = {"a": 0, "b": 0}; beacons = {"a": 0, "b": 0}; rx = 0; lost = {}; dropped = {}
 air = 0.0
 for line in open(sys.argv[1]):
     e = json.loads(line)
@@ -176,6 +196,9 @@ for line in open(sys.argv[1]):
         air += e["dur"]
         if e["frame"][30:32] == "cc":
             ip[e["from"]] += 1
+        dest = bytes(b >> 1 for b in bytes.fromhex(e["frame"][:12])).decode("ascii", "replace")
+        if dest == "AXLINK" and e["frame"][30:32] == "f0":
+            beacons[e["from"]] += 1
     elif e["ev"] == "rx":
         rx += 1
     elif e["ev"] == "drop":  # inside the TNC model, never on the air
@@ -183,8 +206,8 @@ for line in open(sys.argv[1]):
         dropped[key] = dropped.get(key, 0) + 1
     else:
         lost[e["why"]] = lost.get(e["why"], 0) + 1
-print(f"channel: {tx['a']} frames from A, {tx['b']} from B (IPv4/PID 0xCC: {ip['a']} / {ip['b']}),"
-      f" {rx} received, lost on the air {lost or 0}, airtime {air:.0f} s")
+print(f"channel: {tx['a']} frames from A, {tx['b']} from B (IPv4/PID 0xCC: {ip['a']} / {ip['b']},"
+      f" beacons {beacons['a']} / {beacons['b']}), {rx} received, lost on the air {lost or 0}, airtime {air:.0f} s")
 print(f"TNC:     frames dropped before the air {dropped or 0}")
 if not (ip["a"] and ip["b"]):
     print("FAILED: no IP frames in both directions on the channel")
