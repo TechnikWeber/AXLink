@@ -20,8 +20,9 @@ Die Schritte folgen dem F4HWN-Wiki (Seiten „Multiboot and Multiconfig“, „U
 
 **Nur TNC, ohne Messenger:** Dafür braucht es kein Multiboot. Das originale F4HWN Labs v6.3.0
 normal flashen (UV Studio → *Flash Firmware*), dann wie in Schritt 4 unten die KISS-TNC-App
-installieren, später auch unsere eigene (Arbeitstitel AXLink TNC). Ab v7 geht dasselbe mit
-dem originalen Fusion.
+installieren, später auch unsere eigene
+([AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC), als `.app` über UV Studio →
+*Apps* → *Community* → *Install a .app*). Ab v7 geht dasselbe mit dem originalen Fusion.
 
 ## Was du brauchst
 

@@ -11,7 +11,9 @@
 > `scripts/lab-netns.sh` prüft ping, UDP und HTTP zwischen zwei Stationen ohne root und Docker.
 > Start: `bash scripts/setup-go.sh`, dann `go test ./...`; Details in
 > [DEVELOPMENT.md](docs/DEVELOPMENT.md). Messenger und KISS TNC bis F4HWN v7:
-> [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md). Die unten beschriebene Simulator-Demo mit
+> [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md). Eigene KISS-App fürs Funkgerät:
+> [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC). Offene Punkte:
+> [TODO.md](docs/TODO.md). Die unten beschriebene Simulator-Demo mit
 > pdn/pdn-net bleibt als Referenz erhalten (Tag `v0.1.0-alpha.1`).
 
 ## Aktueller Arbeitsstand

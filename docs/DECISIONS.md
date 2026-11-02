@@ -60,9 +60,13 @@ der unveränderten App, weil AXLink auf Host-Seite taktet.
 - Name: Der Community-Tab vergleicht Namen nur nach Kleinbuchstaben und Ziffern und lässt keine
   offiziellen Namen zu. „KISS TNC+“ ergäbe „kisstnc“ wie das Original und geht nicht.
   Arbeitstitel: **AXLink TNC**.
-- Ablageort (offen): Vorschlag eigenes Repo mit F4HWN als gepinntem Submodul (Tag v6.3.0,
-  später v7), damit immer gegen die Originalfirmware gebaut wird; Lizenz Apache-2.0 wie das
-  Original. Alternative: eigener App-Ordner im Messenger-Fork mit eigenen Release-Tags.
+- Ablageort (entschieden 2026-11-02): eigenes Repo
+  [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC), öffentlich,
+  Apache-2.0 wie das Original. F4HWN ist als Submodul auf dem Release-Tag eingebunden (jetzt
+  v6.3.0), gebaut wird gegen die Originalfirmware. `app/` behält die Dateinamen von
+  `App/apps/kisstnc`; der erste Commit ist die unveränderte App, jede Änderung ein eigener
+  Commit, damit F4WAT sie ohne Pull Request übernehmen kann. Name „AXLink TNC“, Titel auf dem
+  Display „AXL TNC“. Offene Punkte: `TODO.md` dort und hier.
 
 **D5 – Lizenz.** Code: GPL-3.0-or-later (`LICENSE`). Protokollspezifikationen:
 CC BY 4.0 (`licenses/CC-BY-4.0.txt`). Details: `LICENSING.md`.
