@@ -92,7 +92,7 @@ Results from the model are not hardware results.
 - Windows: Wintun through wireguard-go, with a fixed GUID per adapter name so that Windows
   recognises the network again; address, routes and MTU through the IP Helper API (`winipcfg`
   of WireGuard for Windows). Needs administrator rights and `wintun.dll` next to `axlinkd.exe`
-  (`scripts/fetch-wintun.ps1`; not shipped). Adapter MTU at least 576, see MTU above. CI creates
+  (`scripts/fetch-wintun.ps1` until a Windows package contains it, D8). Adapter MTU at least 576, see MTU above. CI creates
   a real adapter and pings through it; not yet tested with a radio.
 - macOS: serial ports work (USB details need cgo); the adapter (utun) is planned.
 

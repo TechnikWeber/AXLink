@@ -8,6 +8,8 @@
   [licenses/CC-BY-4.0.txt](licenses/CC-BY-4.0.txt). Any project can implement the protocol
   freely, firmware under Apache-2.0 included.
 - Other documentation: like the code, unless stated otherwise.
+- **Additional permission for Wintun** (GPL-3.0 section 7, D8): AXLink may be passed on
+  together with `wintun.dll`; text [below](#additional-permission-for-wintun).
 - Tag `v0.1.0-alpha.1` predates this and was a private prerelease without a licence grant.
 - Third-party code keeps its licence (tables below).
 
@@ -52,13 +54,31 @@ The Windows adapter needs `wintun.dll`, a prebuilt driver library of WireGuard L
 together with software that uses the DLL through the API in `wintun.h`, as AXLink does through
 `golang.zx2c4.com/wintun`.
 
-AXLink does not ship `wintun.dll`. `scripts/fetch-wintun.ps1` downloads Wintun 0.14.1 from
-`https://www.wintun.net/builds/`, checks SHA-256
-`07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51` (checked on 2026-11-02) and
-puts the licence next to the DLL as `wintun-LICENSE.txt`.
+The Wintun sources are under GPL-2.0, which cannot be combined with GPL-3.0 either; the
+prebuilt DLL is what Windows can load, because it carries a signed driver.
 
-Before a Windows release that bundles `wintun.dll`: decide whether AXLink's licence gets an
-additional permission under GPL-3.0 section 7 for combining it with this non-free library.
+Until there is a Windows package, `scripts/fetch-wintun.ps1` fetches the DLL: it downloads
+Wintun 0.14.1 from `https://www.wintun.net/builds/`, checks SHA-256
+`07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51` (checked on 2026-11-02) and
+puts the licence next to the DLL as `wintun-LICENSE.txt`. A Windows package may contain
+`wintun.dll` (permission below), always together with `wintun-LICENSE.txt`, and may name Wintun
+but not advertise with the names WireGuard or Wintun (point 3e of its licence).
+
+## Additional permission for Wintun
+
+This permission is part of AXLink's licence terms for all of AXLink that is under
+GPL-3.0-or-later; the SPDX headers in the files stay `GPL-3.0-or-later`. The wording follows the
+template of the Free Software Foundation (GPL FAQ, "GPLIncompatibleLibs"):
+
+> Additional permission under GNU GPL version 3 section 7
+>
+> If you modify this Program, or any covered work, by linking or combining it with Wintun (the
+> library `wintun.dll` of WireGuard LLC, https://www.wintun.net) or a modified version of that
+> library, containing parts covered by the terms of the Wintun Prebuilt Binaries License or of
+> the GNU General Public License version 2, the licensors of this Program grant you additional
+> permission to convey the resulting work.
+
+As section 7 allows, whoever passes AXLink on may remove this permission from their copy.
 
 Planned: gVisor netstack (Apache-2.0) for gateways and for running without admin rights.
 

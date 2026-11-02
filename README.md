@@ -77,5 +77,5 @@ responsible for what is allowed on their frequency; AXLink does not restrict tra
 
 ## Licence
 
-GPL-3.0-or-later ([LICENSE](LICENSE)); protocol specifications CC BY 4.0. Third-party licences:
-[LICENSING.md](LICENSING.md).
+GPL-3.0-or-later ([LICENSE](LICENSE)) with an additional permission for Wintun on Windows;
+protocol specifications CC BY 4.0. Details and third-party licences: [LICENSING.md](LICENSING.md).

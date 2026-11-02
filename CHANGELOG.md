@@ -6,6 +6,8 @@ A new start after the review of 2026-11-02 ([REVIEW](docs/REVIEW_2026-11-02.md),
 [DECISIONS](docs/DECISIONS.md)): the core in Go, licence GPL-3.0-or-later (protocol texts
 CC BY 4.0), the repository in English.
 
+- Licence: an additional permission (GPL-3.0 section 7) allows passing AXLink on together
+  with `wintun.dll` (D8).
 - `internal/kiss`: KISS framing with escapes, parameters and G8BPQ ACKMODE; fuzz test.
 - `internal/ax25`: AX.25 v2.2 addresses and frames without FCS, the FCS (CRC-16/X.25). Cross-check
   with 123 frames that Packet.NET produced in the v0.1 lab: the same fields, re-encoded byte for

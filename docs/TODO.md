@@ -8,8 +8,8 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
       ([MULTIBOOT_V6.md](MULTIBOOT_V6.md)), run `axlinkd run` with the original KISS app,
       measure the limits (frame size, USB ring, pacing, USB reset), a throughput table.
 - [ ] Windows: test the adapter on a real PC with a radio (so far only CI pings through it),
-      the firewall rules for incoming connections, a release (bundling `wintun.dll`, licence
-      question in [LICENSING.md](../LICENSING.md)), running as a service.
+      the firewall rules for incoming connections, a release package with `axlinkd.exe`,
+      `wintun.dll` and its licence (allowed by D8), running as a service.
 - [ ] Network adapter for macOS (utun).
 - [ ] ICMP "fragmentation needed" for packets with DF that are larger than the radio MTU
       (path-MTU discovery); today they are dropped.

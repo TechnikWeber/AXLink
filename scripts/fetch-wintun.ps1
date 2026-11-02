@@ -9,8 +9,8 @@ checksum and puts wintun.dll for the chosen architecture, together with its
 licence (wintun-LICENSE.txt), into the destination folder. axlinkd.exe loads
 wintun.dll from its own folder, so the destination should be that folder.
 
-AXLink does not ship wintun.dll: it comes from WireGuard LLC under its own
-licence, which this script copies next to it.
+wintun.dll comes from WireGuard LLC under its own licence, which this script
+copies next to it (see LICENSING.md).
 
 .PARAMETER Destination
 The folder of axlinkd.exe. Default: the current folder.

@@ -53,9 +53,10 @@ C:\AXLink\axlinkd.exe ports
 C:\AXLink\axlinkd.exe run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
 ```
 
-- AXLink does not ship `wintun.dll`; the script downloads Wintun 0.14.1 from wintun.net, checks
-  its SHA-256 checksum and puts the DLL for this Windows's architecture (or `-Arch amd64|arm64`,
-  matching `axlinkd.exe`) and its licence into the folder.
+- There is no Windows package with `wintun.dll` yet (allowed by D8). Until then the script
+  downloads Wintun 0.14.1 from wintun.net, checks its SHA-256 checksum and puts the DLL for this
+  Windows's architecture (or `-Arch amd64|arm64`, matching `axlinkd.exe`) and its licence into
+  the folder.
 - The adapter keeps a fixed GUID per name, so Windows recognises the network again.
 - Windows normally treats a new network like this one as public: its firewall then blocks
   incoming connections there (pings to this station, servers on it). Outgoing connections and

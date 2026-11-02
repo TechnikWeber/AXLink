@@ -92,3 +92,12 @@ deleted after the migration to v7 (checklist there).
 commit messages and command-line output. The user interface (the planned web UI) offers English
 and German; the default follows the system or browser language and falls back to English.
 Commit messages and documents from before this decision are partly German and stay as they are.
+
+**D8 – Additional permission for Wintun.** The licence of D5 gets one additional permission
+under GPL-3.0 section 7: AXLink may be combined with Wintun (`wintun.dll` of WireGuard LLC), which
+the Windows network adapter needs, and the combination may be passed on. Reason: the prebuilt
+`wintun.dll` is not free software (its licence forbids changes), so without the permission a
+Windows package with `axlinkd.exe` and `wintun.dll` would break the GPL. The permission names
+only Wintun; everything else stays under the plain GPL. Windows packages may therefore contain
+`wintun.dll` with its licence file; until the first one, `scripts/fetch-wintun.ps1` fetches it.
+Text: [LICENSING.md](../LICENSING.md).
