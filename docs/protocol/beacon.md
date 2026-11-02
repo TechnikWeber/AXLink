@@ -34,6 +34,7 @@ AXL1 ip=10.73.0.2/24 tags=INET,AUTO
 | `every` | optional | seconds until its next periodic beacon, 60–86400; default 600 |
 | `tags` | optional | roles, comma-separated: 1–8 characters `A`–`Z` and `0`–`9` each, at most 8, no duplicates |
 | `proxy` | optional | TCP port 1–65535 of an HTTP proxy on the sender's address that forwards to the internet (requests with full URLs and CONNECT); with the tag `INET` |
+| `loc` | optional | the sender's Maidenhead locator, 4, 6, 8 or 10 characters (`JO62`, `JO62qm`); only when its operator chose to announce it. Receivers accept any case; encoders write the subsquare in lower case |
 | `ask` | optional | only `ask=1`: the sender has just started and asks the others for their beacons |
 
 - Keys are lower-case letters and digits; values are printable ASCII without spaces
@@ -41,8 +42,8 @@ AXL1 ip=10.73.0.2/24 tags=INET,AUTO
 - Receivers ignore unknown keys and keep unknown tags without a meaning, so that later versions
   can add both. Anything else makes the beacon invalid: another first word, two spaces, an
   address with leading zeros, a value out of range.
-- Encoders write `ip`, `every`, `tags`, `proxy`, `ask` in this order and leave out `every` when it
-  is 600, and `proxy` and `ask` when they are not set.
+- Encoders write `ip`, `every`, `tags`, `proxy`, `loc`, `ask` in this order and leave out `every`
+  when it is 600, and `proxy`, `loc` and `ask` when they are not set.
 
 ## Tags
 

@@ -56,7 +56,7 @@
     <div class="scroll">
       <table id="stations">
         <thead><tr>
-          <th>{{index .T "th.call"}}</th><th>{{index .T "th.ip"}}</th><th>{{index .T "th.roles"}}</th>
+          <th>{{index .T "th.call"}}</th><th>{{index .T "th.ip"}}</th><th>{{index .T "th.roles"}}</th><th>{{index .T "th.where"}}</th>
           <th>{{index .T "th.gateway"}}</th><th>{{index .T "th.heard"}}</th><th>{{index .T "th.page"}}</th><th></th>
         </tr></thead>
         <tbody></tbody>
@@ -103,6 +103,7 @@
         <label>{{index .T "wel.locator"}} <input type="text" id="wel-locator" maxlength="10" class="mono"></label>
         <label>{{index .T "wel.qth"}} <input type="text" id="wel-qth" maxlength="60"></label>
       </div>
+      <label class="check"><input type="checkbox" id="wel-beacon"> {{index .T "wel.beacon"}}</label>
       <label>{{index .T "wel.equipment"}} <input type="text" id="wel-equipment" maxlength="200"></label>
       <label>{{index .T "wel.text"}} <textarea id="wel-text" rows="5" maxlength="1000"></textarea></label>
       <p class="small muted">{{index .T "wel.hint"}} <a href="/welcome/" target="_blank" rel="noopener">{{index .T "wel.view"}}</a></p>

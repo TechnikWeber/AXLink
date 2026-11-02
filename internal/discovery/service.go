@@ -29,6 +29,8 @@ type Config struct {
 	Addr  netip.Prefix // own address and subnet
 	Tags  []string
 	Proxy uint16 // port of the own HTTP proxy to the internet; 0 for none
+	// Locator is announced in the beacon when set (Maidenhead, e.g. JO62qm).
+	Locator string
 	// Every is the interval of periodic beacons; 0 sends none, the service
 	// then only listens.
 	Every  time.Duration
@@ -40,12 +42,13 @@ type Config struct {
 
 // Station is what the service knows about another station.
 type Station struct {
-	Call  ax25.Address
-	Addr  netip.Prefix
-	Tags  []string
-	Proxy uint16 // its HTTP proxy port; 0 for none
-	Every time.Duration
-	Heard time.Time // its last beacon
+	Call    ax25.Address
+	Addr    netip.Prefix
+	Tags    []string
+	Proxy   uint16 // its HTTP proxy port; 0 for none
+	Locator string // its locator, if it announces one
+	Every   time.Duration
+	Heard   time.Time // its last beacon
 }
 
 func (s *Station) expired(now time.Time) bool {
@@ -101,7 +104,7 @@ func (cfg Config) Check() error {
 }
 
 func (cfg Config) beacon(ask bool) Beacon {
-	return Beacon{Addr: cfg.Addr, Tags: cfg.Tags, Every: cfg.Every, Proxy: cfg.Proxy, Ask: ask}
+	return Beacon{Addr: cfg.Addr, Tags: cfg.Tags, Every: cfg.Every, Proxy: cfg.Proxy, Locator: cfg.Locator, Ask: ask}
 }
 
 // between returns a random duration in [r[0], r[1]]; the caller holds mu
@@ -203,6 +206,30 @@ func (s *Service) SetAnnounce(tags []string, proxy uint16) error {
 	return nil
 }
 
+// SetLocator changes the locator this station announces ("" for none); a
+// beacon with it goes out within a few seconds.
+func (s *Service) SetLocator(loc string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	next := s.cfg
+	next.Locator = loc
+	if err := next.Check(); err != nil {
+		return err
+	}
+	if next.Locator == s.cfg.Locator {
+		return nil
+	}
+	s.cfg = next
+	if s.cfg.Every > 0 {
+		s.answerAt = s.cfg.Now().Add(s.between(answerDelay))
+		select {
+		case s.wake <- struct{}{}:
+		default:
+		}
+	}
+	return nil
+}
+
 // Announce returns the tags and the proxy port this station announces.
 func (s *Service) Announce() ([]string, uint16) {
 	s.mu.Lock()
@@ -234,7 +261,8 @@ func (s *Service) Handle(frame []byte) bool {
 		s.warnOnce("invalid:"+call.String(), "invalid beacon ignored", "call", call.String(), "err", err)
 		return true
 	case call.SameStation(s.cfg.Call):
-		echo := b.Addr == s.cfg.Addr && b.Every == s.cfg.Every && b.Proxy == s.cfg.Proxy && slices.Equal(b.Tags, s.cfg.Tags)
+		echo := b.Addr == s.cfg.Addr && b.Every == s.cfg.Every && b.Proxy == s.cfg.Proxy && slices.Equal(b.Tags, s.cfg.Tags) &&
+			b.Locator == s.cfg.Locator
 		if !echo { // an echo of our own beacon (some TNCs return what they sent) is fine
 			s.warnOnce("call", "another station sends beacons with our callsign", "call", call.String(), "ip", b.Addr.String())
 		}
@@ -262,7 +290,8 @@ func (s *Service) Handle(frame []byte) bool {
 				"ip", b.Addr.Addr().String(), "newer", call.String(), "older", other.Call.String())
 		}
 	}
-	s.stations[call] = &Station{Call: call, Addr: b.Addr, Tags: b.Tags, Proxy: b.Proxy, Every: b.Every, Heard: now}
+	s.stations[call] = &Station{Call: call, Addr: b.Addr, Tags: b.Tags, Proxy: b.Proxy, Locator: b.Locator,
+		Every: b.Every, Heard: now}
 	if (b.Ask || !known) && s.cfg.Every > 0 {
 		if s.answerAt.IsZero() {
 			s.answerAt = now.Add(s.between(answerDelay))

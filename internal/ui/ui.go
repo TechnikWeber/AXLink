@@ -87,6 +87,9 @@ type Station struct {
 	Addr     string   `json:"ip"`
 	Tags     []string `json:"tags"`
 	Proxy    string   `json:"proxy,omitempty"` // its internet gateway, address:port
+	Locator  string   `json:"locator,omitempty"`
+	Km       *float64 `json:"km,omitempty"`      // distance from the own locator
+	Bearing  string   `json:"bearing,omitempty"` // N, NE, ... from the own locator
 	HeardAgo int64    `json:"heard_s"`
 	Page     string   `json:"page"` // its welcome page
 }

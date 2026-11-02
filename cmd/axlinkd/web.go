@@ -18,6 +18,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
+	"github.com/TechnikWeber/AXLink/internal/locator"
 	"github.com/TechnikWeber/AXLink/internal/monitor"
 	"github.com/TechnikWeber/AXLink/internal/settings"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
@@ -155,6 +156,14 @@ func (n *node) applyWelcome(w settings.Welcome) {
 	n.updateSystemRules()
 }
 
+// beaconLocator is the locator to announce: only if the operator chose to.
+func beaconLocator(w settings.Welcome) string {
+	if w.LocatorInBeacon {
+		return w.Locator
+	}
+	return ""
+}
+
 func (n *node) welcomePage() welcome.Page {
 	s := n.store.Get().Welcome
 	tags, proxy := n.disc.Announce()
@@ -189,6 +198,11 @@ func (n *node) save(next settings.Settings) (settings.Settings, error) {
 func (n *node) apply(old, s settings.Settings) {
 	if s.Gateway != old.Gateway {
 		_ = n.choice.Set(gateway.Mode(s.Gateway.Mode), s.Gateway.Call)
+	}
+	if loc := beaconLocator(s.Welcome); loc != beaconLocator(old.Welcome) {
+		if err := n.disc.SetLocator(loc); err != nil {
+			n.log.Warn("locator not announced", "err", err)
+		}
 	}
 	if s.Share.Enabled != old.Share.Enabled || s.Share.Port != old.Share.Port || s.Share.LAN != old.Share.LAN ||
 		!slices.Equal(s.Share.Only, old.Share.Only) {
@@ -271,11 +285,16 @@ func (n *node) status() ui.Status {
 	if connected {
 		st.TNC.For = int64(time.Since(since) / time.Second)
 	}
+	own, ownErr := locator.Parse(n.store.Get().Welcome.Locator)
 	for _, s := range n.disc.Stations() {
-		row := ui.Station{Call: s.Call.String(), Addr: s.Addr.String(), Tags: s.Tags,
+		row := ui.Station{Call: s.Call.String(), Addr: s.Addr.String(), Tags: s.Tags, Locator: s.Locator,
 			HeardAgo: int64(time.Since(s.Heard) / time.Second), Page: "http://" + s.Addr.Addr().String() + "/"}
 		if s.Proxy != 0 {
 			row.Proxy = netip.AddrPortFrom(s.Addr.Addr(), s.Proxy).String()
+		}
+		if p, err := locator.Parse(s.Locator); err == nil && ownErr == nil {
+			km := locator.Distance(own, p)
+			row.Km, row.Bearing = &km, locator.Compass(locator.Bearing(own, p))
 		}
 		st.Stations = append(st.Stations, row)
 	}

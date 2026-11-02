@@ -79,6 +79,23 @@ func TestAnInvalidChangeIsNotWritten(t *testing.T) {
 	}
 }
 
+func TestTheLocatorIsCheckedAndWrittenAsUsual(t *testing.T) {
+	st, _ := Open("")
+	s, err := st.Update(func(s *Settings) { s.Welcome.Locator = " jo62QM " })
+	if err != nil || s.Welcome.Locator != "JO62qm" {
+		t.Fatalf("%q %v", s.Welcome.Locator, err)
+	}
+	if _, err := st.Update(func(s *Settings) { s.Welcome.Locator = "near Berlin" }); err == nil {
+		t.Fatal("not a locator, but accepted")
+	}
+	if _, err := st.Update(func(s *Settings) { s.Welcome.Locator, s.Welcome.LocatorInBeacon = "", true }); err == nil {
+		t.Fatal("announcing no locator was accepted")
+	}
+	if s, err := st.Update(func(s *Settings) { s.Welcome.LocatorInBeacon = true }); err != nil || !s.Welcome.LocatorInBeacon {
+		t.Fatal(err)
+	}
+}
+
 func TestABrokenFileIsReported(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "settings.json")
 	os.WriteFile(path, []byte("{not json"), 0o600)

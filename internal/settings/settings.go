@@ -21,6 +21,7 @@ import (
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
+	"github.com/TechnikWeber/AXLink/internal/locator"
 )
 
 // Settings are the stored settings.
@@ -51,13 +52,16 @@ type Share struct {
 // Welcome is the station's own page on its radio address: who runs it and
 // what it offers. It is kept short: every byte goes over the air.
 type Welcome struct {
-	Enabled   bool   `json:"enabled"`
-	Port      uint16 `json:"port"`
-	Name      string `json:"name,omitempty"`
-	Locator   string `json:"locator,omitempty"`
-	QTH       string `json:"qth,omitempty"`
-	Equipment string `json:"equipment,omitempty"`
-	Text      string `json:"text,omitempty"`
+	Enabled bool   `json:"enabled"`
+	Port    uint16 `json:"port"`
+	Name    string `json:"name,omitempty"`
+	Locator string `json:"locator,omitempty"` // Maidenhead, e.g. JO62qm
+	// LocatorInBeacon announces the locator in the station beacon, so that
+	// other stations see the distance; off unless the operator wants it.
+	LocatorInBeacon bool   `json:"locator_in_beacon,omitempty"`
+	QTH             string `json:"qth,omitempty"`
+	Equipment       string `json:"equipment,omitempty"`
+	Text            string `json:"text,omitempty"`
 }
 
 // Defaults are the settings before anything was changed.
@@ -94,6 +98,13 @@ func (s Settings) Check() error {
 	}
 	if s.Welcome.Port == 0 {
 		return errors.New("welcome: port 0")
+	}
+	if s.Welcome.Locator != "" {
+		if _, err := locator.Normalize(s.Welcome.Locator); err != nil {
+			return fmt.Errorf("welcome: %w", err)
+		}
+	} else if s.Welcome.LocatorInBeacon {
+		return errors.New("welcome: no locator to announce")
 	}
 	for _, f := range []struct {
 		name, value string
@@ -253,6 +264,9 @@ func normalise(s *Settings) {
 	w := &s.Welcome
 	w.Name, w.Locator, w.QTH = strings.TrimSpace(w.Name), strings.TrimSpace(w.Locator), strings.TrimSpace(w.QTH)
 	w.Equipment, w.Text = strings.TrimSpace(w.Equipment), strings.TrimSpace(w.Text)
+	if loc, err := locator.Normalize(w.Locator); err == nil {
+		w.Locator = loc
+	}
 }
 
 func clone(s Settings) Settings {

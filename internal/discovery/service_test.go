@@ -265,6 +265,31 @@ func TestRunSendsBeaconsInRealTime(t *testing.T) {
 	}
 }
 
+func TestTheLocatorIsAnnouncedAndLearned(t *testing.T) {
+	ts := newTestService(t, DefaultEvery)
+	ts.step(ts.after(time.Minute))
+	if ts.sent[0].Locator != "" {
+		t.Fatal("a locator went out that nobody set")
+	}
+	changed := ts.now
+	if err := ts.SetLocator("jo62QM"); err != nil {
+		t.Fatal(err)
+	}
+	ts.step(changed.Add(30 * time.Second))
+	if len(ts.sent) != 2 || ts.sent[1].Locator != "JO62qm" {
+		t.Fatalf("sent %+v", ts.sent)
+	}
+	if ts.SetLocator("near Berlin") == nil {
+		t.Fatal("not a locator, but accepted")
+	}
+	b := Beacon{Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery, Locator: "JN58td"}
+	frame, _ := b.Frame(ax25.MustAddress("TESTB-1"))
+	ts.Handle(frame)
+	if st := ts.Stations(); len(st) != 1 || st[0].Locator != "JN58td" {
+		t.Fatalf("%+v", st)
+	}
+}
+
 func TestAChangedAnnouncementGoesOutSoon(t *testing.T) {
 	ts := newTestService(t, DefaultEvery)
 	ts.step(ts.after(time.Minute)) // the first beacon is out

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/locator"
 )
 
 // Dest is the destination address of every beacon.
@@ -52,7 +53,10 @@ type Beacon struct {
 	Tags  []string      // roles, see the Tag constants; unknown tags are kept
 	Every time.Duration // until the sender's next periodic beacon
 	Proxy uint16        // TCP port of its HTTP proxy to the internet; 0 for none
-	Ask   bool          // the sender has just started and asks for beacons
+	// Locator is the sender's Maidenhead locator, e.g. JO62qm; only if its
+	// operator chose to announce it.
+	Locator string
+	Ask     bool // the sender has just started and asks for beacons
 }
 
 // Marshal returns the information field.
@@ -76,6 +80,13 @@ func (b Beacon) Marshal() ([]byte, error) {
 	}
 	if b.Proxy != 0 {
 		sb.WriteString(" proxy=" + strconv.Itoa(int(b.Proxy)))
+	}
+	if b.Locator != "" {
+		loc, err := locator.Normalize(b.Locator)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", errInvalid, err)
+		}
+		sb.WriteString(" loc=" + loc)
 	}
 	if b.Ask {
 		sb.WriteString(" ask=1")
@@ -131,6 +142,12 @@ func Parse(info []byte) (Beacon, error) {
 				return Beacon{}, fmt.Errorf("%w: proxy %q", errInvalid, v)
 			}
 			b.Proxy = uint16(n)
+		case "loc":
+			loc, err := locator.Normalize(v)
+			if err != nil {
+				return Beacon{}, fmt.Errorf("%w: loc %q", errInvalid, v)
+			}
+			b.Locator = loc
 		case "ask":
 			if v != "1" {
 				return Beacon{}, fmt.Errorf("%w: ask %q", errInvalid, v)

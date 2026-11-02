@@ -215,11 +215,23 @@ function drawStations(s) {
       el("td", { class: "mono", text: st.call }),
       el("td", { class: "mono", text: st.ip }),
       el("td", {}, badges(st.tags)),
+      el("td", {}, where(st)),
       el("td", { class: "mono", text: st.proxy || "–" }),
       el("td", { text: ago(st.heard_s) }),
       el("td", {}, el("a", { href: st.page, target: "_blank", rel: "noopener", text: t("page.open") })),
       el("td", {}, action)));
   }
+}
+
+// where gives a station's locator and, with the own one, distance and direction.
+function where(st) {
+  if (!st.locator) return "–";
+  const out = el("span", {}, el("span", { class: "mono", text: st.locator }));
+  if (st.km !== undefined) {
+    const km = st.km < 10 ? st.km.toLocaleString(LANG, { maximumFractionDigits: 1 }) : Math.round(st.km).toLocaleString(LANG);
+    out.append(el("span", { class: "muted small", text: " · " + km + "\u00a0km " + t("dir." + st.bearing) }));
+  }
+  return out;
 }
 
 function drawGateway(s) {
@@ -319,6 +331,7 @@ function fillSettings(s) {
   $("wel-enabled").checked = w.enabled;
   $("wel-port").value = w.port;
   for (const k of ["name", "locator", "qth", "equipment", "text"]) $("wel-" + k).value = w[k] || "";
+  $("wel-beacon").checked = !!w.locator_in_beacon;
   $("fw-mode").value = s.firewall.mode;
   $("fw-ping").checked = s.firewall.ping;
   $("fw-answer").checked = !s.firewall.silent;
@@ -353,6 +366,7 @@ function collect() {
     only: calls($("share-only").value) };
   s.welcome = { enabled: $("wel-enabled").checked, port: Number($("wel-port").value) };
   for (const k of ["name", "locator", "qth", "equipment", "text"]) s.welcome[k] = $("wel-" + k).value;
+  s.welcome.locator_in_beacon = $("wel-beacon").checked;
   s.firewall = { mode: $("fw-mode").value, ping: $("fw-ping").checked, silent: !$("fw-answer").checked, rules: [] };
   for (const tr of document.querySelectorAll("#fw-rules tbody tr")) {
     s.firewall.rules.push({ proto: tr.querySelector("select").value, port: Number(tr.querySelector(".port").value),

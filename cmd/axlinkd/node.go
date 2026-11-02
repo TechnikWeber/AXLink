@@ -308,6 +308,9 @@ func runNode(args []string, stderr io.Writer) int {
 			}
 		})
 	dcfg := cfg.discovery()
+	if w := st.Welcome; w.LocatorInBeacon {
+		dcfg.Locator = w.Locator
+	}
 	dcfg.Logger = log
 	dcfg.Send = func(frame []byte) bool {
 		return port.SendMeta(frame, txqueue.Meta{Urgent: true, Replace: "beacon"})

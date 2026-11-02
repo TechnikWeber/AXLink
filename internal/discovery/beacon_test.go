@@ -19,13 +19,14 @@ func TestMarshalAndParseRoundTrip(t *testing.T) {
 		"AXL1 ip=10.73.0.2/24 tags=INET,AUTO":              {Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery, Tags: []string{"INET", "AUTO"}},
 		"AXL1 ip=44.128.1.7/32 every=300 tags=RELAY ask=1": {Addr: netip.MustParsePrefix("44.128.1.7/32"), Every: 5 * time.Minute, Tags: []string{"RELAY"}, Ask: true},
 		"AXL1 ip=10.73.0.2/24 tags=INET proxy=8080":        {Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery, Tags: []string{"INET"}, Proxy: 8080},
+		"AXL1 ip=10.73.0.2/24 proxy=8080 loc=JO62qm ask=1": {Addr: netip.MustParsePrefix("10.73.0.2/24"), Every: DefaultEvery, Proxy: 8080, Locator: "JO62qm", Ask: true},
 	} {
 		got, err := b.Marshal()
 		if err != nil || string(got) != want {
 			t.Fatalf("Marshal %+v = %q, %v; want %q", b, got, err, want)
 		}
 		back, err := Parse(got)
-		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || back.Proxy != b.Proxy || !slices.Equal(back.Tags, b.Tags) {
+		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || back.Proxy != b.Proxy || back.Locator != b.Locator || !slices.Equal(back.Tags, b.Tags) {
 			t.Fatalf("Parse(%q) = %+v, %v", got, back, err)
 		}
 	}
@@ -70,6 +71,9 @@ func TestParseRejects(t *testing.T) {
 		"AXL1 ip=10.73.0.2/24 proxy=65536",
 		"AXL1 ip=10.73.0.2/24 proxy=08080",
 		"AXL1 ip=10.73.0.2/24 Ask=1",
+		"AXL1 ip=10.73.0.2/24 loc=JO6",
+		"AXL1 ip=10.73.0.2/24 loc=Berlin",
+		"AXL1 ip=10.73.0.2/24 loc=",
 		"AXL1 ip=10.73.0.2/24 x",
 		"AXL1 ip=10.73.0.2/24 note=\x01",
 		"AXL1 ip=10.73.0.2/24 note=" + strings.Repeat("x", 120),
@@ -87,6 +91,7 @@ func TestMarshalRejectsWhatParseWouldReject(t *testing.T) {
 		{Addr: addr, Every: 30 * time.Second},
 		{Addr: addr, Every: 90*time.Second + 500*time.Millisecond}, // not whole seconds
 		{Addr: addr, Every: DefaultEvery, Tags: []string{"inet"}},
+		{Addr: addr, Every: DefaultEvery, Locator: "near Berlin"},
 	} {
 		if _, err := b.Marshal(); err == nil {
 			t.Errorf("Marshal accepted %+v", b)
@@ -149,7 +154,7 @@ func FuzzParse(f *testing.F) {
 			t.Fatalf("accepted %q but cannot write %+v: %v", info, b, err)
 		}
 		back, err := Parse(out)
-		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || back.Proxy != b.Proxy || !slices.Equal(back.Tags, b.Tags) {
+		if err != nil || back.Addr != b.Addr || back.Every != b.Every || back.Ask != b.Ask || back.Proxy != b.Proxy || back.Locator != b.Locator || !slices.Equal(back.Tags, b.Tags) {
 			t.Fatalf("%q -> %q -> %+v, %v", info, out, back, err)
 		}
 	})
