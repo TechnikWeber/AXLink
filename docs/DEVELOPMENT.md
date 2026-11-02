@@ -102,6 +102,9 @@ With an adapter MTU as second argument it also sends a 400-byte ping without DF 
 2 KB, and station A must have lowered an MSS and fragmented a packet. Needs `unshare`, `ip`,
 `python3`, `curl`, `ping`. Results from the model are not hardware results.
 
+The picture in the README is a lab result: `bash scripts/lab-netns.sh | tee lab.txt`, then
+`python3 scripts/lab-svg.py < lab.txt > docs/images/lab.svg`.
+
 The adapter itself: `AXLINK_TUN_TEST=1` lets `internal/tun` create a real adapter and ping
 through it. On Linux inside a user namespace, without root:
 

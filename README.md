@@ -24,6 +24,14 @@ app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 > real kernel IP stacks. On Windows the network adapter passes its test in CI. Real radios and
 > macOS come next. Nothing has been on the air yet.
 
+![Result of the two-station lab: beacons, ping, UDP, HTTP and the gateway](docs/images/lab.svg)
+
+*A run of the two-station lab on 2026-11-02 (`bash scripts/lab-netns.sh`, picture made from its
+output with `scripts/lab-svg.py`): two stations with real kernel IP stacks find each other by
+their beacons, then ping, UDP, HTTP and the internet through a gateway run over a simulated
+channel with a model of the F4HWN KISS app. A model, not a radio. AXLink has no graphical
+interface yet; the web UI is planned.*
+
 ## What works
 
 - `axlinkd run`: a radio over USB (F4HWN radios are found by their USB ID `36B7:FFFF`), KISS
