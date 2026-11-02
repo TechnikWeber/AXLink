@@ -34,11 +34,22 @@ weitere) baut der Projektinhaber selbst im Fork `TechnikWeber/uv-k1-k5v3-aprs-fi
 Upstream (F4HWN/F4WAT) wird per Feature-Request informiert (`upstream/f4hwn-kisstnc-issue.md`).
 AXLink unterstützt weiterhin jeden Standard-KISS-TNC; das F4HWN-Profil funktioniert auch mit
 der unveränderten App, weil AXLink auf Host-Seite taktet.
+- Stand 2026-11-02: Der Request steht als Issue #763, das Armel in die Discussion
+  [#764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764) (Ideas)
+  umgewandelt hat. Das macht er mit Wünschen so, abgelehnt ist er nicht.
+- Zweck des Requests: Die offizielle App soll die Erweiterungen bekommen, damit alle
+  F4HWN-Nutzer sie haben. Der USB-Rückstau sitzt in der residenten Firmware und lässt sich
+  nur dort beheben, nicht in einer App. Außerdem sollen die Befehlsformate abgestimmt sein.
+- KISS TNC+ darf sofort gebaut werden (gegen das `app_api.h` von v6.3). In #764 verweisen
+  wir erst darauf, wenn es gebaut und mindestens im Host-Test und im AXLink-Labor geprüft ist.
+  AXLink ist vorbereitet: Profil `f4hwn-kisstnc-ackmode` und das Modell mit ACKMODE.
 
 **D5 – Lizenz.** Code: GPL-3.0-or-later (`LICENSE`). Protokollspezifikationen:
 CC BY 4.0 (`licenses/CC-BY-4.0.txt`). Details: `LICENSING.md`.
 
 **D6 – Firmware-Fahrplan: erst getrennt, mit v7 vereint.**
+Anleitung für die Übergangszeit: [`MULTIBOOT_V6.md`](MULTIBOOT_V6.md). Alles zu Multiboot ist
+eine Übergangslösung und wird nach der Migration auf v7 gelöscht (Checkliste dort).
 - Jetzt (F4HWN v6.3): zwei Firmwares per Multiboot. Messenger als Main, F4HWN Labs v6.3
   (mit der KISS-TNC-App) in einem Benutzer-Slot; Wechsel beim Einschalten mit gedrückter
   `MENU`-Taste. Die Flash-Bereiche überschneiden sich laut Quelltext nicht
