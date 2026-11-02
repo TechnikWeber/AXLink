@@ -36,9 +36,16 @@ Quelltext geschrieben; es enthält keinen Code aus der Firmware.
 
 ## Go-Abhängigkeiten
 
-Der Go-Kern nutzt bisher nur die Standardbibliothek. Geplant sind wireguard-go (MIT),
-gVisor netstack (Apache-2.0) und go.bug.st/serial (BSD-3-Clause), alle mit GPL-3.0 vereinbar.
-Sie kommen hier in die Liste, sobald sie eingebunden sind.
+Laut `go.mod`; alle mit GPL-3.0 vereinbar.
+
+| Modul | Lizenz | Wofür |
+|---|---|---|
+| `go.bug.st/serial` v1.8.0 | BSD-3-Clause | serielle Ports, USB-Kennungen |
+| `golang.zx2c4.com/wireguard` (Commit `2631ce99a06f`) | MIT | Netzadapter (nur das Paket `tun`) |
+| `golang.zx2c4.com/wintun` | MIT | Windows-Adapter (künftig; `wintun.dll` wird noch nicht mitgeliefert) |
+| `golang.org/x/sys`, `golang.org/x/net` | BSD-3-Clause | Systemaufrufe |
+
+Geplant: gVisor netstack (Apache-2.0) für Gateway und Betrieb ohne Admin-Rechte.
 
 ## Werkzeuge des v0.1-Labors
 

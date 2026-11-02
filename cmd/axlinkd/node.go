@@ -1,0 +1,209 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package main
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"fmt"
+	"io"
+	"log/slog"
+	"net/netip"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+	"time"
+
+	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/ipbridge"
+	"github.com/TechnikWeber/AXLink/internal/pacing"
+	"github.com/TechnikWeber/AXLink/internal/tnc"
+	"github.com/TechnikWeber/AXLink/internal/tun"
+)
+
+// routeFlags collects -route IP/PREFIX=CALLSIGN.
+type routeFlags []ipbridge.Route
+
+func (r *routeFlags) String() string { return fmt.Sprint(*r) }
+
+func (r *routeFlags) Set(v string) error {
+	prefix, call, ok := strings.Cut(v, "=")
+	if !ok {
+		return errors.New("want IP/PREFIX=CALLSIGN")
+	}
+	p, err := netip.ParsePrefix(prefix)
+	if err != nil {
+		a, aerr := netip.ParseAddr(prefix) // a plain address means /32
+		if aerr != nil {
+			return err
+		}
+		p = netip.PrefixFrom(a, a.BitLen())
+	}
+	c, err := ax25.ParseAddress(call)
+	if err != nil {
+		return err
+	}
+	*r = append(*r, ipbridge.Route{Prefix: p, Call: c})
+	return nil
+}
+
+type nodeConfig struct {
+	call           ax25.Address
+	dialer         tnc.Dialer
+	profile        pacing.Profile
+	tun            tun.Config
+	routes         []ipbridge.Route
+	allowBroadcast bool
+}
+
+func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
+	fs := flag.NewFlagSet("run", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	call := fs.String("call", "", "own callsign with SSID, e.g. N0CALL-1 (required; a placeholder is refused)")
+	port := fs.String("port", "", `serial port of the radio or TNC, or "auto" to find the F4HWN radio`)
+	kissTCP := fs.String("kiss-tcp", "", "host:port of a KISS-over-TCP TNC (Dire Wolf, net-sim)")
+	kissUnix := fs.String("kiss-unix", "", "Unix socket of a KISS stream (the lab channel)")
+	profile := fs.String("profile", "", "TNC profile: f4hwn-kisstnc (default for serial), f4hwn-kisstnc-ackmode, generic-kiss (default otherwise)")
+	tunName := fs.String("tun", "axl0", "name of the network adapter")
+	ip := fs.String("ip", "", "own IPv4 address with prefix length, e.g. 10.73.0.1/24 (required)")
+	mtu := fs.Int("mtu", 256, "MTU of the network adapter")
+	var routes routeFlags
+	fs.Var(&routes, "route", "IP/PREFIX=CALLSIGN: send packets for these addresses to that station (repeatable)")
+	allowBroadcast := fs.Bool("allow-broadcast", false, "let broadcast and multicast packets onto the radio")
+	if err := fs.Parse(args); err != nil {
+		return nodeConfig{}, err
+	}
+
+	var cfg nodeConfig
+	if *call == "" {
+		return cfg, errors.New("-call is required")
+	}
+	c, err := ax25.ParseAddress(*call)
+	if err != nil {
+		return cfg, fmt.Errorf("-call: %w", err)
+	}
+	if c.Call == "N0CALL" || c.Call == "NOCALL" {
+		return cfg, errors.New("-call: that is a placeholder; set your own callsign")
+	}
+	cfg.call = c
+
+	switch n := btoi(*port != "") + btoi(*kissTCP != "") + btoi(*kissUnix != ""); {
+	case n > 1:
+		return cfg, errors.New("use only one of -port, -kiss-tcp and -kiss-unix")
+	case *kissTCP != "":
+		cfg.dialer = tnc.TCP{Addr: *kissTCP}
+	case *kissUnix != "":
+		cfg.dialer = tnc.Unix{Path: *kissUnix}
+	default:
+		cfg.dialer = tnc.Serial{Path: *port}
+	}
+	name := *profile
+	if name == "" {
+		name = pacing.Generic.Name
+		if _, serial := cfg.dialer.(tnc.Serial); serial {
+			name = pacing.F4HWNKissTNC.Name
+		}
+	}
+	p, ok := pacing.ByName(name)
+	if !ok {
+		return cfg, fmt.Errorf("-profile: unknown profile %q", name)
+	}
+	cfg.profile = p
+
+	if *ip == "" {
+		return cfg, errors.New("-ip is required")
+	}
+	local, err := netip.ParsePrefix(*ip)
+	if err != nil || !local.Addr().Is4() {
+		return cfg, fmt.Errorf("-ip: want an IPv4 address with prefix length, e.g. 10.73.0.1/24")
+	}
+	cfg.tun = tun.Config{Name: *tunName, MTU: *mtu, Address: local}
+	for _, r := range routes {
+		if !local.Masked().Contains(r.Prefix.Addr()) || r.Prefix.Bits() < local.Bits() {
+			cfg.tun.Routes = append(cfg.tun.Routes, r.Prefix.Masked()) // outside the own subnet
+		}
+	}
+	cfg.routes = routes
+	cfg.allowBroadcast = *allowBroadcast
+	return cfg, nil
+}
+
+func btoi(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func runNode(args []string, stderr io.Writer) int {
+	cfg, err := parseNodeFlags(args, stderr)
+	if err != nil {
+		if !errors.Is(err, flag.ErrHelp) {
+			fmt.Fprintln(stderr, "run:", err)
+		}
+		return 2
+	}
+	log := slog.New(slog.NewTextHandler(stderr, nil))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	dev, err := tun.Open(cfg.tun)
+	if err != nil {
+		fmt.Fprintln(stderr, "run:", err)
+		return 1
+	}
+	log.Info("network adapter up", "name", dev.Name(), "ip", cfg.tun.Address, "mtu", cfg.tun.MTU)
+
+	var bridge *ipbridge.Bridge
+	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
+		func(frame []byte) { bridge.FromRadio(frame) })
+	bridge, err = ipbridge.New(ipbridge.Config{MyCall: cfg.call, Local: cfg.tun.Address,
+		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast}, port.Send, dev.WritePacket)
+	if err != nil {
+		dev.Close()
+		fmt.Fprintln(stderr, "run:", err)
+		return 1
+	}
+
+	portDone := make(chan error, 1)
+	go func() { portDone <- port.Run(ctx) }()
+	adapterDone := make(chan error, 1)
+	go func() {
+		buf := make([]byte, 65535)
+		for {
+			n, err := dev.ReadPacket(buf)
+			if err != nil {
+				adapterDone <- err
+				return
+			}
+			bridge.FromAdapter(buf[:n])
+		}
+	}()
+
+	logStats := func() {
+		log.Info("stats", "port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()))
+	}
+	ticker := time.NewTicker(time.Minute)
+	defer ticker.Stop()
+	code := 0
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			break loop
+		case <-ticker.C:
+			logStats()
+		case err := <-adapterDone:
+			log.Error("network adapter failed", "err", err)
+			code = 1
+			break loop
+		}
+	}
+	stop()
+	dev.Close()
+	<-portDone
+	logStats()
+	return code
+}

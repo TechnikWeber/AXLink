@@ -5,10 +5,13 @@
 **Projektname:** AXLink (vom Nutzer am 31. Oktober 2026 festgelegt)
 
 > **Neu (2026-11-02):** [Review](docs/REVIEW_2026-11-02.md) und [Entscheidungen](docs/DECISIONS.md).
-> Der Kern wird in Go neu aufgebaut (Lizenz GPL-3.0-or-later). Erster Stand: KISS, AX.25-UI,
-> Sendedauer, Taktung je TNC und ein Modell der KISS-App der F4HWN-Firmware, mit Tests und CI
-> auf Linux, Windows und macOS. Start: `bash scripts/setup-go.sh`, dann `go test ./...`;
-> Details in [DEVELOPMENT.md](docs/DEVELOPMENT.md). Die unten beschriebene Simulator-Demo mit
+> Der Kern wird in Go neu aufgebaut (Lizenz GPL-3.0-or-later). Stand: `axlinkd run` verbindet
+> ein KISS-Funkgerät per USB (oder einen TNC per TCP), öffnet unter Linux den Netzadapter und
+> überträgt IPv4 als AX.25 UI/PID 0xCC, getaktet für die KISS-App der F4HWN-Firmware. Das Labor
+> `scripts/lab-netns.sh` prüft ping, UDP und HTTP zwischen zwei Stationen ohne root und Docker.
+> Start: `bash scripts/setup-go.sh`, dann `go test ./...`; Details in
+> [DEVELOPMENT.md](docs/DEVELOPMENT.md). Messenger und KISS TNC bis F4HWN v7:
+> [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md). Die unten beschriebene Simulator-Demo mit
 > pdn/pdn-net bleibt als Referenz erhalten (Tag `v0.1.0-alpha.1`).
 
 ## Aktueller Arbeitsstand

@@ -14,8 +14,23 @@ Neuausrichtung nach dem Review vom 2026-11-02 (`docs/REVIEW_2026-11-02.md`,
 - `internal/pacing`: Taktung je TNC-Profil. Im Modell: ein volles Paket ohne Taktung geht
   verloren; mit dem Profil `f4hwn-kisstnc` kommen alle an (~104 B/s); bei belegtem Kanal hilft
   nur ACKMODE.
-- `cmd/axlinkd`: `version` und `decode` (KISS-Strom → JSON).
-- CI auf Linux, Windows und macOS; Builds auch für ARMv6 (Pi Zero W).
+- `cmd/axlinkd`: `run`, `ports`, `decode`, `sim-channel`, `version`.
+- `internal/tnc`: Verbindung zum TNC über Serial (DTR gesetzt, exklusiv), KISS-TCP oder
+  Unix-Socket. Verbindet nach USB-Resets selbst neu, sendet dann Resync und KISS-Parameter
+  erneut und wiederholt einen abgebrochenen Frame einmal. Auto-Erkennung des Funkgeräts an
+  der USB-Kennung 36B7:FFFF. ACKMODE-Echos werden abgewartet.
+- `internal/tun`: Netzadapter unter Linux (wireguard-go, ohne GSO-Offloads), IPv6 auf dem
+  Adapter aus. Windows und macOS folgen.
+- `internal/ipbridge`: IPv4 ↔ AX.25 UI/PID 0xCC mit Zielfilter, Längen- und Prüfsummenprüfung,
+  Routen nach längstem Präfix und abschaltbarem Broadcast-Filter.
+- `internal/sim/channel` und `scripts/lab-netns.sh`: zwei Stationen in eigenen Netz-Namespaces
+  ohne root und Docker. Mit dem Modell der F4HWN-App: ping 3/3 (RTT ~2,1 s), UDP 1,7 s,
+  HTTP 13 s, kein Frame verloren (Modell, keine Hardware).
+- Befund aus dem App-Quelltext: Ein durch USB-Reset abgeschnittener Frame würde vom nächsten
+  FEND abgeschlossen und verstümmelt gesendet. Das f4hwn-Profil schickt deshalb beim Verbinden
+  `FESC 00 FEND`.
+- `docs/MULTIBOOT_V6.md`: Messenger und KISS TNC per Multiboot bis zum Umzug auf v7.
+- CI auf Linux, Windows und macOS, Labortest in der CI; Builds auch für ARMv6 (Pi Zero W).
 - `scripts/setup-go.sh` installiert Go projektlokal mit Prüfsumme.
 
 ## 0.1.0-alpha.1 — 2026-10-31

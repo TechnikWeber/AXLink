@@ -96,6 +96,35 @@ func TestHostDataHeldDuringTransmission(t *testing.T) {
 	}
 }
 
+// A frame cut off by a USB reset stays in the app's buffer. The next frame's
+// leading FEND closes it, and the app sends the truncated frame.
+func TestCutFrameIsSentTruncatedWithoutResync(t *testing.T) {
+	cut := kissData(t, uiFrame(t, "this frame is cut off by a USB reset"))[:30]
+	full := uiFrame(t, "next")
+	app := New(Config{})
+	app.Write(0, cut)
+	app.Write(100*time.Millisecond, kissData(t, full))
+	app.Advance(5 * time.Second)
+	tx := app.Transmitted()
+	if len(tx) == 0 || bytes.Equal(tx[0].Frame, full) {
+		t.Fatalf("expected the truncated frame on the air first, got %+v", tx)
+	}
+}
+
+// FESC 0x00 FEND (the f4hwn profile's resync) makes the app drop the cut frame.
+func TestResyncDropsCutFrame(t *testing.T) {
+	cut := kissData(t, uiFrame(t, "this frame is cut off by a USB reset"))[:30]
+	full := uiFrame(t, "next")
+	app := New(Config{})
+	app.Write(0, cut)
+	app.Write(100*time.Millisecond, append([]byte{kiss.FESC, 0x00, kiss.FEND}, kissData(t, full)...))
+	app.Advance(5 * time.Second)
+	tx := app.Transmitted()
+	if len(tx) != 1 || !bytes.Equal(tx[0].Frame, full) {
+		t.Fatalf("transmitted %+v, want only the full frame", tx)
+	}
+}
+
 func TestAckModeOnlyWhenEnabled(t *testing.T) {
 	frame := uiFrame(t, "tagged")
 	enc, _ := kiss.Encode(kiss.AckModeData(0, 0xBEEF, frame))

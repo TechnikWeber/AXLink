@@ -37,6 +37,25 @@ jobs:
       - name: Python checks of the v0.1 lab
         run: python3 -m unittest discover -s tests -p 'test_*.py'
 
+  lab:
+    name: Lab (two stations, network namespaces, F4HWN model)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Allow unprivileged user namespaces
+        run: |
+          # Ubuntu restricts them through AppArmor; the lab needs them, not root.
+          if [ -e /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+      - name: ping, UDP and HTTP through the simulated channel
+        run: |
+          bash scripts/lab-netns.sh f4hwn
+          bash scripts/lab-netns.sh f4hwn-ackmode
+
   windows:
     name: Windows (tests)
     runs-on: windows-latest

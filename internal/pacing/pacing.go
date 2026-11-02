@@ -27,6 +27,11 @@ type Profile struct {
 	// the host waits for the echo instead of estimating.
 	AckMode bool
 
+	// Resync is sent first whenever the port opens. For the F4HWN app it is
+	// an invalid escape and a FEND: that aborts a frame cut off by a USB
+	// reset, which the app would otherwise close and send truncated.
+	Resync []byte
+
 	// KISS parameters sent when the port opens; 0 leaves the TNC's value.
 	TxDelayParam byte // KISS TXDELAY in 10 ms units
 	PersistParam byte // KISS PERSIST
@@ -54,6 +59,7 @@ var F4HWNKissTNC = Profile{
 	ChunkSize:    64,
 	ChunkGap:     40 * time.Millisecond,
 	OneInFlight:  true,
+	Resync:       []byte{kiss.FESC, 0x00, kiss.FEND},
 	TxDelayParam: 27, // the app sends 27 + 27/2 = 40 flags (267 ms)
 	PersistParam: 255,
 	Baud:         1200,
@@ -72,6 +78,19 @@ var F4HWNKissTNCAck = func() Profile {
 	p.AckMode = true
 	return p
 }()
+
+// Profiles lists the known profiles by name.
+func Profiles() []Profile { return []Profile{F4HWNKissTNC, F4HWNKissTNCAck, Generic} }
+
+// ByName returns the profile with this name.
+func ByName(name string) (Profile, bool) {
+	for _, p := range Profiles() {
+		if p.Name == name {
+			return p, true
+		}
+	}
+	return Profile{}, false
+}
 
 // Init returns the parameter frames to send when the port opens.
 func (p Profile) Init(port uint8) []kiss.Frame {

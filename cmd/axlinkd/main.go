@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// Command axlinkd is the AXLink daemon. This early version has offline tools
-// only; radio access and the network adapter follow.
+// Command axlinkd is the AXLink daemon: it connects a KISS radio or TNC,
+// opens a virtual network adapter and carries IPv4 over AX.25.
 package main
 
 import (
@@ -32,8 +32,14 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	case "version":
 		fmt.Fprintln(stdout, "axlinkd", version)
 		return 0
+	case "run":
+		return runNode(args[1:], stderr)
+	case "ports":
+		return listPorts(stdout, stderr)
 	case "decode":
 		return decode(args[1:], stdin, stdout, stderr)
+	case "sim-channel":
+		return simChannel(args[1:], stderr)
 	case "help", "-h", "--help":
 		usage(stdout)
 		return 0
@@ -43,12 +49,16 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprint(w, `usage: axlinkd <command>
+	fmt.Fprint(w, `usage: axlinkd <command> [flags]
 
 commands:
-  version   print the version
-  decode    read a KISS byte stream on stdin and print one JSON line per frame
-            -hex   the input is hex text instead of raw bytes
+  run          connect a radio or TNC, open the network adapter, carry IPv4
+  ports        list serial ports; marks radios with F4HWN firmware
+  decode       read a KISS byte stream on stdin and print one JSON line per frame
+  sim-channel  lab only: a simulated radio channel for AXLink stations
+  version      print the version
+
+Run "axlinkd <command> -h" for the flags of a command.
 `)
 }
 
@@ -68,7 +78,7 @@ type frameJSON struct {
 func decode(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("decode", flag.ContinueOnError)
 	fs.SetOutput(stderr)
-	hexInput := fs.Bool("hex", false, "the input is hex text")
+	hexInput := fs.Bool("hex", false, "the input is hex text instead of raw bytes")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}

@@ -60,6 +60,44 @@ func TestDecodeHex(t *testing.T) {
 	}
 }
 
+func TestRunFlags(t *testing.T) {
+	var errs bytes.Buffer
+	cfg, err := parseNodeFlags([]string{"-call", "testa-1", "-kiss-unix", "/tmp/a.sock", "-ip", "10.73.0.1/24",
+		"-route", "10.73.0.2=TESTB-1", "-route", "10.74.0.0/16=TESTGW"}, &errs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.call.String() != "TESTA-1" || cfg.profile.Name != "generic-kiss" || len(cfg.routes) != 2 {
+		t.Fatalf("config %+v", cfg)
+	}
+	if cfg.routes[0].Prefix.String() != "10.73.0.2/32" {
+		t.Fatalf("plain address route %v", cfg.routes[0].Prefix)
+	}
+	// Only the route outside the own /24 needs an operating-system route.
+	if len(cfg.tun.Routes) != 1 || cfg.tun.Routes[0].String() != "10.74.0.0/16" {
+		t.Fatalf("adapter routes %v", cfg.tun.Routes)
+	}
+
+	serial, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24"}, &errs)
+	if err != nil || serial.profile.Name != "f4hwn-kisstnc" || serial.dialer.String() != "serial:auto" {
+		t.Fatalf("serial default: %+v %v", serial, err)
+	}
+
+	for name, args := range map[string][]string{
+		"placeholder call": {"-call", "N0CALL-1", "-ip", "10.73.0.1/24"},
+		"no call":          {"-ip", "10.73.0.1/24"},
+		"no address":       {"-call", "TESTA-1"},
+		"IPv6":             {"-call", "TESTA-1", "-ip", "fd00::1/64"},
+		"two transports":   {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-port", "auto", "-kiss-tcp", "x:1"},
+		"unknown profile":  {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-profile", "nope"},
+		"bad route":        {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-route", "10.73.0.2"},
+	} {
+		if _, err := parseNodeFlags(args, &errs); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+}
+
 func TestDecodeRawStreamReportsBadFrames(t *testing.T) {
 	in := bytes.NewReader([]byte{kiss.FEND, 0x00, 0x01, 0x02, kiss.FEND, 0x00, kiss.FESC, 0x41, kiss.FEND})
 	var out, errs bytes.Buffer
