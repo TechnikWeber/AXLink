@@ -17,6 +17,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/kiss"
 	"github.com/TechnikWeber/AXLink/internal/pacing"
 	"github.com/TechnikWeber/AXLink/internal/sim/f4hwnkiss"
+	"github.com/TechnikWeber/AXLink/internal/txqueue"
 )
 
 // --- the sender against the simulated F4HWN KISS app, in virtual time ---
@@ -292,5 +293,34 @@ func TestPortWaitsForAckModeEcho(t *testing.T) {
 	second := tnc.next(t)
 	if second.Command != kiss.CmdAckMode || !bytes.Equal(second.Payload[2:], frames[1]) {
 		t.Fatalf("second frame %+v", second)
+	}
+}
+
+func TestPortDropsARepeatThatComesTooSoon(t *testing.T) {
+	p, d, _ := startPort(t, pacing.Generic, func([]byte) {})
+	host, radio := net.Pipe()
+	d.conns <- host
+	tnc := newFakeTNC(radio)
+
+	syn, other := fullFrames(t, 2)[0], fullFrames(t, 2)[1]
+	m := txqueue.Meta{Urgent: true, Replace: "seg 1", Repeat: "seg 1"}
+	p.SendMeta(syn, m)
+	if f := tnc.next(t); !bytes.Equal(f.Payload, syn) {
+		t.Fatalf("first %+v", f)
+	}
+	// TCP repeats the segment before an answer could have arrived.
+	if !p.SendMeta(syn, m) {
+		t.Fatal("a repeat must not count as a full queue")
+	}
+	p.Send(other)
+	if f := tnc.next(t); !bytes.Equal(f.Payload, other) {
+		t.Fatalf("the repeat went out: %+v", f)
+	}
+	deadline := time.Now().Add(time.Second) // FramesOut counts after the write
+	for p.Stats().FramesOut < 2 && time.Now().Before(deadline) {
+		time.Sleep(5 * time.Millisecond)
+	}
+	if s := p.Stats(); s.Repeats != 1 || s.FramesOut != 2 {
+		t.Fatalf("stats %+v", s)
 	}
 }

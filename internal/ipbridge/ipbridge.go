@@ -13,6 +13,7 @@ import (
 	"sync/atomic"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/txqueue"
 )
 
 // Route sends packets for Prefix to the station Call.
@@ -49,7 +50,7 @@ type Stats struct {
 // Bridge moves packets in both directions.
 type Bridge struct {
 	cfg     Config
-	send    func(frame []byte) bool
+	send    func(frame []byte, m txqueue.Meta) bool
 	deliver func(pkt []byte) error
 
 	toRadio, fromRadio, noRoute, filtered, notIPv4, queueFull atomic.Uint64
@@ -57,9 +58,10 @@ type Bridge struct {
 	clamped, fragmented, tooBig                               atomic.Uint64
 }
 
-// New returns a bridge. send hands an AX.25 frame to the radio port and
-// reports false if it was dropped; deliver hands an IP packet to the adapter.
-func New(cfg Config, send func(frame []byte) bool, deliver func(pkt []byte) error) (*Bridge, error) {
+// New returns a bridge. send hands an AX.25 frame and what the transmit
+// queue needs to know about it to the radio port and reports false if it was
+// dropped; deliver hands an IP packet to the adapter.
+func New(cfg Config, send func(frame []byte, m txqueue.Meta) bool, deliver func(pkt []byte) error) (*Bridge, error) {
 	if _, err := ax25.ParseAddress(cfg.MyCall.String()); err != nil {
 		return nil, fmt.Errorf("ipbridge: own callsign: %w", err)
 	}
@@ -135,7 +137,7 @@ func (b *Bridge) FromAdapter(pkt []byte) {
 			b.badPacket.Add(1)
 			return
 		}
-		if !b.send(frame) {
+		if !b.send(frame, classify(p)) {
 			b.queueFull.Add(1)
 			return
 		}

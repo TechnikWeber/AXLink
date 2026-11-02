@@ -174,7 +174,7 @@ func runNode(args []string, stderr io.Writer) int {
 	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
 		func(frame []byte) { bridge.FromRadio(frame) })
 	bridge, err = ipbridge.New(ipbridge.Config{MyCall: cfg.call, Local: cfg.tun.Address,
-		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU}, port.Send, dev.WritePacket)
+		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU}, port.SendMeta, dev.WritePacket)
 	if err != nil {
 		dev.Close()
 		fmt.Fprintln(stderr, "run:", err)

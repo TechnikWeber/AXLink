@@ -19,6 +19,11 @@ CC BY 4.0), the repository in English.
 - `internal/pacing`: pacing per TNC profile. In the model a full packet without pacing is lost;
   with the profile `f4hwn-kisstnc` all arrive (~104 B/s); with a busy channel only ACKMODE avoids
   losses.
+- `internal/txqueue`: the transmit queue. Packets of up to 128 bytes go first (at most three in
+  a row while a larger one waits, never ahead of their own flow); a TCP retransmission replaces
+  its waiting original or is dropped if the original has just gone out; a newer pure ACK
+  replaces a waiting older one. In the lab HTTP takes 9 s instead of 13 s, and the repeated SYN,
+  which used to cost the original app a dropped frame, stays off the air.
 - `internal/tnc`: the connection to a TNC over serial (DTR set, exclusive), KISS-TCP or a Unix
   socket. Reconnects by itself after USB resets, then sends a resync and the KISS parameters
   again and repeats an interrupted frame once. Finds the radio by its USB ID 36B7:FFFF. Waits for
@@ -33,12 +38,10 @@ CC BY 4.0), the repository in English.
   fragments larger packets without DF (RFC 791); larger packets with DF are dropped.
 - `internal/sim/channel` and `scripts/lab-netns.sh`: two stations in their own network
   namespaces without root or Docker. With the model of the F4HWN app: ping 3/3 (RTT ~2.1 s),
-  UDP 1.7 s, HTTP 13 s, nothing lost on the air. The original app drops one frame before the
-  air in every run (TCP repeats its SYN after 1 s, the replies meet on the busy channel); TCP
-  recovers. With ACKMODE nothing is dropped. With adapter MTU 576 as on Windows also a
-  400-byte ping without DF (2/2, RTT ~10 s) and a 2 KB download: 111 s with the original app,
-  which drops 7 frames before the air (slot busy, USB ring overflow), 44 s with ACKMODE without
-  a drop. All from the model, not hardware.
+  UDP 1.7 s, HTTP 9 s, nothing lost on the air or in the app. With adapter MTU 576 as on
+  Windows also a 400-byte ping without DF (2/2, RTT ~10 s) and a 2 KB download: 110 s with the
+  original app, which drops 5 frames before the air (USB ring overflow after waiting for a busy
+  channel), 38 s with ACKMODE without a drop. All from the model, not hardware.
 - Finding in the app's source: a frame cut off by a USB reset would be closed by the next FEND
   and sent truncated. The f4hwn profile therefore sends `FESC 00 FEND` on connecting.
 - `cmd/axlinkd`: `run`, `ports`, `decode`, `sim-channel`, `version`. `run -mtu` sets the radio

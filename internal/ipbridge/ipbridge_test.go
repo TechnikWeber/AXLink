@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/txqueue"
 )
 
 // udpPacket builds an IPv4/UDP packet with a valid header checksum.
@@ -30,6 +31,7 @@ func udpPacket(src, dst string, payload string) []byte {
 type harness struct {
 	b         *Bridge
 	sent      [][]byte
+	meta      []txqueue.Meta
 	delivered [][]byte
 }
 
@@ -37,7 +39,10 @@ func newHarness(t *testing.T, cfg Config) *harness {
 	t.Helper()
 	h := &harness{}
 	b, err := New(cfg,
-		func(f []byte) bool { h.sent = append(h.sent, f); return true },
+		func(f []byte, m txqueue.Meta) bool {
+			h.sent, h.meta = append(h.sent, f), append(h.meta, m)
+			return true
+		},
 		func(p []byte) error { h.delivered = append(h.delivered, p); return nil })
 	if err != nil {
 		t.Fatal(err)

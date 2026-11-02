@@ -13,8 +13,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/TechnikWeber/AXLink/internal/airtime"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
 	"github.com/TechnikWeber/AXLink/internal/pacing"
+	"github.com/TechnikWeber/AXLink/internal/txqueue"
 )
 
 // Config sets up a Port.
@@ -32,6 +34,7 @@ type Stats struct {
 	Connects, Disconnects  uint64
 	FramesIn, FramesOut    uint64
 	QueueFull, Stale       uint64 // outgoing frames dropped
+	Replaced, Repeats      uint64 // merged with a waiting frame; dropped as a repeat
 	AckTimeouts, BadKISSIn uint64
 }
 
@@ -39,12 +42,12 @@ type Stats struct {
 type Port struct {
 	cfg   Config
 	rx    func(ax25 []byte)
-	queue chan queued
+	queue *txqueue.Queue
 	log   *slog.Logger
 	retry *queued // a frame cut off by a lost connection; owned by Run
 
 	connects, disconnects, framesIn, framesOut atomic.Uint64
-	queueFull, stale, ackTimeouts, badKISS     atomic.Uint64
+	staleRetries, ackTimeouts, badKISS         atomic.Uint64
 }
 
 type queued struct {
@@ -66,27 +69,45 @@ func NewPort(cfg Config, rx func(ax25 []byte)) *Port {
 	if log == nil {
 		log = slog.Default()
 	}
-	return &Port{cfg: cfg, rx: rx, queue: make(chan queued, cfg.QueueLen), log: log}
+	q := txqueue.New(txqueue.Config{Len: cfg.QueueLen, MaxAge: cfg.MaxAge, RepeatWindow: repeatWindow(cfg.Profile)})
+	return &Port{cfg: cfg, rx: rx, queue: q, log: log}
 }
 
-// Send queues an AX.25 frame (without FCS). It reports false when the queue
-// is full; the frame is then dropped.
-func (p *Port) Send(frame []byte) bool {
-	select {
-	case p.queue <- queued{frame: frame, at: time.Now()}:
-		return true
-	default:
-		p.queueFull.Add(1)
-		return false
+// repeatWindow covers the frame's airtime and an answer of the same size: a
+// TCP retransmission within it cannot be a reaction to a lost answer yet.
+// Without timing in the profile it assumes 1200 bit/s.
+func repeatWindow(p pacing.Profile) func(frame []byte) time.Duration {
+	baud, flags := p.Baud, p.TxDelayFlags
+	if baud == 0 {
+		baud = 1200
 	}
+	if flags == 0 {
+		flags = 40
+	}
+	return func(frame []byte) time.Duration {
+		return 2*airtime.Duration(airtime.Bits(frame, flags, 3), baud) + time.Second
+	}
+}
+
+// Send queues an ordinary AX.25 frame (without FCS). It reports false when
+// the queue is full; the frame is then dropped.
+func (p *Port) Send(frame []byte) bool { return p.SendMeta(frame, txqueue.Meta{}) }
+
+// SendMeta queues a frame with what the transmit queue needs to know about
+// it (see package txqueue). It reports false when the queue is full. A frame
+// merged with a waiting one or dropped as a repeat counts as sent.
+func (p *Port) SendMeta(frame []byte, m txqueue.Meta) bool {
+	return p.queue.Push(frame, m) != txqueue.Full
 }
 
 // Stats returns a snapshot of the counters.
 func (p *Port) Stats() Stats {
+	q := p.queue.Stats()
 	return Stats{
 		Connects: p.connects.Load(), Disconnects: p.disconnects.Load(),
 		FramesIn: p.framesIn.Load(), FramesOut: p.framesOut.Load(),
-		QueueFull: p.queueFull.Load(), Stale: p.stale.Load(),
+		QueueFull: q.Full, Stale: q.Stale + p.staleRetries.Load(),
+		Replaced: q.Replaced, Repeats: q.Repeats,
 		AckTimeouts: p.ackTimeouts.Load(), BadKISSIn: p.badKISS.Load(),
 	}
 }
@@ -165,16 +186,16 @@ func (p *Port) session(ctx context.Context, conn io.ReadWriteCloser) error {
 		var q queued
 		if p.retry != nil {
 			q, p.retry = *p.retry, nil
-		} else {
-			select {
-			case <-sctx.Done():
-				return finish(nil)
-			case q = <-p.queue:
+			if time.Since(q.at) > p.cfg.MaxAge {
+				p.staleRetries.Add(1)
+				continue
 			}
-		}
-		if time.Since(q.at) > p.cfg.MaxAge {
-			p.stale.Add(1)
-			continue
+		} else {
+			it, err := p.queue.Pop(sctx)
+			if err != nil {
+				return finish(nil)
+			}
+			q = queued{frame: it.Frame, at: it.At}
 		}
 		before := s.ackTimeouts
 		err := s.send(sctx, q.frame)

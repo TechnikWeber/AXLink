@@ -19,6 +19,7 @@ suits small, text-based use.
 │ internal/ipbridge   IPv4 ↔ AX.25 UI/PID 0xCC, destination filter, │
 │                     routes, broadcast filter, MSS clamping,        │
 │                     fragmentation                                  │
+│ internal/txqueue    transmit queue: small first, repeats merged    │
 │ internal/tnc        connection, reconnecting, paced sending        │
 │ internal/pacing     profile per TNC                                │
 │ internal/kiss · internal/ax25 · internal/airtime                   │
@@ -32,8 +33,22 @@ suits small, text-based use.
 **Out:** the operating system routes a packet to `axl0`. The bridge checks the IPv4 header,
 drops broadcast and multicast (switchable), finds the destination callsign by the longest
 matching route, and builds a UI command frame: destination the route's callsign, source the
-own callsign, PID `0xCC`, the IP packet as the information field. The frame goes into the port's
-queue; the sender encodes it as KISS (or ACKMODE) and writes it as the TNC profile's plan says.
+own callsign, PID `0xCC`, the IP packet as the information field. The frame goes into the
+transmit queue; the sender takes one frame at a time, encodes it as KISS (or ACKMODE) and writes
+it as the TNC profile's plan says.
+
+**Transmit queue** (`internal/txqueue`): a full frame is two seconds on the air at 1200 bit/s,
+so the order matters. The bridge tells the queue what each packet is:
+
+- Packets of up to 128 bytes (TCP acknowledgements and set-up, pings, DNS) go first. A larger
+  frame waits behind at most three of them, and a small one never overtakes a larger one of its
+  own flow.
+- A TCP retransmission takes the place of its original while that still waits; a newer pure ACK
+  that of an older one (acknowledgements are cumulative).
+- A TCP retransmission is dropped if its original went to the TNC less than twice the frame's
+  airtime plus one second ago: no answer could have come back yet. TCP repeats a SYN after one
+  second, while the answer over the radio takes about two.
+- Frames that waited longer than 60 s are dropped.
 
 **In:** the KISS decoder hands every data frame to the bridge. Only UI frames with PID `0xCC`
 addressed to the own callsign and SSID pass, and only with a valid IPv4 header (checksum,

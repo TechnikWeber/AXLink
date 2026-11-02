@@ -108,6 +108,7 @@ On Windows as administrator, with `wintun.dll` next to the test binary (`go test
 | `internal/ax25` | AX.25 v2.2 addresses and frames (without FCS, as over KISS), FCS |
 | `internal/airtime` | bit stuffing and airtime of a frame |
 | `internal/pacing` | how AXLink feeds a TNC (profiles) |
+| `internal/txqueue` | the transmit queue: small packets first, TCP retransmissions merged or dropped |
 | `internal/tnc` | the connection to a TNC: serial, KISS-TCP, Unix socket; reconnecting; paced sending |
 | `internal/tun` | the virtual network adapter (Linux: TUN; Windows: Wintun; macOS follows) |
 | `internal/ipbridge` | IPv4 ↔ AX.25 UI/PID 0xCC, destination filter, routes, broadcast filter, MSS clamping, fragmentation |
