@@ -66,6 +66,10 @@ type nodeConfig struct {
 	beacon         time.Duration
 	proxy          uint16 // port of the gateway's HTTP proxy; 0 for none
 	proxyLAN       bool
+	ui             string // address of the web interface; "" for none
+	localProxy     string // address of the local proxy to the chosen gateway; "" for none
+	gwMode         gateway.Mode
+	gwCall         string
 }
 
 func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
@@ -87,6 +91,9 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	beacon := fs.Duration("beacon", discovery.DefaultEvery, "interval of the station beacon; 0 sends none, stations are still learned")
 	proxy := fs.Int("proxy", 0, "share this station's internet connection: an HTTP proxy on this port of the radio address (e.g. 8080); adds the tag INET")
 	proxyLAN := fs.Bool("proxy-lan", false, "let the proxy also reach private, loopback and link-local addresses (the own network)")
+	uiAddr := fs.String("ui", "127.0.0.1:7373", `address of the web interface; "" turns it off`)
+	localProxy := fs.String("local-proxy", "127.0.0.1:7374", `address of the local proxy to the chosen internet gateway; "" turns it off`)
+	gwChoice := fs.String("gateway", "off", "internet gateway at the start: off, auto or a station's callsign; the web interface can change it")
 	if err := fs.Parse(args); err != nil {
 		return nodeConfig{}, err
 	}
@@ -164,6 +171,24 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	if err := cfg.discovery().Check(); err != nil {
 		return cfg, fmt.Errorf("-beacon/-tags: %w", err)
 	}
+	for name, addr := range map[string]string{"-ui": *uiAddr, "-local-proxy": *localProxy} {
+		if _, _, err := net.SplitHostPort(addr); addr != "" && err != nil {
+			return cfg, fmt.Errorf("%s: want host:port, e.g. 127.0.0.1:7373", name)
+		}
+	}
+	cfg.ui, cfg.localProxy = *uiAddr, *localProxy
+	switch strings.ToLower(*gwChoice) {
+	case "off", "":
+		cfg.gwMode = gateway.ModeOff
+	case "auto":
+		cfg.gwMode = gateway.ModeAuto
+	default:
+		c, err := ax25.ParseAddress(*gwChoice)
+		if err != nil {
+			return cfg, fmt.Errorf("-gateway: off, auto or a callsign: %w", err)
+		}
+		cfg.gwMode, cfg.gwCall = gateway.ModeStation, c.String()
+	}
 	return cfg, nil
 }
 
@@ -224,19 +249,23 @@ func runNode(args []string, stderr io.Writer) int {
 		return 1
 	}
 
-	var gw *gateway.Proxy
+	n := &node{cfg: cfg, started: time.Now(), dev: dev, port: port, bridge: bridge, disc: disc}
 	if cfg.proxy != 0 {
-		addr := netip.AddrPortFrom(cfg.tun.Address.Addr(), cfg.proxy).String()
-		ln, err := net.Listen("tcp", addr)
+		n.gwAddr = netip.AddrPortFrom(cfg.tun.Address.Addr(), cfg.proxy).String()
+		ln, err := net.Listen("tcp", n.gwAddr)
 		if err != nil {
 			dev.Close()
 			fmt.Fprintln(stderr, "run: gateway:", err)
 			return 1
 		}
-		gw = gateway.New(gateway.Config{AllowLAN: cfg.proxyLAN, Who: disc.Lookup, Logger: log})
-		go gw.Serve(ctx, ln)
-		log.Info("gateway: HTTP proxy for the radio network", "listen", addr, "lan", cfg.proxyLAN)
+		n.gw = gateway.New(gateway.Config{AllowLAN: cfg.proxyLAN, Who: disc.Lookup, Logger: log})
+		go n.gw.Serve(ctx, ln)
+		log.Info("gateway: HTTP proxy for the radio network", "listen", n.gwAddr, "lan", cfg.proxyLAN)
 	}
+	n.choice = gateway.NewChoice(n.candidates)
+	_ = n.choice.Set(cfg.gwMode, cfg.gwCall) // checked when the flags were read
+	startLocal(ctx, n, log)
+	startUI(ctx, n, log)
 
 	portDone := make(chan error, 1)
 	go func() { portDone <- port.Run(ctx) }()
@@ -257,8 +286,11 @@ func runNode(args []string, stderr io.Writer) int {
 	logStats := func() {
 		args := []any{"port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
 			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary()}
-		if gw != nil {
-			args = append(args, "gateway", fmt.Sprintf("%+v", gw.Stats()))
+		if n.gw != nil {
+			args = append(args, "gateway", fmt.Sprintf("%+v", n.gw.Stats()))
+		}
+		if n.local != nil {
+			args = append(args, "local", fmt.Sprintf("%+v", n.local.Stats()))
 		}
 		log.Info("stats", args...)
 	}

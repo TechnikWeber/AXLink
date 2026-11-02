@@ -6,7 +6,12 @@
 # they find each other by their beacons. Then the lab checks ping, UDP and HTTP
 # from A to B with real kernel IP stacks, and the internet through B as a
 # gateway: B's HTTP proxy reaches a web server on 192.0.2.80, an address A has
-# no route to. No radio hardware.
+# no route to. Last, A chooses B in its web interface and fetches the same
+# file through its local proxy. No radio hardware.
+#
+# AXLINK_LAB_SCREENSHOTS=DIR saves screenshots of both web interfaces there
+# (A as a client, B as a gateway; English and German), if Google Chrome is
+# installed.
 #
 #   bash scripts/lab-netns.sh [f4hwn|f4hwn-ackmode|ideal] [ADAPTER_MTU]
 #
@@ -94,6 +99,16 @@ cat > "$WORK/node.sh" <<'SH'
 set -eu
 WORK=$1; NAME=$2; CALL=$3; IP=$4; PEER_IP=$5; PEER_CALL=$6; PROFILE=$7; SOCK=$8; ADAPTER_MTU=${9:-}
 ip link set lo up
+# shoot ROLE HEIGHT: screenshots of this station's web interface.
+shoot() {
+    for lang in en de; do
+        # Chrome puts a socket into TMPDIR: the lab's short socket directory fits.
+        TMPDIR="$SOCK" google-chrome --headless=new --no-sandbox --disable-gpu --hide-scrollbars --no-first-run \
+            --user-data-dir="$WORK/chrome-$NAME" --window-size=1280,"$2" --virtual-time-budget=4000 \
+            --screenshot="$AXLINK_LAB_SCREENSHOTS/ui-$1-$lang.png" "http://127.0.0.1:7373/?lang=$lang" \
+            > "$WORK/chrome-$NAME-$lang.log" 2>&1 || true
+    done
+}
 started=$(date +%s%N)
 GATEWAY=
 if [ "$NAME" = b ]; then
@@ -111,7 +126,14 @@ if [ "$NAME" = b ]; then
     python3 -I -m http.server 8081 --bind 192.0.2.80 --directory "$WORK/inet" > /dev/null 2>&1 &
     sleep 1
     touch "$WORK/b.ready"
-    while [ ! -e "$WORK/stop" ]; do sleep 0.2; done
+    while [ ! -e "$WORK/stop" ]; do
+        if [ -e "$WORK/b.shoot" ]; then         # A has finished and asks for B's screenshots
+            rm -f "$WORK/b.shoot"
+            shoot gateway 1340
+            touch "$WORK/b.shot"
+        fi
+        sleep 0.2
+    done
     kill $(jobs -p) 2>/dev/null || true
     exit 0
 fi
@@ -156,6 +178,24 @@ if curl -s --max-time 5 -o /dev/null "http://192.0.2.80:8081/inet.txt" 2> /dev/n
     echo reachable > "$WORK/gwdirect"
 else
     echo unreachable > "$WORK/gwdirect"
+fi
+# The web interface: choose B as the gateway there, then fetch through the
+# local proxy on this computer, which forwards to B over the radio.
+ui="http://127.0.0.1:7373"
+curl -s --max-time 10 "$ui/api/status" > "$WORK/ui-before.json" 2> /dev/null || status=1
+curl -s --max-time 10 -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+    -d "{\"mode\":\"station\",\"call\":\"$PEER_CALL\"}" "$ui/api/gateway" > "$WORK/ui-choose.code" 2> /dev/null || true
+start=$(date +%s%N)
+curl -sS --max-time 180 -x http://127.0.0.1:7374 "http://192.0.2.80:8081/inet.txt" > "$WORK/local.out" 2> "$WORK/local.err" || status=1
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/local.ms"
+start=$(date +%s%N)
+curl -sS --max-time 180 -p -x http://127.0.0.1:7374 "http://192.0.2.80:8081/inet.txt" > "$WORK/localc.out" 2> "$WORK/localc.err" || status=1
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/localc.ms"
+curl -s --max-time 10 "$ui/api/status" > "$WORK/ui-after.json" 2> /dev/null || status=1
+if [ -n "${AXLINK_LAB_SCREENSHOTS:-}" ] && command -v google-chrome > /dev/null; then
+    shoot client 1180
+    touch "$WORK/b.shoot"
+    for _ in $(seq 900); do [ -e "$WORK/b.shot" ] && break; sleep 0.1; done
 fi
 kill $NODE 2>/dev/null || true
 wait $NODE 2>/dev/null || true
@@ -203,6 +243,27 @@ if grep -qx "$want" "$WORK/gw.out" 2>/dev/null && grep -qx "$want" "$WORK/gwc.ou
 else
     echo "gateway: FAILED (proxy: $(cat "$WORK/gw.err" 2>/dev/null) CONNECT: $(cat "$WORK/gwc.err" 2>/dev/null)" \
         "own network: $(cat "$WORK/gwlan.code" 2>/dev/null) direct: $(cat "$WORK/gwdirect" 2>/dev/null))"
+    status=1
+fi
+if python3 -I - "$WORK" "$want" <<'PY'
+import json, os, sys
+work, want = sys.argv[1], sys.argv[2]
+def read(name):
+    with open(os.path.join(work, name)) as f:
+        return f.read()
+before, after = json.loads(read("ui-before.json")), json.loads(read("ui-after.json"))
+listed = [s for s in before.get("stations") or [] if s["call"] == "TESTB-1"]
+ok = (listed and "INET" in (listed[0].get("tags") or []) and listed[0].get("proxy") == "10.73.0.2:3128"
+      and read("ui-choose.code") == "204"
+      and read("local.out").strip() == want and read("localc.out").strip() == want
+      and after["internet"].get("using") == "TESTB-1")
+raise SystemExit(0 if ok else 1)
+PY
+then
+    echo "web UI: ok (B listed as a gateway, chosen there; local proxy $(secs "$WORK/local.ms"), CONNECT $(secs "$WORK/localc.ms"))"
+else
+    echo "web UI: FAILED (choose: $(cat "$WORK/ui-choose.code" 2>/dev/null) local: $(cat "$WORK/local.err" 2>/dev/null)" \
+        "CONNECT: $(cat "$WORK/localc.err" 2>/dev/null))"
     status=1
 fi
 if [[ -n "$ADAPTER_MTU" ]]; then

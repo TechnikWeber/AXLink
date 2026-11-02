@@ -11,7 +11,12 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/discovery"
+	"github.com/TechnikWeber/AXLink/internal/gateway"
+	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
+	"github.com/TechnikWeber/AXLink/internal/tnc"
+	"github.com/TechnikWeber/AXLink/internal/ui"
 )
 
 func TestVersion(t *testing.T) {
@@ -93,6 +98,13 @@ func TestRunFlags(t *testing.T) {
 	if err != nil || proxy.proxy != 8080 || strings.Join(proxy.tags, ",") != "AUTO,INET" || proxy.proxyLAN {
 		t.Fatalf("proxy flags: %+v %v", proxy, err)
 	}
+	if cfg.ui != "127.0.0.1:7373" || cfg.localProxy != "127.0.0.1:7374" || cfg.gwMode != gateway.ModeOff {
+		t.Fatalf("web defaults: %q %q %q", cfg.ui, cfg.localProxy, cfg.gwMode)
+	}
+	pick, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-gateway", "testb-1", "-ui", ""}, &errs)
+	if err != nil || pick.gwMode != gateway.ModeStation || pick.gwCall != "TESTB-1" || pick.ui != "" {
+		t.Fatalf("gateway choice: %+v %v", pick, err)
+	}
 	big, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-adapter-mtu", "576"}, &errs)
 	if err != nil || big.linkMTU != 256 || big.tun.MTU != 576 {
 		t.Fatalf("adapter MTU: %+v %v", big, err)
@@ -115,9 +127,19 @@ func TestRunFlags(t *testing.T) {
 		"bad tag":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-tags", "IN-ET"},
 		"short beacon":     {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-beacon", "10s"},
 		"no port":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "70000"},
+		"bad gateway":      {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-gateway", "not a call"},
+		"bad ui address":   {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-ui", "7373"},
 	} {
 		if _, err := parseNodeFlags(args, &errs); err == nil {
 			t.Errorf("%s: accepted", name)
+		}
+	}
+}
+
+func TestEveryCounterHasATextInBothLanguages(t *testing.T) {
+	for _, c := range counters(tnc.Stats{}, ipbridge.Stats{}, discovery.Stats{}, &gateway.LocalStats{}, &gateway.Stats{}) {
+		if !ui.HasText("c."+c.Key) || !ui.HasText("group."+c.Group) {
+			t.Errorf("no text for counter %s/%s", c.Group, c.Key)
 		}
 	}
 }

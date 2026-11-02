@@ -26,6 +26,15 @@ CC BY 4.0), the repository in English.
   addresses become routes; configured ones for the exact address come first. `run -tags` and
   `-beacon`; `decode` shows beacon texts. The lab now runs without routes: the stations find each
   other in 3–5 s (model).
+- `internal/ui`: a web interface in English and German on `127.0.0.1:7373`: this station, the
+  stations heard, the choice of the internet gateway, the own gateway and the traffic counters,
+  refreshed every 3 s. Built in, no internet needed; radio data shown as text only; foreign host
+  names and requests from other web pages refused. The lab checks it and can take screenshots
+  with headless Chrome (`AXLINK_LAB_SCREENSHOTS`).
+- Client side of the gateway: a local proxy on `127.0.0.1:7374` forwards HTTP and CONNECT to the
+  chosen gateway over the radio (`off`, `auto` or one station; `-gateway`, or in the web
+  interface). In the lab a file comes through it in 13-14 s, through CONNECT in 13-15 s (model).
+  Proxy byte counters grow while a transfer runs; the TNC port reports whether it is connected.
 - `internal/gateway`: the internet gateway. `run -proxy 8080` shares the station's internet
   connection as an HTTP proxy on its radio address (full URLs and CONNECT), resolves names on the
   gateway, refuses the operator's own network unless `-proxy-lan`, logs the client's callsign,

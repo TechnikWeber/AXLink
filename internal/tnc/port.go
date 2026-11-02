@@ -48,6 +48,7 @@ type Port struct {
 
 	connects, disconnects, framesIn, framesOut atomic.Uint64
 	staleRetries, ackTimeouts, badKISS         atomic.Uint64
+	connectedAt                                atomic.Int64 // Unix nanoseconds; 0 while not connected
 }
 
 type queued struct {
@@ -103,6 +104,21 @@ func (p *Port) SendMeta(frame []byte, m txqueue.Meta) bool {
 	return p.queue.Push(frame, m) != txqueue.Full
 }
 
+// Name names the TNC connection, e.g. "serial:auto" or "tcp:host:8001".
+func (p *Port) Name() string { return p.cfg.Dialer.String() }
+
+// Profile returns the TNC profile in use.
+func (p *Port) Profile() pacing.Profile { return p.cfg.Profile }
+
+// Connected reports whether the TNC is connected now, and since when.
+func (p *Port) Connected() (bool, time.Time) {
+	ns := p.connectedAt.Load()
+	if ns == 0 {
+		return false, time.Time{}
+	}
+	return true, time.Unix(0, ns)
+}
+
 // Stats returns a snapshot of the counters.
 func (p *Port) Stats() Stats {
 	q := p.queue.Stats()
@@ -133,8 +149,10 @@ func (p *Port) Run(ctx context.Context) error {
 		}
 		backoff = time.Second
 		p.connects.Add(1)
+		p.connectedAt.Store(time.Now().UnixNano())
 		p.log.Info("TNC connected", "tnc", p.cfg.Dialer.String(), "profile", p.cfg.Profile.Name)
 		err = p.session(ctx, conn)
+		p.connectedAt.Store(0)
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}

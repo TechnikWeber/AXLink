@@ -89,7 +89,7 @@ deleted after the migration to v7 (checklist there).
   not fit next to the messenger on v7.
 
 **D7 – Language.** Everything in the repositories is English: code, comments, documentation,
-commit messages and command-line output. The user interface (the planned web UI) offers English
+commit messages and command-line output. The user interface (the web interface) offers English
 and German; the default follows the system or browser language and falls back to English.
 Commit messages and documents from before this decision are partly German and stay as they are.
 

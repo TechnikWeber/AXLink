@@ -20,7 +20,8 @@ suits small, text-based use.
 │                     routes, broadcast filter, MSS clamping,        │
 │                     fragmentation                                  │
 │ internal/discovery  station beacons, learned addresses             │
-│ internal/gateway    HTTP proxy that shares the internet            │
+│ internal/gateway    gateway proxy, local proxy, choice of gateway  │
+│ internal/ui         web interface (English, German)                │
 │ internal/txqueue    transmit queue: small first, repeats merged    │
 │ internal/tnc        connection, reconnecting, paced sending        │
 │ internal/pacing     profile per TNC                                │
@@ -126,9 +127,28 @@ radio, so updates and background traffic of the client stay off the air.
 - At most 16 client connections at a time; a connection silent for 10 minutes is closed. The
   log names the client's callsign (from its beacon) for each request.
 
-Planned: the gateway's rules in its beacon (services, rate, contact), a local proxy on the client
-that picks a heard gateway, pages shrunk for 1200 bit/s, and a transparent gateway in userspace
-(gVisor netstack) for other protocols.
+On the client, a local proxy (`127.0.0.1:7374`) forwards every request to the chosen gateway's
+proxy over the radio; browser and programs are set up once. The choice is `off`, `auto` (the
+gateway heard most recently, kept while it is heard) or one station, made in the web interface
+or with `-gateway`. Connections to the gateway are kept open between requests, which saves the
+TCP handshake over the radio.
+
+Planned: the gateway's rules in its beacon (services, rate, contact), pages shrunk for
+1200 bit/s, and a transparent gateway in userspace (gVisor netstack) for other protocols.
+
+## Web interface
+
+`internal/ui` serves one page on `127.0.0.1:7373`: this station, the stations heard, the choice
+of the internet gateway, the own gateway and the traffic counters. The page asks
+`/api/status` every 3 seconds; `POST /api/gateway` changes the choice. Page, style and script are
+built into `axlinkd`, so it works on a computer without internet.
+
+- Language: an explicit choice (`?lang=`, kept in a cookie), else the browser's language, else
+  English (D7). Both languages have the same texts; a test checks it.
+- Safety: everything that comes from the radio (callsigns, tags, addresses) is set as text,
+  never as HTML; a content security policy allows only the page's own files. On a loopback
+  address only loopback host names are accepted (against DNS rebinding); changes need JSON from
+  the page's own origin (against requests from other web pages).
 
 ## Simulation and lab
 
@@ -158,15 +178,14 @@ Results from the model are not hardware results.
 
 ## Planned
 
-- Gateway rules in the beacon, a client-side proxy that picks a gateway, shrunk pages, a
-  transparent userspace gateway (see Internet gateway).
+- Gateway rules in the beacon, shrunk pages, a transparent userspace gateway (see Internet
+  gateway).
 - Chat in the APRS message format, so that messenger radios can take part.
 - A transmit queue with priorities and duplicate suppression.
 - A link gateway (AXUDP between radio islands) and an internet gateway in userspace (gVisor
   netstack); operation without admin rights through a local proxy.
 - Mesh forwarding in userspace, independent of the operating system's forwarding.
 - A KISS-TCP multiplexer, so that other programs can share the radio.
-- A web UI in English and German.
 
 ## Design rules
 

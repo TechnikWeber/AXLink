@@ -17,9 +17,10 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
       (path-MTU discovery); today they are dropped.
 - [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
 - [ ] Gateway, next steps: its rules in the beacon (services, rate, contact); a fair share per
-      callsign; a local proxy on the client that picks a heard gateway; pages shrunk for
-      1200 bit/s; a transparent gateway in userspace (netstack) for other protocols. Show the
-      stations and gateways in the web UI.
+      callsign; pages shrunk for 1200 bit/s; a transparent gateway in userspace (netstack) for
+      other protocols.
+- [ ] Web interface, next steps: settings that survive a restart (beacon, tags, gateway
+      choice), the chat, a page that explains the proxy setting per browser.
 - [ ] Channel access without ACKMODE with three or more stations: two stations waiting for the
       same busy channel both send in the first clear slot (PERSIST 255); a random host backoff
       after a heard frame.
@@ -27,7 +28,6 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 - [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
 - [ ] Mesh: forwarding A↔B↔C, routing with an airtime budget.
 - [ ] Segmentation (PID 0x08) per AX.25 2.2 and ARP (PID 0xCD), tested against Packet.NET.
-- [ ] Web UI in English and German (D7).
 - [ ] Report the v0.1 findings F1 and F4 to pdn-net ([HISTORY.md](HISTORY.md)).
 
 ## AXLink TNC (our KISS app)

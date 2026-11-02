@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="{{.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AXLink · {{.Call}}</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="icon" href="data:,">
+</head>
+<body>
+<header class="bar">
+  <span class="brand">AXLink</span>
+  <span class="call">{{.Call}}</span>
+  <span class="tnc"><span id="tnc-dot" class="dot"></span><span id="tnc-text"></span></span>
+  <span class="spacer"></span>
+  <nav class="lang" aria-label="{{index .T "lang.label"}}">
+    <a href="?lang=en"{{if eq .Lang "en"}} aria-current="true"{{end}}>English</a>
+    <a href="?lang=de"{{if eq .Lang "de"}} aria-current="true"{{end}}>Deutsch</a>
+  </nav>
+</header>
+<p id="offline" class="notice" hidden>{{index .T "offline"}}</p>
+<main>
+  <section class="card">
+    <h2>{{index .T "station.title"}}</h2>
+    <dl id="station"></dl>
+  </section>
+  <section class="card">
+    <h2>{{index .T "internet.title"}}</h2>
+    <div id="internet"></div>
+  </section>
+  <section class="card wide">
+    <h2>{{index .T "stations.title"}}</h2>
+    <div class="scroll">
+      <table id="stations">
+        <thead><tr>
+          <th>{{index .T "th.call"}}</th><th>{{index .T "th.ip"}}</th><th>{{index .T "th.roles"}}</th>
+          <th>{{index .T "th.gateway"}}</th><th>{{index .T "th.heard"}}</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="stations-empty" class="muted" hidden>{{index .T "stations.empty"}}</p>
+  </section>
+  <section class="card wide" id="gateway-card" hidden>
+    <h2>{{index .T "gateway.title"}}</h2>
+    <dl id="gateway"></dl>
+  </section>
+  <section class="card wide">
+    <h2>{{index .T "traffic.title"}}</h2>
+    <div id="counters"></div>
+  </section>
+</main>
+<footer>AXLink {{.Version}} · {{index .T "footer.operator"}}</footer>
+<script id="texts" type="application/json">{{.T}}</script>
+<script src="/static/app.js"></script>
+</body>
+</html>

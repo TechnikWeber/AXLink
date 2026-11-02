@@ -8,13 +8,13 @@ and [docs/TODO.md](docs/TODO.md).
 
 Ordinary IPv4 programs over KISS radios and TNCs, as one portable Go program (`axlinkd`):
 Linux first, then Windows and macOS. Tuned first to the Quansheng UV-K1 / UV-K5 V3 with the
-F4HWN KISS TNC app; any standard KISS TNC must keep working. Station discovery works; later:
-chat, gateways, mesh.
+F4HWN KISS TNC app; any standard KISS TNC must keep working. Station discovery, the internet
+gateway and the web interface work; later: chat, mesh.
 
 ## Rules
 
 - **English everywhere in the repository:** code, comments, documentation, commit messages,
-  command-line output. The planned web UI offers English and German (D7).
+  command-line output. The web interface offers English and German (D7).
 - Small, tested steps. Run `gofmt`, `go vet ./...` and `go test -race ./...` before committing;
   run `scripts/lab-netns.sh` when the data path changes.
 - Never report a test, a lab run or hardware compatibility as passed unless it ran. Results from

@@ -6,7 +6,7 @@
   <a href="https://github.com/TechnikWeber/AXLink/actions/workflows/ci.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/TechnikWeber/AXLink/ci.yml?branch=main&label=tests"></a>
   <img alt="Platform: Linux | Windows (macOS planned)" src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%28macOS%20planned%29-blue">
   <img alt="Radio: any KISS TNC, UV-K1 | UV-K5 V3" src="https://img.shields.io/badge/radio-KISS%20TNC%20%7C%20UV--K1%20%7C%20UV--K5%20V3-blue">
-  <img alt="UI: English (German planned)" src="https://img.shields.io/badge/UI-English%20%28German%20planned%29-informational">
+  <img alt="UI: English | German" src="https://img.shields.io/badge/UI-English%20%7C%20German-informational">
   <a href="LICENSE"><img alt="License: GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-green"></a>
 </p>
 
@@ -24,13 +24,13 @@ app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 > real kernel IP stacks. On Windows the network adapter passes its test in CI. Real radios and
 > macOS come next. Nothing has been on the air yet.
 
-![Result of the two-station lab: beacons, ping, UDP, HTTP and the gateway](docs/images/lab.svg)
+![The web interface of a station that reaches the internet through a gateway](docs/images/ui-client-en.png)
 
-*A run of the two-station lab on 2026-11-02 (`bash scripts/lab-netns.sh`, picture made from its
-output with `scripts/lab-svg.py`): two stations with real kernel IP stacks find each other by
-their beacons, then ping, UDP, HTTP and the internet through a gateway run over a simulated
-channel with a model of the F4HWN KISS app. A model, not a radio. AXLink has no graphical
-interface yet; the web UI is planned.*
+*The web interface (`http://127.0.0.1:7373`) of station A in the lab: it found B by its beacon
+and uses B as its internet gateway. Taken with headless Chrome during a lab run on 2026-11-02;
+the numbers come from the simulated channel, not from a radio. Also in German
+([screenshot](docs/images/ui-client-de.png)) and as seen on a gateway
+([English](docs/images/ui-gateway-en.png), [German](docs/images/ui-gateway-de.png)).*
 
 ## What works
 
@@ -40,14 +40,22 @@ interface yet; the web UI is planned.*
 - Station discovery: each station announces its address and roles (`INET`, `RELAY`, …) in a
   short beacon, so stations in the same subnet reach each other without configured routes.
 - Internet gateway: a station with internet access shares it as an HTTP proxy (HTTPS through
-  CONNECT, names resolved on the gateway); clients choose it in their proxy setting.
+  CONNECT, names resolved on the gateway). A client chooses the gateway in its web interface;
+  browser and programs use the local proxy `127.0.0.1:7374`, set up once.
+- A web interface in English and German: this station, the stations heard, the choice of the
+  gateway and the traffic counters. It runs on the own computer and needs no internet.
 - A network adapter `axl0` on Linux (TUN) and Windows (Wintun) and IPv4 over AX.25 UI/PID
   `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter. Radio
   packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink lowers
   the TCP MSS and fragments.
 - A lab without radios: `scripts/lab-netns.sh` runs two stations in their own network namespaces
-  (no root, no Docker) and checks ping, UDP and HTTP through a simulated channel with a model of
-  the F4HWN KISS app. It also runs in CI.
+  (no root, no Docker) and checks beacons, ping, UDP, HTTP, the gateway and the web interface
+  through a simulated channel with a model of the F4HWN KISS app. It also runs in CI.
+
+![Result of the two-station lab](docs/images/lab.svg)
+
+*A lab run on 2026-11-02 (`bash scripts/lab-netns.sh`; picture from its output with
+`scripts/lab-svg.py`). A model, not a radio.*
 
 ## Quick start
 
@@ -59,6 +67,7 @@ bash scripts/lab-netns.sh                # the two-station lab
 go build -o axlinkd ./cmd/axlinkd
 ./axlinkd ports
 sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
+# then open http://127.0.0.1:7373 in the browser
 ```
 
 Windows: an administrator PowerShell and `wintun.dll` next to `axlinkd.exe`

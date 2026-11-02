@@ -160,9 +160,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	out := r.Clone(r.Context())
 	out.RequestURI = ""
 	removeHopHeaders(out.Header)
-	if r.ContentLength > 0 {
-		p.bytesOut.Add(uint64(r.ContentLength))
-	}
+	countBody(out, &p.bytesOut)
 	resp, err := p.transport.RoundTrip(out)
 	if err != nil {
 		code := p.upstreamError(err)
@@ -176,11 +174,11 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header()[k] = v
 	}
 	w.WriteHeader(resp.StatusCode)
-	n, _ := io.Copy(w, resp.Body)
-	p.bytesIn.Add(uint64(n))
 	p.requests.Add(1)
+	body := &counter{r: resp.Body, total: &p.bytesIn}
+	_, _ = io.Copy(w, body)
 	p.cfg.Logger.Info("gateway", "client", client, "method", r.Method, "url", r.URL.String(),
-		"status", resp.StatusCode, "bytes", n, "took", time.Since(start).Round(100*time.Millisecond))
+		"status", resp.StatusCode, "bytes", body.n, "took", time.Since(start).Round(100*time.Millisecond))
 }
 
 // tunnel opens a CONNECT tunnel, normally for HTTPS.
@@ -206,22 +204,21 @@ func (p *Proxy) tunnel(w http.ResponseWriter, r *http.Request, client string) {
 	p.tunnels.Add(1)
 	_ = conn.SetDeadline(time.Time{}) // the server's header timeout no longer applies
 	var wg sync.WaitGroup
-	var outBytes int64
+	sent := &counter{r: &idleReader{conn: conn, r: rw.Reader, idle: p.cfg.Idle}, total: &p.bytesOut}
+	got := &counter{r: &idleReader{conn: up, r: up, idle: p.cfg.Idle}, total: &p.bytesIn}
 	wg.Add(1)
 	go func() { // radio → internet, starting with what the client sent early
 		defer wg.Done()
-		outBytes, _ = io.Copy(up, &idleReader{conn: conn, r: rw.Reader, idle: p.cfg.Idle})
+		_, _ = io.Copy(up, sent)
 		if tc, ok := up.(*net.TCPConn); ok {
 			_ = tc.CloseWrite()
 		}
 	}()
-	inBytes, _ := io.Copy(conn, &idleReader{conn: up, r: up, idle: p.cfg.Idle})
+	_, _ = io.Copy(conn, got)
 	_ = conn.Close() // ends the other direction too
 	wg.Wait()
-	p.bytesIn.Add(uint64(inBytes))
-	p.bytesOut.Add(uint64(outBytes))
 	p.cfg.Logger.Info("gateway", "client", client, "method", "CONNECT", "host", r.Host, "status", 200,
-		"bytes", inBytes, "sent", outBytes, "took", time.Since(start).Round(100*time.Millisecond))
+		"bytes", got.n, "sent", sent.n, "took", time.Since(start).Round(100*time.Millisecond))
 }
 
 func (p *Proxy) upstreamError(err error) int {
@@ -263,6 +260,31 @@ func removeHopHeaders(h http.Header) {
 	}
 	for _, name := range hopHeaders {
 		h.Del(name)
+	}
+}
+
+// counter adds what passes through to a running total, so that the numbers
+// grow while a long transfer over the radio is still under way.
+type counter struct {
+	r     io.Reader
+	total *atomic.Uint64
+	n     int64
+}
+
+func (c *counter) Read(b []byte) (int, error) {
+	n, err := c.r.Read(b)
+	c.n += int64(n)
+	c.total.Add(uint64(n))
+	return n, err
+}
+
+// countBody counts the bytes of a request body as they are sent.
+func countBody(r *http.Request, total *atomic.Uint64) {
+	if r.Body != nil && r.Body != http.NoBody {
+		r.Body = struct {
+			io.Reader
+			io.Closer
+		}{&counter{r: r.Body, total: total}, r.Body}
 	}
 }
 

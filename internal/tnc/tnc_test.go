@@ -264,6 +264,9 @@ func TestPortReconnectsAfterLinkLoss(t *testing.T) {
 	if s := p.Stats(); s.Connects != 2 || s.Disconnects != 1 {
 		t.Fatalf("stats %+v", s)
 	}
+	if ok, since := p.Connected(); !ok || time.Since(since) > time.Minute || p.Name() != "pipe" {
+		t.Fatalf("connected %v since %v, name %q", ok, since, p.Name())
+	}
 }
 
 func TestPortWaitsForAckModeEcho(t *testing.T) {
