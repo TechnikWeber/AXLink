@@ -238,7 +238,8 @@ function drawFirewall(s) {
   const box = $("firewall"), fw = s.firewall;
   box.replaceChildren(
     el("p", { class: "state", text: t(fw.mode === "open" ? "fw.open" : "fw.protect") }),
-    el("p", { class: "small muted", text: t("fw.counts", { p: fw.passed, b: fw.blocked }) }));
+    el("p", { class: "small muted", text: t(fw.silent ? "fw.counts" : "fw.counts.answered",
+      { p: fw.passed, b: fw.blocked, a: fw.answered }) }));
   const recent = fw.recent || [];
   if (!recent.length) {
     box.append(el("p", { class: "small muted", text: t("fw.none") }));
@@ -320,6 +321,7 @@ function fillSettings(s) {
   for (const k of ["name", "locator", "qth", "equipment", "text"]) $("wel-" + k).value = w[k] || "";
   $("fw-mode").value = s.firewall.mode;
   $("fw-ping").checked = s.firewall.ping;
+  $("fw-answer").checked = !s.firewall.silent;
   const body = document.querySelector("#fw-rules tbody");
   body.replaceChildren();
   for (const r of s.firewall.rules || []) addRule(r);
@@ -351,7 +353,7 @@ function collect() {
     only: calls($("share-only").value) };
   s.welcome = { enabled: $("wel-enabled").checked, port: Number($("wel-port").value) };
   for (const k of ["name", "locator", "qth", "equipment", "text"]) s.welcome[k] = $("wel-" + k).value;
-  s.firewall = { mode: $("fw-mode").value, ping: $("fw-ping").checked, rules: [] };
+  s.firewall = { mode: $("fw-mode").value, ping: $("fw-ping").checked, silent: !$("fw-answer").checked, rules: [] };
   for (const tr of document.querySelectorAll("#fw-rules tbody tr")) {
     s.firewall.rules.push({ proto: tr.querySelector("select").value, port: Number(tr.querySelector(".port").value),
       calls: calls(tr.querySelector(".calls").value), note: tr.querySelector(".rule-note").value });

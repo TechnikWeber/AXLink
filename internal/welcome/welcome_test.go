@@ -86,6 +86,24 @@ func TestOtherPathsAndMethods(t *testing.T) {
 	}
 }
 
+func TestOpenPortsAreListed(t *testing.T) {
+	p := lab()
+	p.Services = []Service{{Proto: "tcp", Port: 22, Note: "SSH <admin>", Some: true}, {Proto: "udp", Port: 7070}}
+	w := httptest.NewRecorder()
+	Handler(func() Page { return p }).ServeHTTP(w, httptest.NewRequest("GET", "/", nil))
+	b := w.Body.String()
+	if !strings.Contains(b, "<li>22/tcp SSH &lt;admin&gt; (for some stations)</li>") || !strings.Contains(b, "<li>7070/udp</li>") ||
+		!strings.Contains(b, "ask the operator") {
+		t.Fatal(b)
+	}
+	p.AllOpen = true
+	w = httptest.NewRecorder()
+	Handler(func() Page { return p }).ServeHTTP(w, httptest.NewRequest("GET", "/", nil))
+	if b := w.Body.String(); !strings.Contains(b, "all ports (no firewall)") || strings.Contains(b, "<li>") {
+		t.Fatal(b)
+	}
+}
+
 func TestAnEmptyPageSaysSo(t *testing.T) {
 	w := httptest.NewRecorder()
 	Handler(func() Page { return Page{Call: "TESTA-1", Addr: "10.73.0.1"} }).ServeHTTP(w, httptest.NewRequest("GET", "/", nil))

@@ -166,6 +166,16 @@ operating system sees them. The default mode is **protect**:
 - everything else is dropped and counted; the last eight show in the web interface with the
   sender's callsign.
 
+A dropped packet is answered, so the other side's program fails at once instead of trying
+again over the air for a minute or two: TCP with a reset, as a closed port answers ("connection
+refused"), everything else with ICMP "communication administratively prohibited" (type 3, code
+13). Never answered: ICMP messages other than an echo request, resets, later fragments,
+broadcasts and packets from addresses that are no single station. At most one answer per station
+every 2 s and ten in a minute for all stations together. The setting "silent" drops without an
+answer. An answer is 40 or 56 bytes, less airtime than the repeated attempts it saves. The
+welcome page lists the opened ports with their notes, and whether a port is open only for some
+stations.
+
 Mode **open** lets every packet for the own address through, as before. Callsigns identify the
 sender without authentication, as everywhere in amateur radio; a rule per callsign keeps casual
 use out, not a determined attacker. The own network (home network) cannot be reached through

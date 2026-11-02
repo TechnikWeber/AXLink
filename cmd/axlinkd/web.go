@@ -163,6 +163,14 @@ func (n *node) welcomePage() welcome.Page {
 	if proxy != 0 {
 		p.Gateway = netip.AddrPortFrom(n.cfg.tun.Address.Addr(), proxy).String()
 	}
+	fw := n.fw.Config()
+	if fw.Mode == firewall.ModeOpen {
+		p.AllOpen = true
+		return p
+	}
+	for _, r := range fw.Rules {
+		p.Services = append(p.Services, welcome.Service{Proto: r.Proto, Port: r.Port, Note: r.Note, Some: len(r.Calls) > 0})
+	}
 	return p
 }
 
@@ -296,7 +304,8 @@ func (n *node) status() ui.Status {
 	}
 	st.Counters = counters(n.port.Stats(), n.bridge.Stats(), n.disc.Stats(), ls, gs)
 	fwc, fws := n.fw.Config(), n.fw.Stats()
-	st.Firewall = ui.Firewall{Mode: fwc.Mode, Ping: fwc.Ping, Passed: fws.Passed, Blocked: fws.Blocked, Recent: n.fw.Recent()}
+	st.Firewall = ui.Firewall{Mode: fwc.Mode, Ping: fwc.Ping, Passed: fws.Passed, Blocked: fws.Blocked,
+		Answered: fws.Refused, Silent: fwc.Silent, Recent: n.fw.Recent()}
 	samples := n.mon.Samples()
 	if keep := 150; len(samples) > keep { // five minutes
 		samples = samples[len(samples)-keep:]
@@ -321,7 +330,7 @@ func counters(p tnc.Stats, b ipbridge.Stats, d discovery.Stats, l *gateway.Local
 		c("ip", "to_radio", b.ToRadio), c("ip", "from_radio", b.FromRadio),
 		c("ip", "no_route", b.NoRoute), c("ip", "filtered", b.Filtered),
 		c("ip", "not_for_us", b.NotForUs), c("ip", "wrong_address", b.WrongAddress),
-		c("ip", "blocked", b.Blocked), c("ip", "bad_packet", b.BadPacket),
+		c("ip", "blocked", b.Blocked), c("ip", "answered", b.Refused), c("ip", "bad_packet", b.BadPacket),
 		c("ip", "clamped", b.Clamped), c("ip", "fragmented", b.Fragmented), c("ip", "too_big", b.TooBig),
 		c("beacons", "beacons_sent", d.Sent), c("beacons", "beacons_heard", d.Heard),
 		c("beacons", "beacons_invalid", d.Invalid+d.Relayed),

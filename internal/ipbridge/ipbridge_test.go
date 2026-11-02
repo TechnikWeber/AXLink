@@ -279,3 +279,30 @@ func TestBroadcastAddress(t *testing.T) {
 		}
 	}
 }
+
+type refusingFilter struct{ fakeFilter }
+
+func (f *refusingFilter) Refusal(pkt []byte, from ax25.Address) []byte {
+	return udpPacket("10.73.0.1", "10.73.0.2", "refused:"+from.String())
+}
+
+func TestARefusedPacketIsAnsweredToItsSender(t *testing.T) {
+	cfg := stationA()
+	cfg.AllowBroadcast = true
+	cfg.Filter = &refusingFilter{}
+	h := newHarness(t, cfg)
+	h.b.FromRadio(frameTo(t, "TESTA-1", ax25.PIDIPv4, udpPacket("10.73.0.2", "10.73.0.1", "in")))
+	if len(h.sent) != 1 || h.b.Stats().Refused != 1 || h.b.Stats().Blocked != 1 {
+		t.Fatalf("sent %d, stats %+v", len(h.sent), h.b.Stats())
+	}
+	f, err := ax25.Decode(h.sent[0])
+	if err != nil || f.Dest.String() != "TESTB-1" || f.Src.String() != "TESTA-1" || f.PID != ax25.PIDIPv4 ||
+		!bytes.HasSuffix(f.Info, []byte("refused:TESTB-1")) {
+		t.Fatalf("%v %+v", err, f)
+	}
+	// A refused broadcast is not answered.
+	h.b.FromRadio(frameTo(t, "TESTA-1", ax25.PIDIPv4, udpPacket("10.73.0.2", "10.73.0.255", "in")))
+	if len(h.sent) != 1 {
+		t.Fatal("a broadcast was answered")
+	}
+}

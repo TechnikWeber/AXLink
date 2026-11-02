@@ -4,9 +4,11 @@
 // before the operating system sees them. In the default mode "protect" a
 // packet passes if it answers a connection this station started, if it is a
 // ping (switchable), or if it goes to a port that a rule opens, optionally
-// only for certain callsigns. Everything else is dropped and listed. Mode
-// "open" lets every packet for the own address through. Packets for other
-// addresses never pass; the bridge checks that before.
+// only for certain callsigns. Everything else is dropped, listed and, unless
+// the firewall is silent, answered with a TCP reset or an ICMP message, so
+// the other side learns at once that it is refused. Mode "open" lets every
+// packet for the own address through. Packets for other addresses never
+// pass; the bridge checks that before.
 package firewall
 
 import (
@@ -39,9 +41,12 @@ type Rule struct {
 
 // Config is the firewall's setting.
 type Config struct {
-	Mode  string `json:"mode"`
-	Ping  bool   `json:"ping"`
-	Rules []Rule `json:"rules,omitempty"`
+	Mode string `json:"mode"`
+	Ping bool   `json:"ping"`
+	// Silent drops refused packets without an answer; by default the sender
+	// gets a TCP reset or ICMP "administratively prohibited" (see Refusal).
+	Silent bool   `json:"silent,omitempty"`
+	Rules  []Rule `json:"rules,omitempty"`
 }
 
 // Check reports what is wrong with a configuration.
@@ -110,6 +115,7 @@ type Blocked struct {
 // Stats counts packets from the radio.
 type Stats struct {
 	Passed, Blocked uint64
+	Refused         uint64 // blocked packets answered (Refusal)
 }
 
 type flow struct {
@@ -129,18 +135,21 @@ type Firewall struct {
 	system func() []Rule // ports the program opens itself (welcome page, gateway)
 	now    func() time.Time
 
-	mu     sync.Mutex
-	flows  map[flow]time.Time // until when an answer may come
-	frags  map[fragKey]time.Time
-	recent []Blocked
+	mu       sync.Mutex
+	flows    map[flow]time.Time // until when an answer may come
+	frags    map[fragKey]time.Time
+	recent   []Blocked
+	answered map[string]time.Time // the last refusal per station
+	answers  []time.Time          // the last refusals, at most refuseBurst
 
-	passed, blocked atomic.Uint64
+	passed, blocked, refused atomic.Uint64
 }
 
 // New returns a firewall. system lists the ports the program itself serves;
 // it may be nil.
 func New(cfg Config, system func() []Rule) *Firewall {
-	f := &Firewall{system: system, now: time.Now, flows: map[flow]time.Time{}, frags: map[fragKey]time.Time{}}
+	f := &Firewall{system: system, now: time.Now, flows: map[flow]time.Time{}, frags: map[fragKey]time.Time{},
+		answered: map[string]time.Time{}}
 	f.Set(cfg)
 	return f
 }
@@ -152,7 +161,9 @@ func (f *Firewall) Set(cfg Config) { f.cfg.Store(&cfg) }
 func (f *Firewall) Config() Config { return *f.cfg.Load() }
 
 // Stats returns a snapshot of the counters.
-func (f *Firewall) Stats() Stats { return Stats{Passed: f.passed.Load(), Blocked: f.blocked.Load()} }
+func (f *Firewall) Stats() Stats {
+	return Stats{Passed: f.passed.Load(), Blocked: f.blocked.Load(), Refused: f.refused.Load()}
+}
 
 // Recent returns the last packets dropped, newest first.
 func (f *Firewall) Recent() []Blocked {

@@ -27,14 +27,30 @@ type Page struct {
 	QTH       string   `json:"qth,omitempty"`
 	Equipment string   `json:"equipment,omitempty"`
 	Text      string   `json:"text,omitempty"`
-	Version   string   `json:"version"`
+	// Services are the ports open to radio stations; AllOpen says the
+	// firewall lets everything through.
+	Services []Service `json:"services,omitempty"`
+	AllOpen  bool      `json:"all_open,omitempty"`
+	Version  string    `json:"version"`
+}
+
+// Service is a port of the station that radio stations may use.
+type Service struct {
+	Proto string `json:"proto"` // "tcp" or "udp"
+	Port  uint16 `json:"port"`
+	Note  string `json:"note,omitempty"` // what it is, in the operator's words
+	Some  bool   `json:"some,omitempty"` // only for some stations
 }
 
 var labels = map[string]map[string]string{
 	"en": {"address": "Address", "roles": "Roles", "equipment": "Equipment", "internet": "Internet",
-		"gateway": "gateway, HTTP proxy", "none": "No introduction yet.", "footer": "This page comes over amateur radio."},
+		"gateway": "gateway, HTTP proxy", "none": "No introduction yet.", "footer": "This page comes over amateur radio.",
+		"offers": "Open ports", "some": "for some stations", "allopen": "all ports (no firewall)",
+		"closed": "Other ports are closed; ask the operator."},
 	"de": {"address": "Adresse", "roles": "Rollen", "equipment": "Ausrüstung", "internet": "Internet",
-		"gateway": "Gateway, HTTP-Proxy", "none": "Noch keine Vorstellung.", "footer": "Diese Seite kommt über Amateurfunk."},
+		"gateway": "Gateway, HTTP-Proxy", "none": "Noch keine Vorstellung.", "footer": "Diese Seite kommt über Amateurfunk.",
+		"offers": "Offene Ports", "some": "für einige Stationen", "allopen": "alle Ports (keine Firewall)",
+		"closed": "Andere Ports sind zu; frag den Betreiber."},
 }
 
 var page = template.Must(template.New("p").Parse(`<!doctype html>
@@ -44,6 +60,7 @@ var page = template.Must(template.New("p").Parse(`<!doctype html>
 <h1>{{.P.Call}}</h1>{{if .P.Name}}<p class="s">{{.P.Name}}</p>{{end}}
 <dl>{{if .P.Locator}}<dt>Locator</dt><dd>{{.P.Locator}}</dd>{{end}}{{if .P.QTH}}<dt>QTH</dt><dd>{{.P.QTH}}</dd>{{end}}{{if .P.Equipment}}<dt>{{.L.equipment}}</dt><dd>{{.P.Equipment}}</dd>{{end}}<dt>{{.L.address}}</dt><dd>{{.P.Addr}}</dd>{{if .P.Tags}}<dt>{{.L.roles}}</dt><dd>{{.Tags}}</dd>{{end}}{{if .P.Gateway}}<dt>{{.L.internet}}</dt><dd>{{.L.gateway}} {{.P.Gateway}}</dd>{{end}}</dl>
 {{range .Text}}<p>{{.}}</p>{{else}}<p class="s">{{.L.none}}</p>{{end}}
+{{if .P.AllOpen}}<p>{{.L.offers}}: {{.L.allopen}}</p>{{else if .P.Services}}<p>{{.L.offers}}:</p><ul>{{range .P.Services}}<li>{{.Port}}/{{.Proto}}{{if .Note}} {{.Note}}{{end}}{{if .Some}} ({{$.L.some}}){{end}}</li>{{end}}</ul><p class="s">{{.L.closed}}</p>{{end}}
 <footer>AXLink {{.P.Version}} · {{.L.footer}}</footer>
 `))
 

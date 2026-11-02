@@ -57,11 +57,13 @@ type Monitor struct {
 
 // Firewall is what the firewall did.
 type Firewall struct {
-	Mode    string             `json:"mode"`
-	Ping    bool               `json:"ping"`
-	Passed  uint64             `json:"passed"`
-	Blocked uint64             `json:"blocked"`
-	Recent  []firewall.Blocked `json:"recent"`
+	Mode     string             `json:"mode"`
+	Ping     bool               `json:"ping"`
+	Silent   bool               `json:"silent"` // refused packets get no answer
+	Passed   uint64             `json:"passed"`
+	Blocked  uint64             `json:"blocked"`
+	Answered uint64             `json:"answered"` // blocked packets answered with a reset or ICMP
+	Recent   []firewall.Blocked `json:"recent"`
 }
 
 // Adapter is the virtual network adapter.

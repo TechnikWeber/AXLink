@@ -51,6 +51,12 @@ type Filter interface {
 	Inbound(pkt []byte, from ax25.Address) bool
 }
 
+// Refuser is a Filter that answers the packets it refuses (a TCP reset, an
+// ICMP message); Refusal returns nil for no answer.
+type Refuser interface {
+	Refusal(pkt []byte, from ax25.Address) []byte
+}
+
 // Stats counts packets.
 type Stats struct {
 	ToRadio, FromRadio            uint64
@@ -60,6 +66,7 @@ type Stats struct {
 	DeliverErrors                 uint64
 	Clamped, Fragmented, TooBig   uint64 // MSS lowered; packets split; dropped with DF set
 	WrongAddress, Blocked         uint64 // from the radio: not for the own address; refused by the filter
+	Refused                       uint64 // refused packets answered
 }
 
 // Bridge moves packets in both directions.
@@ -71,7 +78,7 @@ type Bridge struct {
 	toRadio, fromRadio, noRoute, filtered, notIPv4, queueFull atomic.Uint64
 	notForUs, badPacket, otherPID, deliverErrors              atomic.Uint64
 	clamped, fragmented, tooBig                               atomic.Uint64
-	wrongAddress, blocked                                     atomic.Uint64
+	wrongAddress, blocked, refused                            atomic.Uint64
 }
 
 // New returns a bridge. send hands an AX.25 frame and what the transmit
@@ -107,7 +114,7 @@ func (b *Bridge) Stats() Stats {
 		NotForUs:  b.notForUs.Load(), BadPacket: b.badPacket.Load(), OtherPID: b.otherPID.Load(),
 		DeliverErrors: b.deliverErrors.Load(),
 		Clamped:       b.clamped.Load(), Fragmented: b.fragmented.Load(), TooBig: b.tooBig.Load(),
-		WrongAddress: b.wrongAddress.Load(), Blocked: b.blocked.Load(),
+		WrongAddress: b.wrongAddress.Load(), Blocked: b.blocked.Load(), Refused: b.refused.Load(),
 	}
 }
 
@@ -196,6 +203,7 @@ func (b *Bridge) FromRadio(frame []byte) {
 	}
 	if b.cfg.Filter != nil && !b.cfg.Filter.Inbound(f.Info[:h.totalLen], f.Src) {
 		b.blocked.Add(1)
+		b.refuse(f.Info[:h.totalLen], h, f.Src)
 		return
 	}
 	pkt := append([]byte(nil), f.Info[:h.totalLen]...)
@@ -208,6 +216,25 @@ func (b *Bridge) FromRadio(frame []byte) {
 		return
 	}
 	b.fromRadio.Add(1)
+}
+
+// refuse sends the filter's answer to a refused packet back to the station
+// that sent it; only packets for the own address are answered.
+func (b *Bridge) refuse(pkt []byte, h ipv4Header, from ax25.Address) {
+	r, ok := b.cfg.Filter.(Refuser)
+	if !ok || h.dst != b.cfg.Local.Addr() {
+		return
+	}
+	answer := r.Refusal(pkt, from)
+	if answer == nil {
+		return
+	}
+	from.Bit7 = false
+	frame, err := ax25.NewUI(from, b.cfg.MyCall, nil, ax25.PIDIPv4, answer).Encode()
+	if err == nil && b.send(frame, classify(answer)) {
+		b.refused.Add(1)
+		b.toRadio.Add(1)
+	}
 }
 
 func (b *Bridge) route(dst netip.Addr) (ax25.Address, bool) {
