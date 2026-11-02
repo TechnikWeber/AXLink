@@ -4,6 +4,7 @@
 > Go core instead of C#/pdn-net, no built-in legal restrictions (operator responsibility;
 > technical channel-protection filters stay configurable), placeholder callsigns only.
 > The rules below date from the planning phase; the pdn/pdn-net state is tag `v0.1.0-alpha.1`.
+> Code licence: GPL-3.0-or-later. Build and test the Go core as described in `docs/DEVELOPMENT.md`.
 
 ## Mission
 

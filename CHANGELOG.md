@@ -1,5 +1,23 @@
 # Änderungen
 
+## Unreleased (0.2.0-dev)
+
+Neuausrichtung nach dem Review vom 2026-11-02 (`docs/REVIEW_2026-11-02.md`,
+`docs/DECISIONS.md`): Kern in Go, Lizenz GPL-3.0-or-later (Protokolltexte CC BY 4.0).
+
+- `internal/kiss`: KISS-Framing mit Escapes, Parametern und G8BPQ-ACKMODE; Fuzz-Test.
+- `internal/ax25`: AX.25-v2.2-Adressen und Frames ohne FCS, FCS (CRC-16/X.25). Gegenprobe mit
+  123 Frames, die Packet.NET im v0.1-Labor erzeugt hat: gleiche Felder, byte-gleich neu codiert.
+- `internal/airtime`: Bit-Stuffing und Sendedauer.
+- `internal/sim/f4hwnkiss`: Verhaltensmodell der KISS-TNC-App der F4HWN-Firmware (256-Byte-Ring,
+  16 Byte je 10 ms, ein Sendeplatz, gesperrte Interrupts beim Senden), optional mit ACKMODE.
+- `internal/pacing`: Taktung je TNC-Profil. Im Modell: ein volles Paket ohne Taktung geht
+  verloren; mit dem Profil `f4hwn-kisstnc` kommen alle an (~104 B/s); bei belegtem Kanal hilft
+  nur ACKMODE.
+- `cmd/axlinkd`: `version` und `decode` (KISS-Strom → JSON).
+- CI auf Linux, Windows und macOS; Builds auch für ARMv6 (Pi Zero W).
+- `scripts/setup-go.sh` installiert Go projektlokal mit Prüfsumme.
+
 ## 0.1.0-alpha.1 — 2026-10-31
 
 Erster ausführbarer Simulatorstand. Normale UDP-/HTTP-Anwendungen erreichen
