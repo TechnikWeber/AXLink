@@ -28,8 +28,8 @@ def main():
         entry['projects'] = sorted(entry['projects'])
     output = ROOT / 'artifacts/m0/package-license-metadata.json'
     output.write_text(json.dumps(packages, indent=2) + '\n')
-    print(f'{len(packages)} Paketidentitäten; deklarierte Metadaten, keine Lizenzfreigabe')
-    print('Ohne license-Element:', ', '.join(k for k, v in packages.items() if 'license' not in v))
+    print(f'{len(packages)} package identities; declared metadata, not a licence approval')
+    print('Without a license element:', ', '.join(k for k, v in packages.items() if 'license' not in v))
     return 0 if packages else 1
 
 

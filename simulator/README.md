@@ -1,7 +1,10 @@
-# KISS-Simulator: erster ausgeführter Baustein
+# KISS simulator of the v0.1 lab
 
-Voraussetzungen: Docker mit Compose, sauberer gepinnter Packet.NET-Checkout
-und dessen Release-Build (`python3 scripts/audit-upstream.py --run`).
+Part of the v0.1 lab with pdn/pdn-net ([HISTORY](../docs/HISTORY.md)). The Go core has its own
+lab: `scripts/lab-netns.sh`.
+
+Requirements: Docker with Compose, a clean pinned Packet.NET checkout and its release build
+(`python3 scripts/audit-upstream.py --run`).
 
 ```sh
 docker compose -f simulator/compose.yaml up -d --wait --wait-timeout 90
@@ -9,26 +12,22 @@ python3 scripts/test-kiss-simulator.py
 docker compose -f simulator/compose.yaml down
 ```
 
-Cleanup auch bei fehlgeschlagenem Test ausführen. Ports 8100, 8101 und 18080
-auf Loopback müssen frei sein. Kein vorhandenes fremdes Containerprojekt stoppen.
-Es werden keine USB-Geräte, Soundkarten oder seriellen Ports eingebunden.
+Run the clean-up also after a failed test. Ports 8100, 8101 and 18080 on loopback must be free.
+Do not stop any other container project. No USB devices, sound cards or serial ports are used.
 
-Der Runner startet ausschließlich
-`NetsimKissTcpInterop.UI_Frame_Sent_On_Node_A_Is_Received_On_Node_B`.
-Er verlangt genau einen bestandenen Test; ein Skip zählt als Fehler.
-Ergebnis, TRX und Testlog liegen in `artifacts/m0/kiss-simulator`.
+The runner starts only
+`NetsimKissTcpInterop.UI_Frame_Sent_On_Node_A_Is_Received_On_Node_B`. It requires exactly one
+passed test; a skip counts as a failure. Result, TRX and test log go to
+`artifacts/m0/kiss-simulator`.
 
-Der Test nutzt die vorhandenen Packet.NET-KISS-/AX.25-Parser und den
-Audio-Domain-Simulator `packethacking/net-sim` v0.2.0. Das Image ist per Digest
-fixiert (aus dem gepinnten Packet.NET-Compose). Image-Metadaten nennen
-Quellcommit `872d78a81b068dc6d96035c9cb85e23b21c8945b` und MIT als Lizenz;
-ein vollständiger Audit des Images und seiner Abhängigkeiten steht aus.
+The test uses the existing Packet.NET KISS and AX.25 parsers and the audio-domain simulator
+`packethacking/net-sim` v0.2.0. The image is pinned by digest (from the pinned Packet.NET
+compose file). The image metadata name source commit `872d78a81b068dc6d96035c9cb85e23b21c8945b`
+and MIT as the licence; a full audit of the image and its dependencies is still open.
 
-Die eigene Konfiguration reduziert die Upstream-Topologie auf zwei AFSK1200-
-Knoten. Kanalparameter für FM-Capture und Kollision sind gesetzt, aber deren
-Fehlerszenarien sind mit diesem einzelnen Smoke-Test noch nicht abgenommen.
+Our configuration reduces the upstream topology to two AFSK1200 nodes. Channel parameters for FM
+capture and collisions are set, but their failure scenarios are not covered by this single
+smoke test.
 
-**Nachweisgrenze:** Der Upstream-Test sendet einen UI-Frame mit Textpayload.
-Das belegt weder PID-0xCC-IP-Transport noch TUN, UDP, HTTP oder Mesh.
-Nächste Stufe: zwei isolierte Kernel-IP-Stacks, pdn-/pdn-net-Prozesse,
-PID-0xCC-Trace und Kanalunterbrechung als Negativkontrolle.
+`compose.ip.yaml`, `node.Dockerfile` and `node.py` are the two-node IP lab
+(`python3 scripts/test-two-nodes.py`).

@@ -50,7 +50,7 @@ def probe(protocol, target, nonce, timeout):
         finally:
             client.close()
     if reply != payload:
-        raise RuntimeError('Falsche Antwortnutzlast')
+        raise RuntimeError('Wrong reply payload')
     print(json.dumps({'protocol': protocol, 'nonce': nonce, 'reply': reply.decode(),
                       'attempts': attempts, 'seconds': round(time.monotonic() - started, 3)}))
 
@@ -128,14 +128,14 @@ traffic:
     def wait_until(check):
         for _ in range(150):
             if stop.is_set() or any(p.poll() is not None for p in children):
-                raise RuntimeError('Kindprozess beendet')
+                raise RuntimeError('Child process exited')
             try:
                 if check():
                     return
             except OSError:
                 pass
             time.sleep(.2)
-        raise TimeoutError('Node-Start dauert zu lange')
+        raise TimeoutError('Node start takes too long')
 
     def rhp_ready():
         with socket.create_connection(('127.0.0.1', 9000), timeout=.2):
@@ -161,7 +161,7 @@ traffic:
         print(f'AXLink lab {station} ready: {ip}', flush=True)
         while not stop.wait(.5):
             if any(p.poll() is not None for p in children):
-                raise RuntimeError('pdn/pdn-net unerwartet beendet')
+                raise RuntimeError('pdn/pdn-net exited unexpectedly')
     finally:
         for p in reversed(children):
             if p.poll() is None:

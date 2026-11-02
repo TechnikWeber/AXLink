@@ -1,96 +1,94 @@
-# Entwicklung (Go-Kern)
+# Development (Go core)
 
-## Einrichten
+## Setup
 
 ```sh
-bash scripts/setup-go.sh                 # Go laut go.mod nach .tools/go, Prüfsumme von go.dev
+bash scripts/setup-go.sh                 # Go as in go.mod into .tools/go, checksum from go.dev
 export PATH="$PWD/.tools/go/bin:$PATH"
-go test ./...                            # alle Tests
+go test ./...                            # all tests
 go vet ./...
 go build -o axlinkd ./cmd/axlinkd
 ```
 
-Ein systemweit installiertes Go in passender Version geht genauso.
+A system-wide Go of the right version works as well.
 
-## Programm
+## Program
 
 ```text
-axlinkd run          Funkgerät oder TNC verbinden, Netzadapter öffnen, IPv4 übertragen
-axlinkd ports        serielle Ports; markiert Funkgeräte mit F4HWN-Firmware (USB 36B7:FFFF)
-axlinkd decode       KISS-Strom von stdin als JSON je Frame
-axlinkd sim-channel  nur Labor: simulierter Funkkanal
+axlinkd run          connect a radio or TNC, open the network adapter, carry IPv4
+axlinkd ports        serial ports; marks radios with F4HWN firmware (USB 36B7:FFFF)
+axlinkd decode       a KISS stream on stdin as JSON per frame
+axlinkd sim-channel  lab only: a simulated radio channel
 ```
 
-Beispiel mit Funkgerät (Linux; Rufzeichen sind Platzhalter, eigene eintragen):
+Example with a radio (Linux; the callsigns are placeholders, enter your own):
 
 ```sh
 ./axlinkd ports
-sudo ./axlinkd run -call <RUFZEICHEN>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<GEGENSTELLE>-1
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
 ```
 
-- `-port auto` wählt das eine angeschlossene F4HWN-Funkgerät; sonst `-port /dev/ttyACM0`.
-  Andere TNCs: `-port` mit `-profile generic-kiss`, oder `-kiss-tcp host:port` (Dire Wolf).
-- Der Netzadapter (`axl0`, MTU 256) braucht Root oder `CAP_NET_ADMIN`. Statt `sudo` geht
-  `sudo setcap cap_net_admin+ep ./axlinkd`; diese Variante ist noch nicht geprüft.
-- Der serielle Port braucht Leserechte, unter Fedora die Gruppe `dialout`.
-- Nach einem USB-Reset (HF auf dem Kabel) verbindet AXLink von selbst neu und sendet die
-  KISS-Parameter erneut. Ein Frame, der beim Abbruch nicht ganz ankam, geht einmal neu raus.
-- Ohne Rufzeichen oder mit Platzhalter (`N0CALL`) startet `run` nicht.
-- Broadcast und Multicast bleiben vom Funk fern; `-allow-broadcast` schaltet den Filter ab.
-- Windows und macOS: serielle Ports gehen, der Netzadapter folgt (Wintun, utun).
+- `-port auto` picks the one connected F4HWN radio; otherwise `-port /dev/ttyACM0`. Other TNCs:
+  `-port` with `-profile generic-kiss`, or `-kiss-tcp host:port` (Dire Wolf).
+- The network adapter (`axl0`, MTU 256) needs root or `CAP_NET_ADMIN`. Instead of `sudo`,
+  `sudo setcap cap_net_admin+ep ./axlinkd` should work; that variant is not tested yet.
+- The serial port needs read and write access; on Fedora the group `dialout`.
+- After a USB reset (RF on the cable) AXLink reconnects by itself and sends the KISS parameters
+  again. A frame that did not get through completely is sent once more.
+- Without a callsign, or with a placeholder (`N0CALL`), `run` does not start.
+- Broadcast and multicast are kept off the air; `-allow-broadcast` switches the filter off.
+- Windows and macOS: serial ports work, the network adapter follows (Wintun, utun).
 
-Taktung je TNC: `-profile f4hwn-kisstnc` (Standard für serielle Ports),
-`f4hwn-kisstnc-ackmode` (für die eigene App mit ACKMODE, Arbeitstitel AXLink TNC),
-`generic-kiss` (Standard sonst).
+Pacing per TNC: `-profile f4hwn-kisstnc` (default for serial ports), `f4hwn-kisstnc-ackmode`
+(for our own app with ACKMODE, AXLink TNC), `generic-kiss` (default otherwise).
 
-## Labor ohne Funkgerät
+## Lab without radios
 
 ```sh
-bash scripts/lab-netns.sh                 # Modell der F4HWN-KISS-App, Profil f4hwn-kisstnc
-bash scripts/lab-netns.sh f4hwn-ackmode   # dasselbe mit ACKMODE
-bash scripts/lab-netns.sh ideal           # TNC mit Warteschlange
+bash scripts/lab-netns.sh                 # model of the F4HWN KISS app, profile f4hwn-kisstnc
+bash scripts/lab-netns.sh f4hwn-ackmode   # the same with ACKMODE
+bash scripts/lab-netns.sh ideal           # a TNC with a queue
 ```
 
-Zwei Stationen in eigenen User- und Netz-Namespaces (ohne root, ohne Docker) mit echten
-Kernel-IP-Stacks und TUN-Geräten, verbunden über `axlinkd sim-channel`. Geprüft werden ping,
-UDP und HTTP von A nach B. Der Trace des Kanals muss IPv4-Frames (UI, PID 0xCC) in beiden
-Richtungen zeigen. Braucht `unshare`, `ip`, `python3`, `curl`, `ping`. Ergebnisse aus dem
-Modell sind keine Hardware-Aussage.
+Two stations in their own user and network namespaces (no root, no Docker) with real kernel IP
+stacks and TUN devices, connected through `axlinkd sim-channel`. The lab checks ping, UDP and
+HTTP from A to B. The channel trace must show IPv4 frames (UI, PID 0xCC) in both directions.
+Needs `unshare`, `ip`, `python3`, `curl`, `ping`. Results from the model are not hardware
+results.
 
-## Aufbau
+## Layout
 
-| Pfad | Inhalt |
+| Path | Content |
 |---|---|
-| `cmd/axlinkd` | das Programm |
-| `internal/kiss` | KISS-Framing, Parameter, ACKMODE (G8BPQ) |
-| `internal/ax25` | AX.25-v2.2-Adressen und Frames (ohne FCS, wie über KISS), FCS |
-| `internal/airtime` | Bit-Stuffing und Sendedauer eines Frames |
-| `internal/pacing` | wie AXLink einen TNC füttert (Profile) |
-| `internal/tnc` | Verbindung zum TNC: Serial, KISS-TCP, Unix-Socket; Neuverbinden; Sendetaktung |
-| `internal/tun` | virtueller Netzadapter (Linux; Windows/macOS folgen) |
-| `internal/ipbridge` | IPv4 ↔ AX.25 UI/PID 0xCC, Zielfilter, Routen, Broadcast-Filter |
-| `internal/sim/f4hwnkiss` | Verhaltensmodell der KISS-TNC-App der F4HWN-Firmware |
-| `internal/sim/channel` | Funkkanal für das Labor (Halbduplex, Kollisionen, Trace) |
+| `cmd/axlinkd` | the program |
+| `internal/kiss` | KISS framing, parameters, ACKMODE (G8BPQ) |
+| `internal/ax25` | AX.25 v2.2 addresses and frames (without FCS, as over KISS), FCS |
+| `internal/airtime` | bit stuffing and airtime of a frame |
+| `internal/pacing` | how AXLink feeds a TNC (profiles) |
+| `internal/tnc` | the connection to a TNC: serial, KISS-TCP, Unix socket; reconnecting; paced sending |
+| `internal/tun` | the virtual network adapter (Linux; Windows and macOS follow) |
+| `internal/ipbridge` | IPv4 ↔ AX.25 UI/PID 0xCC, destination filter, routes, broadcast filter |
+| `internal/sim/f4hwnkiss` | behavioural model of the KISS TNC app of the F4HWN firmware |
+| `internal/sim/channel` | radio channel for the lab (half duplex, collisions, trace) |
 
-Der Stand mit pdn/pdn-net (Python-Labor, Docker, `scripts/*.py`, `simulator/`, `tests/`) ist
-das Labor von `v0.1.0-alpha.1`. Seine Python-Tests laufen in der CI weiter mit.
+The v0.1 lab with pdn/pdn-net (Python, Docker, `scripts/*.py`, `simulator/`, `tests/`) is
+described in [HISTORY.md](HISTORY.md). Its Python tests still run in CI.
 
-## Regeln
+## Rules
 
-- Jede neue Quelldatei beginnt mit `// SPDX-License-Identifier: GPL-3.0-or-later`.
-- Nur Platzhalter-Rufzeichen (`N0CALL`, `TESTA-1` …), nie echte (`DECISIONS.md`, D3).
-- Keine eingebauten Rechtsbeschränkungen (D2); technische Kanalschutz-Filter sind abschaltbar.
-- Ergebnisse aus Modell oder Simulator sind keine Hardware-Aussage. Hardware-Messungen werden
-  getrennt dokumentiert.
-- Parser sind streng: Was wir annehmen, codieren wir wieder gleich. Testvektoren anderer
-  Implementierungen (z. B. `internal/ax25/testdata`) dienen als Gegenprobe.
+- Everything in the repository is English (D7).
+- Every new source file starts with `// SPDX-License-Identifier: GPL-3.0-or-later`.
+- Placeholder callsigns only (`N0CALL`, `TESTA-1` …), never real ones (D3).
+- No legal restrictions built in (D2); technical channel protection filters can be switched off.
+- Results from the model or the simulator are not hardware results. Hardware measurements are
+  documented separately.
+- Parsers are strict: what we accept, we encode the same way again. Test vectors of other
+  implementations (e.g. `internal/ax25/testdata`) serve as a cross-check.
 
 ## CI
 
 `.github/workflows/ci.yml`:
-- Linux: gofmt, vet, Tests mit `-race`, Builds für Linux amd64/arm64/ARMv6, Windows
-  amd64/arm64 und macOS amd64/arm64, Python-Tests des v0.1-Labors.
-- Labor: `lab-netns.sh` in den Modi `f4hwn` und `f4hwn-ackmode`.
-- Windows- und macOS-Tests.
-
-Bei privaten Repos zählen GitHub Windows-Minuten doppelt und macOS-Minuten zehnfach.
+- Linux: gofmt, vet, tests with `-race`, builds for Linux amd64/arm64/ARMv6, Windows amd64/arm64
+  and macOS amd64/arm64, the Python tests of the v0.1 lab.
+- Lab: `lab-netns.sh` in the modes `f4hwn` and `f4hwn-ackmode`.
+- Windows and macOS tests.

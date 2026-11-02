@@ -1,15 +1,15 @@
-# Entwurf: Feature-Request an F4HWN / F4WAT (KISS TNC)
+# Feature request to F4HWN / F4WAT (KISS TNC)
 
-So verwenden:
+Status: posted on 2026-11-02 as issue #763; Armel converted it into
+[Discussion #764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764) (Ideas).
+The text below is the draft as posted.
 
-- Ziel: https://github.com/armel/uv-k1-k5v3-firmware-custom → *Issues* → *New issue*.
-- Art: Wunsch/Erweiterung, **kein Fehlerbericht**. Das Verhalten ist in der App-README
-  (*Known limits*) und in `app_api.h` dokumentiert und passt für APRSdroid.
-- Die KISS-App stammt von Johan Denoyer F4WAT (GitHub `jdenoy`). Beim Posten kann man ihn
-  per @-Erwähnung dazuholen.
-- Den Gruß am Ende selbst ergänzen.
+Notes:
 
-Text zum Kopieren (Englisch, wie das Upstream-Repo):
+- Target: <https://github.com/armel/uv-k1-k5v3-firmware-custom>, a feature request, **not a bug
+  report**. The behaviour is documented in the app's README (*Known limits*) and in `app_api.h`,
+  and it suits APRSdroid.
+- The KISS app is by Johan Denoyer F4WAT (GitHub `jdenoy`).
 
 ````markdown
 **Title:** KISS TNC: optional ACKMODE (0x0C) and USB flow control for hosts that send many frames

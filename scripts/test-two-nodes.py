@@ -34,7 +34,7 @@ def verify_traces(exchanges, captures):
                        and f['ipHex'] in received and f['pid'] == 204
                        and f['source'] == source and f['destination'] == destination]
             if not matches:
-                raise RuntimeError(f'Fehlender PID-0xCC-Trace: {exchange}, {sender}->{receiver}')
+                raise RuntimeError(f'Missing PID 0xCC trace: {exchange}, {sender}->{receiver}')
         exchange['trace_verified'] = True
 
 
@@ -56,7 +56,7 @@ def main():
         path.write_text(result.stdout + result.stderr)
         report['commands'].append({'argv': argv, 'exit': result.returncode, 'log': path.name})
         if check and result.returncode:
-            raise RuntimeError(f'{label}: Exit {result.returncode}; siehe {path}')
+            raise RuntimeError(f'{label}: exit {result.returncode}; see {path}')
         return result
 
     def node(station, argv, label, **kwargs):
@@ -71,7 +71,7 @@ def main():
             route = json.loads(node(station, ['ip', '-j', 'route', 'get', peer],
                                     f'{phase}-{station}-peerroute').stdout)
             if len(route) != 1 or route[0]['dev'] != 'radio0':
-                raise RuntimeError('Peer-IP hat einen Bypass außerhalb des TUN')
+                raise RuntimeError('The peer IP has a route that bypasses the TUN')
 
     def probe(station, protocol, phase, expect_timeout=False, local=False):
         target = {'a': '10.73.0.2', 'b': '10.73.0.1'}[station]
@@ -84,7 +84,7 @@ def main():
         payload = json.loads(result.stdout)
         if expect_timeout:
             if result.returncode != 2 or payload.get('error') != 'TimeoutError':
-                raise RuntimeError(f'Kanalunterbrechung nicht nachgewiesen: {payload}')
+                raise RuntimeError(f'Channel interruption not demonstrated: {payload}')
             report['negative_controls'].append({'protocol': protocol, 'nonce': nonce, **payload})
         else:
             if result.returncode or payload.get('reply') != 'AXLink-' + nonce:
@@ -96,7 +96,7 @@ def main():
     try:
         existing = run([*COMPOSE, 'ps', '-aq'], 'existing').stdout.strip()
         if existing:
-            raise RuntimeError('AXLink-IP-Lab läuft bereits; nicht überschrieben')
+            raise RuntimeError('The AXLink IP lab is already running; not replaced')
         if not args.no_build:
             run([sys.executable, str(ROOT / 'scripts/prepare-ip-lab.py')], 'prepare', timeout=600)
             run(['docker', 'buildx', 'build', '--load', '--allow=network.host', '--network=host',
@@ -111,7 +111,7 @@ def main():
                     break
                 time.sleep(1)
             else:
-                raise RuntimeError(f'Station {station} nicht bereit')
+                raise RuntimeError(f'Station {station} not ready')
         snapshot('before')
         for station in ('a', 'b'):
             for protocol in ('udp', 'http'):

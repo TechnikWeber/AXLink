@@ -1,36 +1,38 @@
-# AXLink — offene Punkte
+# AXLink — open points
 
-Hintergrund und Begründungen: [DECISIONS.md](DECISIONS.md). Stand: 2026-11-02.
+Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-02.
 
 ## AXLink (PC)
 
-- [ ] Hardwaretest mit zwei UV-K1, sobald sie da sind: Multiboot einrichten
-      ([MULTIBOOT_V6.md](MULTIBOOT_V6.md)), `axlinkd run` mit der Original-KISS-App,
-      Grenzen messen (Framegröße, USB-Ring, Taktung, USB-Reset), Durchsatztabelle.
-- [ ] Netzadapter für Windows (Wintun) und macOS (utun).
-- [ ] Start ohne `sudo` per `setcap cap_net_admin+ep` prüfen.
-- [ ] Stationserkennung mit Markierungen (`RELAY`, `INET`, `LINK`, `AUTO`).
-- [ ] Chat im APRS-Nachrichtenformat, damit Messenger-Geräte mitreden.
-- [ ] Sende-Warteschlange: Prioritäten (kleine Pakete zuerst) und doppelte TCP-Wiederholungen
-      verwerfen.
-- [ ] Link-Gateway (AXUDP) und Internet-Gateway (Userspace, netstack).
-- [ ] Mesh: Weiterleitung A↔B↔C, Routing mit Airtime-Budget.
-- [ ] Segmentierung (PID 0x08) nach AX.25 2.2 und ARP (PID 0xCD), mit Tests gegen Packet.NET.
+- [ ] Hardware test with two UV-K1 once they arrive: set up Multiboot
+      ([MULTIBOOT_V6.md](MULTIBOOT_V6.md)), run `axlinkd run` with the original KISS app,
+      measure the limits (frame size, USB ring, pacing, USB reset), a throughput table.
+- [ ] Network adapter for Windows (Wintun) and macOS (utun).
+- [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
+- [ ] Station discovery with tags (`RELAY`, `INET`, `LINK`, `AUTO`).
+- [ ] Chat in the APRS message format, so that messenger radios can take part.
+- [ ] Transmit queue: priorities (small packets first) and dropping duplicate TCP retransmissions.
+- [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
+- [ ] Mesh: forwarding A↔B↔C, routing with an airtime budget.
+- [ ] Segmentation (PID 0x08) per AX.25 2.2 and ARP (PID 0xCD), tested against Packet.NET.
+- [ ] Web UI in English and German (D7).
+- [ ] Report the v0.1 findings F1 and F4 to pdn-net ([HISTORY.md](HISTORY.md)).
 
-## AXLink TNC (eigene KISS-App)
+## AXLink TNC (our KISS app)
 
-Repo: [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC); die Liste dort
-([TODO.md](https://github.com/TechnikWeber/AXLink-TNC/blob/main/TODO.md)) ist maßgeblich.
+Repository: [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC); its list
+([TODO.md](https://github.com/TechnikWeber/AXLink-TNC/blob/main/TODO.md)) is the reference.
 
-- [ ] Erweiterungen bauen: ACKMODE, Zähler für verworfene Frames, abgeschnittenen Frame nach
-      USB-Neuanmeldung verwerfen, Kennung, RSSI.
-- [ ] Im AXLink-Labor gegen das Modell mit ACKMODE und danach auf der Bank prüfen.
-- [ ] **Eintrag im UV-Studio-Community-Tab** (nach dem Hardwaretest): Apps → Community →
-      Propose an app, mit der App laufend auf einem Funkgerät.
-- [ ] In [Discussion #764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764)
-      antworten, wenn die Erweiterungen gebaut und getestet sind.
+- [ ] Build the extensions: ACKMODE, a counter for dropped frames, dropping a frame cut off by a
+      USB re-enumeration, identification, RSSI.
+- [ ] Test them in the AXLink lab against the model with ACKMODE, then on the bench.
+- [ ] **Entry in the UV Studio Community tab** (after the hardware test): Apps → Community →
+      Propose an app, with the app running on a radio.
+- [ ] Reply in [Discussion #764](https://github.com/armel/uv-k1-k5v3-firmware-custom/discussions/764)
+      once the extensions are built and tested.
 
-## Nach F4HWN v7
+## After F4HWN v7
 
-- [ ] Messenger auf v7 heben; Multiboot-Doku löschen (Checkliste in [MULTIBOOT_V6.md](MULTIBOOT_V6.md)).
-- [ ] AXLink TNC gegen v7 bauen und auf Fusion v7 prüfen.
+- [ ] Move the messenger to v7; delete the Multiboot documentation (checklist in
+      [MULTIBOOT_V6.md](MULTIBOOT_V6.md)).
+- [ ] Build AXLink TNC against v7 and check it on Fusion v7.

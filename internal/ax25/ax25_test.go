@@ -36,7 +36,7 @@ func TestParseAddress(t *testing.T) {
 		{"", ErrCallsign},
 		{"TOOLONG", ErrCallsign},
 		{"N0 CAL", ErrCallsign},
-		{"DL4ÄB", ErrCallsign},
+		{"N0ÄB", ErrCallsign},
 		{"N0CALL-16", ErrSSID},
 		{"N0CALL-", ErrSSID},
 		{"N0-CALL", ErrSSID},

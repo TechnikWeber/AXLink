@@ -1,105 +1,76 @@
-# AXLink — Projektübergabe
+# AXLink — IP over amateur packet radio
 
-**Stand:** 31. Oktober 2026  
-**Status:** Experimentelle Zwei-Knoten-IP-Demo: UDP/HTTP über TUN → RHPv2 → AX.25/KISS → Audio-Simulator nachgewiesen  
-**Projektname:** AXLink (vom Nutzer am 31. Oktober 2026 festgelegt)
+<p>
+  <img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha-orange">
+  <a href="https://github.com/TechnikWeber/AXLink/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/TechnikWeber/AXLink?include_prereleases&label=release"></a>
+  <a href="https://github.com/TechnikWeber/AXLink/actions/workflows/ci.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/TechnikWeber/AXLink/ci.yml?branch=main&label=tests"></a>
+  <img alt="Platform: Linux (Windows, macOS planned)" src="https://img.shields.io/badge/platform-Linux%20%28Windows%2C%20macOS%20planned%29-blue">
+  <img alt="Radio: any KISS TNC, UV-K1 | UV-K5 V3" src="https://img.shields.io/badge/radio-KISS%20TNC%20%7C%20UV--K1%20%7C%20UV--K5%20V3-blue">
+  <img alt="UI: English (German planned)" src="https://img.shields.io/badge/UI-English%20%28German%20planned%29-informational">
+  <a href="LICENSE"><img alt="License: GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-green"></a>
+</p>
 
-> **Neu (2026-11-02):** [Review](docs/REVIEW_2026-11-02.md) und [Entscheidungen](docs/DECISIONS.md).
-> Der Kern wird in Go neu aufgebaut (Lizenz GPL-3.0-or-later). Stand: `axlinkd run` verbindet
-> ein KISS-Funkgerät per USB (oder einen TNC per TCP), öffnet unter Linux den Netzadapter und
-> überträgt IPv4 als AX.25 UI/PID 0xCC, getaktet für die KISS-App der F4HWN-Firmware. Das Labor
-> `scripts/lab-netns.sh` prüft ping, UDP und HTTP zwischen zwei Stationen ohne root und Docker.
-> Start: `bash scripts/setup-go.sh`, dann `go test ./...`; Details in
-> [DEVELOPMENT.md](docs/DEVELOPMENT.md). Messenger und KISS TNC bis F4HWN v7:
-> [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md). Eigene KISS-App fürs Funkgerät:
-> [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC). Offene Punkte:
-> [TODO.md](docs/TODO.md). Die unten beschriebene Simulator-Demo mit
-> pdn/pdn-net bleibt als Referenz erhalten (Tag `v0.1.0-alpha.1`).
+**Ordinary network programs over a handheld radio: ping, curl and small web servers at
+1200 baud.**
 
-## Aktueller Arbeitsstand
+AXLink connects a KISS radio or TNC, opens a virtual network adapter and sends IP packets as
+AX.25 UI frames (PID `0xCC`), the framing that Linux, JNOS, BPQ and Packet.NET use. Programs work
+unchanged, only slowly.
 
-Die Übergabe ist in einzelne Projektdateien entpackt; unveränderte Originale
-liegen unter `archive/`. Das Projekt wurde nach `/home/philipp/AXLink`
-verschoben und umbenannt. Git ist initialisiert. Mit den geänderten
-Sitzungsfreigaben sind Netzwerk und Git zugänglich; SDK 10.0.107 liegt
-unter `.tools/dotnet`. Die Python-Runner finden dieses SDK automatisch.
+It is tuned first to the Quansheng UV-K1 / UV-K5 V3 with the F4HWN firmware and its KISS TNC
+app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 
-- [M0-Audit](docs/UPSTREAM_AUDIT.md): fixierte Upstreams, Schnittstellen,
-  Empfangsfilter-Befund und ausgeführte Prüfungen.
-- [IP-Demo](docs/TWO_NODE_DEMO.md): ausgeführte UDP-/HTTP-Demo mit Trace,
-  Kanalunterbrechung und Wiederherstellung.
-- [Simulatorplan](docs/SIMULATOR_PLAN.md): weitere Störungs-/Mehrhop-Prüfungen.
-- `upstream.lock.json`: genaue Quellstände und Herkunft der Audit-Kopien.
-- `python3 scripts/audit-upstream.py`: Quellenintegrität und Voraussetzungen.
-- `python3 scripts/audit-upstream.py --run`: gepinnte Checkouts bauen/testen,
-  Hardware-/Interop-Tests ausgeschlossen, APRS-Testdaten gepinnt nachgeladen.
-- `python3 scripts/test-destination-filter.py`: F1-Regression an der Baseline
-  (erwartet rot); mit `--patched` läuft die gesamte pdn-net-Suite am lokalen Patch.
-- `python3 scripts/test-two-nodes.py`: isolierte Zwei-Knoten-IP-Demo samt Cleanup.
-- [Simulator-Anleitung](simulator/README.md): zusätzlicher KISS-UI-Smoke-Test.
+> **Status: alpha (0.2.0-dev).** Linux works in the lab: two stations, a simulated channel,
+> real kernel IP stacks. Real radios, Windows and macOS come next. Nothing has been on the air
+> yet.
 
-29 lokale Quellenkopien sind per SHA-256 geprüft. Der F1-Regressionstest
-reproduziert die fremdadressierte Zustellung. Mit Patch bestehen 49 pdn-net-Tests.
-Der unveränderte Upstream besteht 13.295 Packet.NET-Tests (48 Skips) und
-40 pdn-net-Tests. UDP und HTTP funktionieren im isolierten Zwei-Knoten-Labor
-in beiden Richtungen, scheitern bei pausiertem Kanal und funktionieren danach
-wieder. Die vollständigen IP-Pakete wurden auf beiden Kanalseiten als AX.25-UI
-mit PID `0xCC` nachgewiesen. Reale Funkinteroperabilität und Mesh bleiben offen.
+## What works
 
-## Demo starten
+- `axlinkd run`: a radio over USB (F4HWN radios are found by their USB ID `36B7:FFFF`), KISS
+  over TCP or a Unix socket. It reconnects after USB resets, paces frames per TNC profile and
+  supports ACKMODE.
+- A Linux network adapter `axl0` (MTU 256) and IPv4 over AX.25 UI/PID `0xCC`, with a destination
+  filter, checksum checks, routes and a broadcast filter.
+- A lab without radios: `scripts/lab-netns.sh` runs two stations in their own network namespaces
+  (no root, no Docker) and checks ping, UDP and HTTP through a simulated channel with a model of
+  the F4HWN KISS app. It also runs in CI.
 
-Voraussetzungen: Linux, Docker mit Compose/Buildx und Zugriff auf den Docker-
-Daemon, Python >= 3.12, Git, curl und `/dev/net/tun`.
+## Quick start
 
 ```sh
-bash scripts/setup-host.sh             # SDK, gepinnte Upstreams, Builds und Tests
-python3 scripts/test-two-nodes.py      # baut das Labor, prüft UDP/HTTP, räumt auf
+bash scripts/setup-go.sh                 # Go into .tools/go
+export PATH="$PWD/.tools/go/bin:$PATH"
+go test ./...
+bash scripts/lab-netns.sh                # the two-station lab
+go build -o axlinkd ./cmd/axlinkd
+./axlinkd ports
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
 ```
 
-Details und Nachweise: [Zwei-Knoten-Demo](docs/TWO_NODE_DEMO.md).
-Dies ist ein Simulator-Prerelease, kein Funkbetriebsprogramm oder fertiges Mesh.
-Lizenzstand: [LICENSING.md](LICENSING.md).
+Use your own callsign; placeholders such as `N0CALL` are refused. Every operator is
+responsible for what is allowed on their frequency; AXLink does not restrict traffic.
 
-## Ziel in einem Satz
+## Radio firmware
 
-Ein offenes, plattformübergreifendes Mesh-Datennetz über KISS-/AX.25-kompatible Funkmodems, das **herkömmliche IPv4-Anwendungen (TCP/UDP/HTTP)** ebenso ermöglicht wie **Stations-/Diensteerkennung, Chat, kleine Funkseiten und optionales Store-and-Forward**.
+- F4HWN Labs v6.3.0 with its KISS TNC app works today.
+- [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC): our variant of the KISS app with
+  extensions for hosts such as AXLink (in progress). Runs on the original Labs v6.3.0.
+- Messenger and KISS TNC on one radio until F4HWN v7: [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md).
 
-## Getroffene Richtungsentscheidungen
+## Documents
 
-1. **Normales IP muss ein Kernfeature bleiben**, nicht bloß ein späteres Gateway. Das Netz soll bereits existierende Programme ohne Anwendungspatches nutzbar machen.
-2. **Linux und Windows direkt per USB an das Funkgerät**; Raspberry Pi Zero (2 W) ist *optional* für Dauerbetrieb, Mailbox, WLAN-Bridge und Relais.
-3. Primärer erster Hardwarekandidat: **Quansheng UV-K5 V3 mit F4HWN Fusion/Labs KISS-TNC über USB-C**, experimentell und vor Entwicklungsfreigabe real zu prüfen.
-4. **Bestehende Projekte nutzen:** `Packet.NET` als AX.25-/KISS-Kandidat; `pdn-net` für standardkonformes IP-over-AX.25; LinBPQ/BPQ für Interoperabilität; Reticulum/NomadNet/LXMF als optionale Integration.
-5. **Eigenes Hauptrepository** für Orchestrierung, Discovery, Mesh-Routing, UI und native Dienste. `pdn-net` bei Bedarf **gezielt forken** (etwa Windows-Wintun), möglichst upstream zusammenarbeiten; nicht unnötig alles duplizieren.
-6. **C#/.NET 10** für den gemeinsamen Kern; Linux-TUN und Windows-Wintun als Betriebssystem-Adapter; lokale Browseroberfläche.
-7. **Offenes Amateurfunkprofil ohne Inhaltsverschlüsselung**; optionales verschlüsseltes Profil nur für **rechtlich geeignete** andere Transportmedien. Nicht auf Basis einer Frequenzbezeichnung allein von Zulässigkeit ausgehen.
-8. Konzeptionell **kompakter nativer Chat und Dienstekatalog** neben transparentem IPv4, weil 1200 bit/s für typische Webanwendungen stark begrenzt sind.
-
-## Dokumente
-
-| Datei | Zweck |
+| Document | Content |
 |---|---|
-| [`docs/PROJECT_HANDOFF.md`](docs/PROJECT_HANDOFF.md) | Vollständige Chat-Zusammenfassung, Anforderungen und Entscheidungen |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Softwareebenen, Multi-Hop, IP-Zuordnung, Discovery, Sicherheit, Integration |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Meilensteine und **testbare Akzeptanzkriterien** |
-| [`docs/RESEARCH.md`](docs/RESEARCH.md) | Repositories, verifizierte Funktionen, Lizenzen, Unsicherheiten |
-| [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md) | Noch zu klärende technische und strategische Punkte |
-| [`docs/START_PROMPT.md`](docs/START_PROMPT.md) | Fertige erste Arbeitsanweisung für Codex/Claude |
-| [`AGENTS.md`](AGENTS.md) | Repo-Anweisungen für Coding Agents (Codex) |
-| [`CLAUDE.md`](CLAUDE.md) | Projektzugang für Claude Code |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | how AXLink is built |
+| [DECISIONS.md](docs/DECISIONS.md) | the decisions; they take precedence |
+| [DEVELOPMENT.md](docs/DEVELOPMENT.md) | build, test, run, lab |
+| [TODO.md](docs/TODO.md) | open points |
+| [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md) | messenger and KISS TNC via Multiboot (until v7) |
+| [REVIEW_2026-11-02.md](docs/REVIEW_2026-11-02.md) | the review that led to the Go rewrite |
+| [HISTORY.md](docs/HISTORY.md) | the v0.1 prototype (pdn/pdn-net) and its findings |
+| [CHANGELOG.md](CHANGELOG.md) · [LICENSING.md](LICENSING.md) | changes · licences |
 
-## Empfohlener Einstieg lokal
+## Licence
 
-```bash
-# In diesem Ordner arbeiten
-cat docs/START_PROMPT.md
-# Codex oder Claude Code im Projektordner starten; den Prompt übergeben.
-```
-
-**Nicht mit einer kompletten Eigenimplementierung anfangen.** Zuerst `Packet.NET`/`pdn-net` auschecken, Versionen/Lizenzen prüfen, Builds/Tests ausführen, APIs inspizieren und ein reproduzierbares Zwei-Knoten-Labortestsetup erstellen. Keine echte Funkaussendung in der ersten Phase.
-
-## Erwartete erste Demo
-
-Zwei simulierte Stationen A und B haben unterschiedliche IPv4-Adressen, teilen einen simulierten KISS/AX.25-Kanal, und ein einfacher HTTP-Client auf A kann **nachweisbar über die virtuelle Funkstrecke** einen minimalistischen HTTP-Server auf B erreichen. Für den ersten Prototyp ist auch ein kleiner UDP/ICMP-Test zulässig, wenn die vorhandene TCP-Tauglichkeit noch ungeklärt ist. Danach reale Quansheng-Hardware, Stationserkennung, Mehrhop.
-
-> Die ursprüngliche Planungsübergabe liegt unter `archive/`. Inzwischen sind Audit und Simulator-Testgerüste ausführbar. Hardware, Windows, Discovery, Chat und Mesh sind weiterhin nicht abgenommen.
+GPL-3.0-or-later ([LICENSE](LICENSE)); protocol specifications CC BY 4.0. Third-party licences:
+[LICENSING.md](LICENSING.md).

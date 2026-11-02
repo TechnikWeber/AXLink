@@ -1,47 +1,34 @@
-# AXLink — Agent Instructions (Codex / other coding agents)
+# AXLink — instructions for coding agents
 
-> **As of 2026-11-02:** `docs/DECISIONS.md` overrides this file wherever they conflict:
-> Go core instead of C#/pdn-net, no built-in legal restrictions (operator responsibility;
-> technical channel-protection filters stay configurable), placeholder callsigns only.
-> The rules below date from the planning phase; the pdn/pdn-net state is tag `v0.1.0-alpha.1`.
-> Code licence: GPL-3.0-or-later. Build and test the Go core as described in `docs/DEVELOPMENT.md`.
+Read [docs/DECISIONS.md](docs/DECISIONS.md) first; it takes precedence over everything else.
+Then [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+and [docs/TODO.md](docs/TODO.md).
 
 ## Mission
 
-Build an open, portable AX.25/KISS/IP radio mesh platform. Reuse rather than rewrite existing Packet.NET/pdn-net components. **Normal IP applications must keep working.** See `README.md`, `docs/PROJECT_HANDOFF.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/RESEARCH.md` and `docs/OPEN_QUESTIONS.md` before editing code.
+Ordinary IPv4 programs over KISS radios and TNCs, as one portable Go program (`axlinkd`):
+Linux first, then Windows and macOS. Tuned first to the Quansheng UV-K1 / UV-K5 V3 with the
+F4HWN KISS TNC app; any standard KISS TNC must keep working. Later: station discovery, chat,
+gateways, mesh.
 
-## Current state
+## Rules
 
-The original handoff contained documentation only. The current repository also
-contains an executed upstream audit, a tested pdn-net destination-filter patch,
-and an isolated two-node TUN/RHPv2/KISS/audio-simulator UDP/HTTP demo with trace
-evidence and interruption/recovery checks. See `docs/TWO_NODE_DEMO.md` and
-`docs/UPSTREAM_AUDIT.md`. Hardware, Windows, discovery/chat and mesh remain
-unverified. Do not extrapolate simulator results into hardware claims.
-
-## Priorities
-
-1. Inspect upstream repositories, pin exact commits and execute builds/tests.
-2. Validate Packet.NET/pdn-net/RHPv2 architecture and licenses.
-3. Build a fully simulated two-node KISS/AX.25/IP test before changing device hardware.
-4. Add direct Linux then Windows support, then discovery, chat, actual radio tests, then mesh.
-5. Propose small upstream patches where possible; fork only as needed.
-
-## Required engineering discipline
-
-- **Do not** implement a new AX.25 stack, KISS protocol, TCP/IP stack or cryptography unless justified after code audit.
-- Prefer C#/.NET 10 core with clean adapters; Linux TUN and Windows Wintun as separate OS implementations.
-- Keep AX.25 on-air IPv4 in documented standard framing (UI/PID 0xCC); introduce any custom native app wire format only via a documented protocol extension.
-- Separate *verified* facts, hypotheses and design proposals; write tests, especially real on-air interoperability and multi-hop packet forwarding.
-- Ensure one process exclusively owns the USB serial/KISS port; design multiplexing explicitly.
-- Simulate packet loss, delay, half-duplex collision and no direct A-C connectivity.
-- Avoid broadcast storms on 1200 bit/s. Filter unrelated IPv6/mDNS/NetBIOS/etc traffic from radio unless specifically implemented.
-- **No live amateur-radio TX by default.** Require explicit operator setup and regulatory compliance; do not send ordinary encrypted payloads over German amateur radio.
-- No uncontrolled general-purpose internet routing, transparent public 44Net address assignment, or arbitrary privileged commands.
-- Follow upstream copyright/license and AGPL/GPL obligations; record source licenses and modifications.
-- Keep user-facing instructions in German by default; code identifiers can be English.
-- Document exact commands and results in `docs/UPSTREAM_AUDIT.md` when phase M0 begins.
-
-## Definition of done for first autonomous task
-
-A reproducible **audit and simulator plan**, backed by code inspection and executed upstream tests where runtime/network access permits. Deliver precise gaps, proposed minimal additions, commands, and evidence. If blocked, document the blocker and create the smallest useful local test scaffold; do not fabricate green tests.
+- **English everywhere in the repository:** code, comments, documentation, commit messages,
+  command-line output. The planned web UI offers English and German (D7).
+- Small, tested steps. Run `gofmt`, `go vet ./...` and `go test -race ./...` before committing;
+  run `scripts/lab-netns.sh` when the data path changes.
+- Never report a test, a lab run or hardware compatibility as passed unless it ran. Results from
+  the model or the simulator are not hardware results.
+- Every new source file starts with `// SPDX-License-Identifier: GPL-3.0-or-later`.
+- Placeholder callsigns only (`N0CALL`, `TESTA-1` …), never a real one (D3).
+- No legal restrictions built into the software; operators are responsible for their frequency
+  (D2). Technical channel protection (broadcast filters, airtime fairness) stays switchable.
+- No transmission from tests; labs use simulated channels only.
+- One process owns a serial port. Open only the configured port or an auto-detected F4HWN radio
+  (USB `36B7:FFFF`), never other serial devices.
+- Keep AX.25 on-air IPv4 in the standard framing (UI frames, PID `0xCC`); own wire formats only
+  as documented extensions (specifications under CC BY 4.0).
+- Parsers are strict; use frames of other implementations as cross-checks.
+- Respect upstream licences: Packet.NET and pdn-net (AGPL) are test peers only; F4HWN code is
+  Apache-2.0.
+- Keep `docs/TODO.md` and `CHANGELOG.md` current with each change.

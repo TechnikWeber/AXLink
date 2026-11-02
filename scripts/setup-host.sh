@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Im normalen Benutzerterminal ausführen, ohne sudo.
+# Run in a normal user terminal, without sudo.
 set -euo pipefail
 AXLINK_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$AXLINK_ROOT"
 
 for tool in git curl python3; do
-    command -v "$tool" >/dev/null || { echo "Fehlt: $tool" >&2; exit 2; }
+    command -v "$tool" >/dev/null || { echo "Missing: $tool" >&2; exit 2; }
 done
 
-# Prüfen vor jeder Änderung: keine Sandbox-Sperren umgehen.
+# Check before changing anything; do not work around sandbox restrictions.
 python3 - <<'PY'
 import socket
 import sys
@@ -19,12 +19,12 @@ try:
         socket.getaddrinfo(host, 443)
         print(f'DNS OK: {host}')
 except OSError as exc:
-    print(f'Netzwerkprüfung fehlgeschlagen: {exc}', file=sys.stderr)
-    print('Im normalen Host-Terminal starten; bei EPERM zuerst die Ausführungsrechte prüfen.', file=sys.stderr)
+    print(f'Network check failed: {exc}', file=sys.stderr)
+    print('Start it in a normal host terminal; on EPERM check the execution permissions first.', file=sys.stderr)
     sys.exit(2)
 PY
 
-# Reinitialisierung erhält vorhandene Historie; keine Commits oder Pushes.
+# Re-initialising keeps the existing history; no commits or pushes.
 git init
 git status --short
 
@@ -41,6 +41,6 @@ export DOTNET_ROOT="$AXLINK_SDK"
 export PATH="$AXLINK_SDK:$PATH"
 dotnet --info
 python3 scripts/audit-upstream.py --run
-echo 'Upstream-Audit beendet. Prüfe den Empfangsfilter-Patch.'
+echo 'Upstream audit finished. Checking the receive-filter patch.'
 python3 scripts/test-destination-filter.py --patched
-echo 'F1 bei Bedarf reproduzieren: python3 scripts/test-destination-filter.py (erwartet Exit 1).'
+echo 'Reproduce F1 if needed: python3 scripts/test-destination-filter.py (expects exit 1).'

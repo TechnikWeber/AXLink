@@ -1,96 +1,92 @@
-# Messenger und KISS TNC per Multiboot (Übergang bis F4HWN v7)
+# Messenger and KISS TNC via Multiboot (interim until F4HWN v7)
 
-> **Übergangslösung.** Diese Anleitung gilt nur, solange der Messenger auf F4HWN v6.3 beruht.
-> Sobald der Messenger auf v7 umgezogen ist und die App-Plattform in derselben Firmware
-> enthält, wird sie gelöscht. Siehe [Aufräumen nach v7](#aufräumen-nach-v7).
+> **Interim solution.** This guide applies only while the messenger is based on F4HWN v6.3.
+> Once the messenger has moved to v7 and carries the app platform in the same firmware, it is
+> deleted. See [Clean-up after v7](#clean-up-after-v7).
 
-## Wofür
+## What for
 
-Der Messenger (APRS im Hintergrund) und die KISS-TNC-App (Funkgerät als Modem für AXLink,
-APRSdroid und andere KISS-Programme) passen in v6.3 nicht in eine Firmware. Mit Multiboot
-liegen beide auf dem Gerät; beim Einschalten wählst du, welche läuft.
+The messenger (APRS in the background) and the KISS TNC app (the radio as a modem for AXLink,
+APRSdroid and other KISS programs) do not fit into one firmware on v6.3. With Multiboot both
+live on the radio; at power-on you choose which one runs.
 
-| Multiboot-Platz | Firmware | Wofür |
+| Multiboot slot | Firmware | For |
 |---|---|---|
-| `M` (Main) | Messenger, `f4hwn.messenger.bin` | Alltag: Sprechfunk und APRS-Messenger |
-| `1` | F4HWN Labs v6.3.0, `f4hwn.labs.v6.3.0.bin` | KISS-TNC-App für AXLink, APRSdroid |
+| `M` (Main) | messenger, `f4hwn.messenger.bin` | every day: voice and the APRS messenger |
+| `1` | F4HWN Labs v6.3.0, `f4hwn.labs.v6.3.0.bin` | the KISS TNC app for AXLink, APRSdroid |
 
-Die Schritte folgen dem F4HWN-Wiki (Seiten „Multiboot and Multiconfig“, „UV Studio“,
-„Overlay apps“, „App KISS TNC“), Stand 2026-11-02.
+The steps follow the F4HWN wiki (pages "Multiboot and Multiconfig", "UV Studio", "Overlay apps",
+"App KISS TNC"), as of 2026-11-02.
 
-**Nur TNC, ohne Messenger:** Dafür braucht es kein Multiboot. Das originale F4HWN Labs v6.3.0
-normal flashen (UV Studio → *Flash Firmware*), dann wie in Schritt 4 unten die KISS-TNC-App
-installieren, später auch unsere eigene
-([AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC), als `.app` über UV Studio →
-*Apps* → *Community* → *Install a .app*). Ab v7 geht dasselbe mit dem originalen Fusion.
+**TNC only, without the messenger:** no Multiboot is needed. Flash the original F4HWN Labs
+v6.3.0 normally (UV Studio → *Flash Firmware*), then install the KISS TNC app as in step 4
+below, or our own [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC) as a `.app` through
+UV Studio → *Apps* → *Community* → *Install a .app*. From v7 the same works with the original
+Fusion.
 
-## Was du brauchst
+## What you need
 
-- UV-K1 oder UV-K5 V3 (PY32F071).
-- USB-C-Datenkabel; für Sendebetrieb einen Ferritkern (VHF-Material) am Funkgerät-Ende.
-- Einen Desktop-Browser mit Web Serial (Chrome, Edge, Brave, Opera, Firefox ab 151) für
+- A UV-K1 or UV-K5 V3 (PY32F071).
+- A USB-C data cable; for transmitting, a clip-on ferrite (VHF material) at the radio end.
+- A desktop browser with Web Serial (Chrome, Edge, Brave, Opera, Firefox 151 or later) for
   [UV Studio](https://armel.github.io/uvstudio/).
 
-## Einmal einrichten
+## Set up once
 
-1. **Kalibrierung sichern.** UV Studio → *Dump Calibration*; die Datei nach der
-   Seriennummer des Geräts benennen.
-2. **Messenger als Main flashen.** Gerät in den Flash-Modus (DFU) bringen, UV Studio →
-   *Flash Firmware* → lokale Datei `f4hwn.messenger.bin` (aus den Releases des Forks) →
-   *Flash firmware*. Beim ersten Start zeigt das Gerät `Init Main`: nicht ausschalten.
-3. **Labs in Platz 1 schreiben.** Gerät normal starten (nicht DFU), UV Studio →
-   *Firmware Slots* → Tabelle aktualisieren → aus dem Katalog *F4HWN Labs v6.3.0* wählen
-   (oder `f4hwn.labs.v6.3.0.bin` als Datei) → Platz `1`, Name z. B. `LABS` → *Write to slot*
-   → bestätigen und warten, bis Löschen, Schreiben und CRC-Prüfung fertig sind. Der laufende
-   Messenger bleibt dabei unverändert.
-4. **Zu Labs wechseln** (siehe unten) und dort die App installieren: UV Studio → *Apps* →
-   *Catalog* (UV Studio wählt den passenden v6.3.0-Katalog) → *KISS TNC* → *Install*.
-   Später geht hier auch unsere eigene Variante als `.app`-Datei oder über den
-   Community-Tab.
-5. **In Labs die Frequenz einstellen.** Labs nutzt seine eigene Konfiguration `CFG 1`:
-   VFO auf die Datenfrequenz (AXLink) oder 144,800 MHz (APRSdroid), FM, Leistung.
+1. **Back up the calibration.** UV Studio → *Dump Calibration*; name the file after the radio's
+   serial number.
+2. **Flash the messenger as Main.** Put the radio into flash mode (DFU), UV Studio → *Flash
+   Firmware* → local file `f4hwn.messenger.bin` (from the fork's releases) → *Flash firmware*.
+   On first start the radio shows `Init Main`: do not switch it off.
+3. **Write Labs into slot 1.** Start the radio normally (not DFU), UV Studio → *Firmware Slots* →
+   refresh the table → choose *F4HWN Labs v6.3.0* from the catalog (or `f4hwn.labs.v6.3.0.bin`
+   as a file) → slot `1`, name e.g. `LABS` → *Write to slot* → confirm and wait until erasing,
+   writing and the CRC check are done. The running messenger stays unchanged.
+4. **Switch to Labs** (see below) and install the app there: UV Studio → *Apps* → *Catalog* (UV
+   Studio picks the matching v6.3.0 catalog) → *KISS TNC* → *Install*. Our own app installs as a
+   `.app` file instead (*Community* → *Install a .app*), later from the Community tab.
+5. **Set the frequency in Labs.** Labs uses its own configuration `CFG 1`: VFO on the data
+   frequency (AXLink) or on 144.800 MHz (APRSdroid), FM, power.
 
-## Wechseln
+## Switching
 
-- **Zu Labs:** Gerät aus, `MENU` gedrückt halten, einschalten, beim Bild
-  `F4HWN MULTIBOOT` loslassen. Platz `1` wählen (UV-K1: LINKS/RECHTS, UV-K5: AUF/AB),
-  `MENU`, bei `Restore ...?` noch einmal `MENU`. Während `Writing / Verify`
-  **nicht ausschalten**; das Gerät startet danach neu.
-- **KISS TNC starten:** in Labs `F` + `7`, *KISS TNC* wählen, `MENU`. Dann AXLink am PC
-  starten oder APRSdroid verbinden. `EXIT` beendet die App.
-- **Zurück zum Messenger:** wie oben, aber `M` wählen. Mailbox und Messenger-Einstellungen
-  bleiben erhalten; sie liegen in einem eigenen Flash-Bereich.
+- **To Labs:** radio off, hold `MENU`, switch on, release at the `F4HWN MULTIBOOT` screen. Choose
+  slot `1` (UV-K1: LEFT/RIGHT, UV-K5: UP/DOWN), `MENU`, and `MENU` again at `Restore ...?`.
+  **Do not switch off** during `Writing / Verify`; the radio restarts afterwards.
+- **Start the KISS TNC:** in Labs `F` + `7`, choose *KISS TNC* (or *AXLink TNC*), `MENU`. Then
+  start AXLink on the PC or connect APRSdroid. `EXIT` ends the app.
+- **Back to the messenger:** as above, but choose `M`. The mailbox and the messenger settings
+  stay; they live in their own flash area.
 
-## AXLink dazu (Linux)
+## AXLink with it (Linux)
 
 ```sh
-./axlinkd ports      # zeigt das Funkgerät mit USB 36B7:FFFF
-sudo ./axlinkd run -call <RUFZEICHEN>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<GEGENSTELLE>-1
+./axlinkd ports      # shows the radio with USB 36B7:FFFF
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24 -route 10.73.0.2=<PEER>-1
 ```
 
-Für serielle Ports ist das Profil `f4hwn-kisstnc` Standard. Details: `DEVELOPMENT.md`.
+The profile `f4hwn-kisstnc` is the default for serial ports. Details:
+[DEVELOPMENT.md](DEVELOPMENT.md).
 
-## Gut zu wissen
+## Good to know
 
-- Jeder Wechsel schreibt die Firmware neu ins Gerät; das dauert einige Sekunden.
-- Jeder Platz hat seine eigene Konfiguration (Kanäle, VFOs): Main `CFG M`, Labs `CFG 1`.
-  Mit `SetCfg` lässt sich eine Bank teilen; laut F4HWN auf eigene Verantwortung, vorher sichern.
-- Apps liegen im externen Flash und bleiben beim Wechsel erhalten; starten kann sie nur Labs.
-- Die App-Version muss zur Firmware passen: Labs v6.3.0 → Apps aus dem v6.3.0-Katalog.
-- Die Flash-Bereiche überschneiden sich laut Quelltext nicht: Multiboot-Plätze
-  0x020000–0x0BFFFF, App-Plätze von Labs v6.3 0x102000–0x161FFF, Messenger
-  0x1BA000–0x1C9FFF.
-- Wer in UV Studio den kompletten externen Flash zurückspielt, überschreibt auch die
-  Messenger-Daten.
-- **Auf Hardware noch nicht geprüft.** Das ist der erste Test, wenn die UV-K1 da sind.
+- Every switch writes the firmware into the radio again; it takes a few seconds.
+- Every slot has its own configuration (channels, VFOs): Main `CFG M`, Labs `CFG 1`. `SetCfg`
+  can share a bank; according to F4HWN at your own risk, back up first.
+- Apps live in the external flash and survive a switch; only Labs can start them.
+- The app version must match the firmware: Labs v6.3.0 → apps from the v6.3.0 catalog.
+- According to the source the flash areas do not overlap: Multiboot slots 0x020000–0x0BFFFF,
+  Labs v6.3 app slots 0x102000–0x161FFF, messenger 0x1BA000–0x1C9FFF.
+- Restoring the complete external flash in UV Studio also overwrites the messenger data.
+- **Not checked on hardware yet.** That is the first test once the UV-K1 radios arrive.
 
-## Aufräumen nach v7
+## Clean-up after v7
 
-Sobald der Messenger auf F4HWN v7 läuft und die App-Plattform enthält:
+Once the messenger runs on F4HWN v7 and carries the app platform:
 
-- [ ] diese Datei löschen;
-- [ ] in `DECISIONS.md` den Multiboot-Teil von D6 streichen und D6 als erledigt markieren;
-- [ ] die Verweise in `README.md` und `DEVELOPMENT.md` entfernen;
-- [ ] im Firmware-Fork den Multiboot-Hinweis im Messenger-README durch „KISS TNC in
-      derselben Firmware“ ersetzen;
-- [ ] die eigene KISS-App (AXLink TNC) auf v7 prüfen und neu bauen, falls v7 das ABI ändert.
+- [ ] delete this file;
+- [ ] remove the Multiboot part of D6 in `DECISIONS.md` and mark D6 as done;
+- [ ] remove the references in `README.md`, `DEVELOPMENT.md` and `TODO.md`;
+- [ ] in the firmware fork, replace the Multiboot note in the messenger README with "KISS TNC in
+      the same firmware";
+- [ ] check AXLink TNC on v7 and rebuild it if v7 changes the ABI.

@@ -1,52 +1,53 @@
-# Änderungen
+# Changes
 
 ## Unreleased (0.2.0-dev)
 
-Neuausrichtung nach dem Review vom 2026-11-02 (`docs/REVIEW_2026-11-02.md`,
-`docs/DECISIONS.md`): Kern in Go, Lizenz GPL-3.0-or-later (Protokolltexte CC BY 4.0).
+A new start after the review of 2026-11-02 ([REVIEW](docs/REVIEW_2026-11-02.md),
+[DECISIONS](docs/DECISIONS.md)): the core in Go, licence GPL-3.0-or-later (protocol texts
+CC BY 4.0), the repository in English.
 
-- `internal/kiss`: KISS-Framing mit Escapes, Parametern und G8BPQ-ACKMODE; Fuzz-Test.
-- `internal/ax25`: AX.25-v2.2-Adressen und Frames ohne FCS, FCS (CRC-16/X.25). Gegenprobe mit
-  123 Frames, die Packet.NET im v0.1-Labor erzeugt hat: gleiche Felder, byte-gleich neu codiert.
-- `internal/airtime`: Bit-Stuffing und Sendedauer.
-- `internal/sim/f4hwnkiss`: Verhaltensmodell der KISS-TNC-App der F4HWN-Firmware (256-Byte-Ring,
-  16 Byte je 10 ms, ein Sendeplatz, gesperrte Interrupts beim Senden), optional mit ACKMODE.
-- `internal/pacing`: Taktung je TNC-Profil. Im Modell: ein volles Paket ohne Taktung geht
-  verloren; mit dem Profil `f4hwn-kisstnc` kommen alle an (~104 B/s); bei belegtem Kanal hilft
-  nur ACKMODE.
+- `internal/kiss`: KISS framing with escapes, parameters and G8BPQ ACKMODE; fuzz test.
+- `internal/ax25`: AX.25 v2.2 addresses and frames without FCS, the FCS (CRC-16/X.25). Cross-check
+  with 123 frames that Packet.NET produced in the v0.1 lab: the same fields, re-encoded byte for
+  byte.
+- `internal/airtime`: bit stuffing and airtime.
+- `internal/sim/f4hwnkiss`: a behavioural model of the KISS TNC app of the F4HWN firmware
+  (256-byte ring, 16 bytes per 10 ms, one transmit slot, interrupts masked while sending),
+  optionally with ACKMODE.
+- `internal/pacing`: pacing per TNC profile. In the model a full packet without pacing is lost;
+  with the profile `f4hwn-kisstnc` all arrive (~104 B/s); with a busy channel only ACKMODE avoids
+  losses.
+- `internal/tnc`: the connection to a TNC over serial (DTR set, exclusive), KISS-TCP or a Unix
+  socket. Reconnects by itself after USB resets, then sends a resync and the KISS parameters
+  again and repeats an interrupted frame once. Finds the radio by its USB ID 36B7:FFFF. Waits for
+  ACKMODE echoes.
+- `internal/tun`: the network adapter on Linux (wireguard-go without GSO offloads), IPv6 off on
+  the adapter. Windows and macOS follow.
+- `internal/ipbridge`: IPv4 ↔ AX.25 UI/PID 0xCC with a destination filter, length and checksum
+  checks, longest-prefix routes and a switchable broadcast filter.
+- `internal/sim/channel` and `scripts/lab-netns.sh`: two stations in their own network
+  namespaces without root or Docker. With the model of the F4HWN app: ping 3/3 (RTT ~2.1 s),
+  UDP 1.7 s, HTTP 13 s, no frame lost (model, not hardware).
+- Finding in the app's source: a frame cut off by a USB reset would be closed by the next FEND
+  and sent truncated. The f4hwn profile therefore sends `FESC 00 FEND` on connecting.
 - `cmd/axlinkd`: `run`, `ports`, `decode`, `sim-channel`, `version`.
-- `internal/tnc`: Verbindung zum TNC über Serial (DTR gesetzt, exklusiv), KISS-TCP oder
-  Unix-Socket. Verbindet nach USB-Resets selbst neu, sendet dann Resync und KISS-Parameter
-  erneut und wiederholt einen abgebrochenen Frame einmal. Auto-Erkennung des Funkgeräts an
-  der USB-Kennung 36B7:FFFF. ACKMODE-Echos werden abgewartet.
-- `internal/tun`: Netzadapter unter Linux (wireguard-go, ohne GSO-Offloads), IPv6 auf dem
-  Adapter aus. Windows und macOS folgen.
-- `internal/ipbridge`: IPv4 ↔ AX.25 UI/PID 0xCC mit Zielfilter, Längen- und Prüfsummenprüfung,
-  Routen nach längstem Präfix und abschaltbarem Broadcast-Filter.
-- `internal/sim/channel` und `scripts/lab-netns.sh`: zwei Stationen in eigenen Netz-Namespaces
-  ohne root und Docker. Mit dem Modell der F4HWN-App: ping 3/3 (RTT ~2,1 s), UDP 1,7 s,
-  HTTP 13 s, kein Frame verloren (Modell, keine Hardware).
-- Befund aus dem App-Quelltext: Ein durch USB-Reset abgeschnittener Frame würde vom nächsten
-  FEND abgeschlossen und verstümmelt gesendet. Das f4hwn-Profil schickt deshalb beim Verbinden
-  `FESC 00 FEND`.
-- `docs/MULTIBOOT_V6.md`: Messenger und KISS TNC per Multiboot bis zum Umzug auf v7.
-- CI auf Linux, Windows und macOS, Labortest in der CI; Builds auch für ARMv6 (Pi Zero W).
-- `scripts/setup-go.sh` installiert Go projektlokal mit Prüfsumme.
+- Documentation: architecture, decisions, development, TODO list, history of v0.1, Multiboot
+  guide until F4HWN v7.
+- CI on Linux, Windows and macOS, the lab test in CI; builds also for ARMv6 (Pi Zero W).
+- `scripts/setup-go.sh` installs Go into the project with a checksum check.
 
 ## 0.1.0-alpha.1 — 2026-10-31
 
-Erster ausführbarer Simulatorstand. Normale UDP-/HTTP-Anwendungen erreichen
-eine zweite private IP-Adresse über zwei echte TUN/pdn-net/pdn-Prozessketten
-und den virtuellen AFSK1200-Kanal. Bei Kanalunterbrechung scheitern die Requests;
-nach Wiederaufnahme funktionieren sie erneut. AX.25-UI/PID-0xCC-Traces belegen
-den Transport der unveränderten IP-Pakete auf beiden Seiten.
+The first runnable simulator state (Codex). Ordinary UDP and HTTP applications reached a second
+private IP address over two real TUN/pdn-net/pdn process chains and the virtual AFSK1200 channel.
+With the channel interrupted the requests failed; after it resumed they worked again. AX.25
+UI/PID 0xCC traces showed the unchanged IP packets on both sides.
 
-- Gepinnte Upstreams und SDK, reproduzierbarer Audit-Runner ohne Hardwaretests.
-- Packet.NET: 13.295 Tests bestanden, 48 Skips; pdn-net: 40 bestanden.
-- F1-Empfangsfehler reproduziert; lokaler Patch besteht alle 49 erweiterten Tests.
-- Isoliertes Docker-Labor mit Cleanup, Rohframes, Routennachweisen und Negativkontrollen.
-- Elf Python-Tests für Audit-Guardrails, begrenzte UDP-Wiederholungen und korrekte Bewertung der Trace-Nachweise.
+- Pinned upstreams and SDK, a reproducible audit runner without hardware tests.
+- Packet.NET: 13,295 tests passed, 48 skipped; pdn-net: 40 passed.
+- F1 receive defect reproduced; a local patch passes all 49 extended tests.
+- An isolated Docker lab with clean-up, raw frames, route evidence and negative controls.
+- Eleven Python tests for audit guardrails, bounded UDP retries and the evaluation of traces.
 
-Experimentell: keine Hardwarefreigabe, kein Windows/Wintun, kein Chat oder Mesh.
-Fragmentierung und kontrollierte Störungsmatrizen bleiben offen. Eigenlizenz
-noch nicht festgelegt; zunächst privates Prerelease, Fremdlizenzen unverändert.
+Experimental: no hardware approval, no Windows/Wintun, no chat or mesh. Details:
+[HISTORY.md](docs/HISTORY.md).

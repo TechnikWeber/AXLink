@@ -39,15 +39,15 @@ def main():
     try:
         for tool in ('git', 'dotnet'):
             if not shutil.which(tool):
-                raise FileNotFoundError(f'{tool} fehlt')
+                raise FileNotFoundError(f'{tool} is missing')
         repo = json.loads((ROOT / 'upstream.lock.json').read_text())['repositories']['pdn-net']
         source = ROOT / 'upstream/pdn-net'
         if not source.is_dir():
-            raise FileNotFoundError('Gepinnter Checkout upstream/pdn-net fehlt')
+            raise FileNotFoundError('Pinned checkout upstream/pdn-net is missing')
         if run(['git', 'rev-parse', 'HEAD'], source) != repo['commit']:
-            raise RuntimeError('Checkout stimmt nicht mit upstream.lock.json überein')
+            raise RuntimeError('Checkout does not match upstream.lock.json')
         if run(['git', 'status', '--porcelain'], source):
-            raise RuntimeError('Checkout enthält lokale Änderungen')
+            raise RuntimeError('Checkout has local changes')
         # Keep the baseline pristine for audit-upstream.py. Export tracked files only.
         archive = subprocess.run(['git', 'archive', repo['commit']], cwd=source,
                                  capture_output=True, check=True, timeout=60).stdout
@@ -74,7 +74,7 @@ def main():
         report['reason'] = str(exc)
         exit_code = 1
     (OUT / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
-    print(f"{report['status']}: {report.get('reason', 'siehe TRX-Ergebnisse')}")
+    print(f"{report['status']}: {report.get('reason', 'see the TRX results')}")
     return exit_code
 
 

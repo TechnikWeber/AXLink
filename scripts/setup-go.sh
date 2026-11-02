@@ -11,10 +11,10 @@ case "$(uname -s)/$(uname -m)" in
     Linux/armv6l|Linux/armv7l) PLATFORM=linux-armv6l ;;
     Darwin/arm64) PLATFORM=darwin-arm64 ;;
     Darwin/x86_64) PLATFORM=darwin-amd64 ;;
-    *) echo "Plattform $(uname -s)/$(uname -m) nicht vorgesehen; Go von https://go.dev/dl/ installieren." >&2; exit 2 ;;
+    *) echo "Platform $(uname -s)/$(uname -m) not covered; install Go from https://go.dev/dl/" >&2; exit 2 ;;
 esac
 if [[ -x "$ROOT/.tools/go/bin/go" ]] && [[ "$("$ROOT/.tools/go/bin/go" env GOVERSION)" == "$VERSION" ]]; then
-    echo "$VERSION ist bereits unter .tools/go installiert."
+    echo "$VERSION is already installed in .tools/go."
     exit 0
 fi
 FILE="$VERSION.$PLATFORM.tar.gz"
@@ -39,4 +39,4 @@ mkdir -p "$ROOT/.tools"
 rm -rf "$ROOT/.tools/go"
 tar -C "$ROOT/.tools" -xzf "$TMP/$FILE"
 "$ROOT/.tools/go/bin/go" version
-echo 'Nutzen: export PATH="$PWD/.tools/go/bin:$PATH"'
+echo 'Use: export PATH="$PWD/.tools/go/bin:$PATH"'

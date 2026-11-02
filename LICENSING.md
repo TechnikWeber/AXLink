@@ -1,61 +1,59 @@
-# Lizenzstand
+# Licensing
 
-## Eigene Lizenz (seit 2026-11-02)
+## AXLink's own licence (since 2026-11-02)
 
-- **Code** (Go-Kern, Skripte, Tests, Werkzeuge): **GPL-3.0-or-later**, Text in [`LICENSE`](LICENSE).
-  Neue Quelldateien beginnen mit `SPDX-License-Identifier: GPL-3.0-or-later`.
-- **Protokollspezifikationen** (künftig unter `docs/protocol/`): **CC BY 4.0**, Text in
-  [`licenses/CC-BY-4.0.txt`](licenses/CC-BY-4.0.txt). So kann jedes Projekt das Protokoll frei
-  umsetzen, auch Firmware unter Apache-2.0.
-- Übrige Dokumentation: wie der Code, sofern nicht anders angegeben.
-- Der Tag `v0.1.0-alpha.1` entstand vor dieser Festlegung und war ein privates Prerelease ohne
-  Lizenzfreigabe.
-- Fremdcode behält seine Lizenz (Tabellen unten).
+- **Code** (Go core, scripts, tests, tools): **GPL-3.0-or-later**, text in [LICENSE](LICENSE).
+  New source files start with `SPDX-License-Identifier: GPL-3.0-or-later`.
+- **Protocol specifications** (in future under `docs/protocol/`): **CC BY 4.0**, text in
+  [licenses/CC-BY-4.0.txt](licenses/CC-BY-4.0.txt). Any project can implement the protocol
+  freely, firmware under Apache-2.0 included.
+- Other documentation: like the code, unless stated otherwise.
+- Tag `v0.1.0-alpha.1` predates this and was a private prerelease without a licence grant.
+- Third-party code keeps its licence (tables below).
 
-## Enthaltene Fremdquellen und Änderungen
+## Third-party sources included, and changes
 
-| Pfad | Herkunft / Lizenz |
+| Path | Origin / licence |
 |---|---|
-| `artifacts/m0/sources/packet.net`, `references/0.txt`, `references/1.txt` | Packet.NET; AGPL-3.0-or-later laut Build-Metadaten, vollständiger Lizenztext im Quellenordner |
-| `artifacts/m0/sources/pdn-net` | pdn-net; AGPL-3.0-or-later, vollständiger Lizenztext im Quellenordner |
-| `patches/pdn-net-destination-filter.patch` | Änderungen am gepinnten pdn-net; ursprüngliche AGPL-Lizenz bleibt erhalten; Änderung und Tests beschrieben in `patches/README.md` |
-| `artifacts/m0/firmware/kisstnc_app.c` | Johan Denoyer F4WAT / Armel F4HWN; Apache-2.0 gemäß erhaltenem Dateikopf; Lizenztext unter `licenses/Apache-2.0.txt` |
-| `artifacts/m0/references/4.txt` | LinBPQ/BPQ32, John Wiseman G8BPQ; GPL-3.0-or-later gemäß erhaltenem Dateikopf; Lizenztext unter `licenses/GPL-3.0.txt` |
-| `artifacts/m0/references/3.txt` | tncattach README; Projektlizenz MIT, Text unter `licenses/tncattach-MIT.txt` |
-| `artifacts/m0/references/5.txt` | mod-orphan README; deklarierte GPL-2.0, Text unter `licenses/GPL-2.0.txt` |
-| `internal/ax25/testdata/packetnet-*.jsonl` | AX.25-Frames, die Packet.NET in unserem eigenen Labor gesendet/empfangen hat (Testdaten, kein Code) |
+| `artifacts/m0/sources/packet.net`, `references/0.txt`, `references/1.txt` | Packet.NET; AGPL-3.0-or-later according to its build metadata; full licence text in the source folder |
+| `artifacts/m0/sources/pdn-net` | pdn-net; AGPL-3.0-or-later; full licence text in the source folder |
+| `patches/pdn-net-destination-filter.patch` | changes to the pinned pdn-net; the original AGPL licence applies; change and tests described in `patches/README.md` |
+| `artifacts/m0/firmware/kisstnc_app.c` | Johan Denoyer F4WAT / Armel F4HWN; Apache-2.0 according to the file header; licence text in `licenses/Apache-2.0.txt` |
+| `artifacts/m0/references/4.txt` | LinBPQ/BPQ32, John Wiseman G8BPQ; GPL-3.0-or-later according to the file header; licence text in `licenses/GPL-3.0.txt` |
+| `artifacts/m0/references/3.txt` | tncattach README; project licence MIT, text in `licenses/tncattach-MIT.txt` |
+| `artifacts/m0/references/5.txt` | mod-orphan README; declared GPL-2.0, text in `licenses/GPL-2.0.txt` |
+| `internal/ax25/testdata/packetnet-*.jsonl` | AX.25 frames that Packet.NET sent and received in our own lab (test data, not code) |
 
-Quell-URLs und geprüfte Commit-IDs stehen in `upstream.lock.json`. Die gesicherten Quellkopien
-wurden nicht geändert; Prüfsummen stehen in `artifacts/m0/source-sha256.json`. Bei den älteren
-Alternativen-Referenzen sind Branch-URLs statt reproduzierbarer Commit-Pins dokumentiert.
-Die separat beigelegte tncattach-Lizenz wurde am 31.10.2026 aus
-`https://raw.githubusercontent.com/markqvist/tncattach/master/LICENSE` abgerufen.
+Source URLs and audited commit IDs are in `upstream.lock.json`. The saved source copies were not
+changed; their checksums are in `artifacts/m0/source-sha256.json`. For the older alternative
+references, branch URLs rather than reproducible commit pins are recorded. The tncattach licence
+was retrieved on 2026-10-31 from
+`https://raw.githubusercontent.com/markqvist/tncattach/master/LICENSE`.
 
-`internal/sim/f4hwnkiss` ist ein eigenes Verhaltensmodell der KISS-TNC-App, nach deren
-Quelltext geschrieben; es enthält keinen Code aus der Firmware.
+`internal/sim/f4hwnkiss` is our own behavioural model of the KISS TNC app, written from its
+source; it contains no firmware code.
 
-## Go-Abhängigkeiten
+## Go dependencies
 
-Laut `go.mod`; alle mit GPL-3.0 vereinbar.
+According to `go.mod`; all compatible with GPL-3.0.
 
-| Modul | Lizenz | Wofür |
+| Module | Licence | Used for |
 |---|---|---|
-| `go.bug.st/serial` v1.8.0 | BSD-3-Clause | serielle Ports, USB-Kennungen |
-| `golang.zx2c4.com/wireguard` (Commit `2631ce99a06f`) | MIT | Netzadapter (nur das Paket `tun`) |
-| `golang.zx2c4.com/wintun` | MIT | Windows-Adapter (künftig; `wintun.dll` wird noch nicht mitgeliefert) |
-| `golang.org/x/sys`, `golang.org/x/net` | BSD-3-Clause | Systemaufrufe |
+| `go.bug.st/serial` v1.8.0 | BSD-3-Clause | serial ports, USB IDs |
+| `golang.zx2c4.com/wireguard` (commit `2631ce99a06f`) | MIT | network adapter (only the `tun` package) |
+| `golang.zx2c4.com/wintun` | MIT | Windows adapter (in future; `wintun.dll` is not shipped yet) |
+| `golang.org/x/sys`, `golang.org/x/net` | BSD-3-Clause | system calls |
 
-Geplant: gVisor netstack (Apache-2.0) für Gateway und Betrieb ohne Admin-Rechte.
+Planned: gVisor netstack (Apache-2.0) for gateways and for running without admin rights.
 
-## Werkzeuge des v0.1-Labors
+## Tools of the v0.1 lab
 
-Packet.NET und pdn-net werden aus gepinnten vollständigen Repositories gebaut. Der Trace-Adapter
-`tools/TraceCheck` bindet Packet.NET ein; bei einer Binärdistribution wären dessen
-AGPL-Anforderungen mit zu berücksichtigen. Es werden keine Upstream-Binärdateien oder Images
-mitgeliefert.
+Packet.NET and pdn-net are built from pinned full repositories. The trace adapter
+`tools/TraceCheck` links Packet.NET; a binary distribution would have to meet its AGPL terms.
+No upstream binaries or images are shipped.
 
-net-sim und das Microsoft-ASP.NET-Runtime-Image werden separat per Docker bezogen; Digests und
-Metadaten sind dokumentiert. Das gepinnte net-sim-Image nennt im Label MIT, das Repository
-`packethacking/net-sim` steht heute unter AGPL-3.0. Wir nutzen net-sim nur als getrenntes
-Testwerkzeug und verteilen es nicht. `scripts/inventory-package-licenses.py` erfasst deklarierte
-NuGet-Metadaten nach dem Restore; diese Liste ist keine pauschale Kompatibilitätsfreigabe.
+net-sim and the Microsoft ASP.NET runtime image are pulled separately with Docker; digests and
+metadata are recorded. The pinned net-sim image's label says MIT, while the repository
+`packethacking/net-sim` is now AGPL-3.0. We use net-sim only as a separate test tool and do not
+distribute it. `scripts/inventory-package-licenses.py` records the declared NuGet metadata after
+a restore; that list is no blanket approval.

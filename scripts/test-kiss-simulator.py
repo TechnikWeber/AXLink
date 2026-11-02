@@ -19,10 +19,10 @@ def main():
         pin = json.loads((ROOT / 'upstream.lock.json').read_text())['repositories']['packet.net']['commit']
         head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip()
         if head != pin or subprocess.check_output(['git', 'status', '--porcelain'], cwd=repo).strip():
-            raise RuntimeError('Packet.NET-Checkout weicht vom sauberen Pin ab')
+            raise RuntimeError('Packet.NET checkout differs from the clean pin')
         with urllib.request.urlopen('http://127.0.0.1:18080/healthz', timeout=3) as response:
             if response.read().strip() != b'ok':
-                raise RuntimeError('Simulator nicht bereit')
+                raise RuntimeError('Simulator not ready')
         sdk = ROOT / '.tools/dotnet'
         env = {**os.environ, 'DOTNET_ROOT': str(sdk), 'PATH': str(sdk) + os.pathsep + os.environ['PATH']}
         trx = OUT / 'kiss.trx'
@@ -38,12 +38,12 @@ def main():
         results = ET.parse(trx).findall('.//{http://microsoft.com/schemas/VisualStudio/TeamTest/2010}UnitTestResult')
         report['outcomes'] = [r.get('outcome') for r in results]
         if result.returncode or report['outcomes'] != ['Passed']:
-            raise RuntimeError('Genau ein bestandener Test erforderlich; Skip zählt nicht')
+            raise RuntimeError('Exactly one passed test required; a skip does not count')
         report['status'] = 'passed'
     except (OSError, RuntimeError, subprocess.SubprocessError, ET.ParseError) as exc:
         report['reason'] = str(exc)
     (OUT / 'result.json').write_text(json.dumps(report, indent=2) + '\n')
-    print(f"{report['status']}: {report.get('reason', 'KISS UI-Frame A → B; noch kein IP-Test')}")
+    print(f"{report['status']}: {report.get('reason', 'KISS UI frame A -> B; not an IP test')}")
     return 0 if report['status'] == 'passed' else 1
 
 

@@ -22,9 +22,9 @@ def main():
         head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=checkout, text=True).strip()
         dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=checkout)
         if head != repo['commit'] or dirty.strip():
-            raise RuntimeError(f'{name}: sauberer gepinnter Checkout erforderlich')
+            raise RuntimeError(f'{name}: a clean checkout at the pinned commit is required')
     if not (ROOT / 'upstream/packet.net/src/Packet.Node/bin/Release/net10.0/packetnet.dll').is_file():
-        raise RuntimeError('Zuerst python3 scripts/audit-upstream.py --run ausführen')
+        raise RuntimeError('Run python3 scripts/audit-upstream.py --run first')
     source = ROOT / 'upstream/pdn-net'
     archive = subprocess.check_output(['git', 'archive', 'HEAD'], cwd=source)
     with tempfile.TemporaryDirectory(prefix='axlink-ip-build-') as temp:

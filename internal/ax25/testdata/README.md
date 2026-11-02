@@ -1,10 +1,10 @@
-# Testvektoren aus Packet.NET
+# Test vectors from Packet.NET
 
-`packetnet-frames.jsonl` sind rohe AX.25-Frames (ohne FCS), die der Packet.NET-Knoten (`pdn`,
-Commit `bded4671`) im Zwei-Knoten-Labor vom 31.10.2026 gesendet und empfangen hat
-(`pdn traffic export`, Station A). `packetnet-decoded.jsonl` ist dieselbe Liste, Zeile für
-Zeile vom strikten Packet.NET-Parser dekodiert (`tools/TraceCheck`).
+`packetnet-frames.jsonl` holds raw AX.25 frames (without FCS) that the Packet.NET node (`pdn`,
+commit `bded4671`) sent and received in the two-node lab of 2026-10-31 (`pdn traffic export`,
+station A). `packetnet-decoded.jsonl` is the same list, line by line, decoded by the strict
+Packet.NET parser (`tools/TraceCheck`).
 
-Quelle: `artifacts/m1/evidence/a-ax25.jsonl` und `a-decoded.jsonl` (Tag `v0.1.0-alpha.1`).
-Sie dienen als Gegenprobe: unser Parser muss dieselben Felder lesen und beim Neucodieren
-byte-gleiche Frames erzeugen.
+Source: `artifacts/m1/evidence/a-ax25.jsonl` and `a-decoded.jsonl` (tag `v0.1.0-alpha.1`). They
+serve as a cross-check: our parser must read the same fields and re-encode the frames byte for
+byte.

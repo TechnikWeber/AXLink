@@ -1,140 +1,97 @@
-# AXLink — Technische Zielarchitektur (Entwurf)
+# AXLink — architecture
 
-## Leitprinzipien
+## Goal
 
-1. **Interoperabilität vor Neuerfindung:** Bestehende AX.25-IP-Datagrammkonventionen beibehalten; KISS ist nur der Modemtransport.
-2. **Schichten entkoppeln:** Hardwaretreiber, AX.25, IPv4, Mesh, Dienste und UI testbar separieren.
-3. **Optionales Mesh** darf Standard-IP-Dienste nicht verhindern. Bestehende Packet-Radio-Stationen ohne AXLink sollen weiter nutzbar sein, soweit die verwendeten Protokolle kompatibel sind.
-4. **Durchsatz respektieren:** Bei 1200 bit/s maximal 150 Byte/s brutto vor Overhead; ein Mehrhop-Relais auf demselben Kanal erhöht die Funkzeit erheblich.
-5. **Sichere Standards:** Keine unbeabsichtigten Pakete im Amateurfunk senden; Sende-/Relay-Freigaben, Filter und Profile.
+Ordinary IPv4 programs over amateur packet radio: a KISS radio or TNC, a virtual network
+adapter, and IP packets in AX.25 UI frames with PID `0xCC`, the framing that Linux, JNOS, BPQ and
+Packet.NET use. Later: station discovery, chat, gateways and mesh routing. At 1200 bit/s this
+suits small, text-based use.
 
-## Schichtenmodell
-
-```text
-   GUI: Netzwerkgraph | Stationsverzeichnis | Chat | Funkseiten | Status
-                         |                 |
-          Native Dienste (Discovery, Chat, Cache, Mailbox)
-                         |                 |
-              Mesh-/Routing-Control-Plane  |   Standard-Sockets
-                         |                 v
-                         |            TCP / UDP / HTTP
-                         |                 |
-                         |       OS IPv4 Stack / radio0
-                         |                 |
-                         |        pdn-net TUN/Wintun
-                         |                 |
-                         +----> pdn / Packet.NET via RHPv2
-                                     |
-                             AX.25 UI / NET-ROM*
-                                     |
-                              KISS Serial/TCP
-                                     |
-                              Quansheng / TNC
-
-* NET/ROM als zu evaluierende Routing-Option, NICHT automatisch IPv4-Mesh.
-```
-
-### Erste Implementierungsform (Adaptersystem)
-
-- `pdn`/Packet.NET läuft als separater Prozess und besitzt den direkten KISS-Port.
-- `pdn-net` läuft als separater IP-Adapter und redet mit `pdn` via **RHPv2** (laut Upstream lokales TCP mit JSON-Framing).
-- `AXLink` läuft als eigener Dienst, liest Stationsereignisse, richtet konfigurierte IP-Routen ein, führt Dienste/Discovery/Chat und UI; detaillierte RHPv2-Fähigkeiten erst im Code prüfen.
-- Keine konkurrierenden seriellen Portzugriffe: **ein einziger Hardware-Eigentümer**. Für Reticulum oder andere Protokolle ggf. Frame-Multiplexing mit klarer Rückkanalzuordnung / eigene Funkports.
-
-## IPv4 und Adressierung
-
-### Erste Phase: statisch, privat
-
-Beispiel **nur für Labortests**:
-
-| Station | AX.25-Identität | IPv4-Hostadresse |
-|---|---|---|
-| A | TESTA-1 | `10.73.0.1/32` |
-| B | TESTB-1 | `10.73.0.2/32` |
-| C | TESTC-1 | `10.73.0.3/32` |
-
-Für den 2-Knoten-Test kann man alternativ `10.73.0.0/30` verwenden. Einzelne `/32`-Routen vermeiden unter Umständen die falsche Vorstellung eines normalen Ethernet-Broadcast-Domains. Tests auf den vorgesehenen Interfaces/Routen sorgfältig konfigurieren.
-
-Die Ziel-IPv4-Adresse bleibt bei Mehrhop über die Strecke erhalten. Die nächste **AX.25-Zieladresse** kann sich von der endgültigen IP-Zielstation unterscheiden. IPv4-Forwarding muss TTL reduzieren, Loop-Schutz und Routen unterstützen. `pdn-net` bietet bereits IP->Callsign-Mapping und ARP-Lernen, aber bislang kein komplettes automatisches Multi-Hop-IP-Routing.
-
-### Später: automatische Adressvergabe
-
-Ein klar dokumentierter Bereich innerhalb RFC1918, **nicht** frei gewählte öffentliche 44Net-Adressen. Ersten Adresskandidaten aus Station-ID ableiten, **Kollisionen** durch Announcement/Probe und Adresskonfliktdetektion behandeln. Alternative zu eigener Logik: IPv4LL oder zentral zugewiesene DHCP-Leases für spezielle Topologien evaluieren; diese Mechanismen sind nicht ohne Weiteres für Mehrhop-Funk geeignet. Routing darf keine Verbindung zwischen allen Stationen auf Layer 2 voraussetzen.
-
-## Discovery und Diensteverzeichnis
-
-### Protokollkonzept — nicht final!
-
-- Eigene, dokumentierte AXLink-Discovery-Nachrichten über passende AX.25-UI-Frames, nicht mit APRS-Inhalten verwechseln.
-- Minimale Nutzdaten: Protokollversion, Rufzeichen/Node-ID, Sequenz, Ablaufzeit/TTL, Fähigkeiten-/Dienstebitset, optionale IPv4-Adresse, optional Anzeigename, optionale Service-Abfrage.
-- Seltene, **zufällig verzögerte** Bekanntmachungen; passives Mithören bevorzugen; Antworten auf gezielte Anfrage; veraltete Einträge verfallen.
-- Anzeigen/Diagnose dürfen eine zuletzt gesehene Station nicht mit **derzeit zuverlässig erreichbar** gleichsetzen.
-- Gesonderte **Routing-Announcements**, deren Reichweite begrenzt und dedupliziert ist.
-- Künftiges Multi-Hop braucht explizite Überlegungen zu versteckten Stationen, geteilten Rufzeichen/SSIDs, Routing-Stabilität, verzögerter Zustellung und Kosten pro Hop.
-
-## Mesh-Routing
-
-**Weder vorhandenes NET/ROM noch einfache AX.25-Digipeater automatisch als transparentes IP-Mesh betrachten.** Zu prüfen:
-
-- Nutzung von vorhandenen NET/ROM-Nachbarschafts- und Routeninformationen als Input einer IPv4-Forwarding-Schicht (Interoperabilität vs. Protokolloverhead).
-- Alternativ einfaches, quell-/zielorientiertes **reaktives Routing** mit begrenzter Routensuche statt periodischem Flooding. Keine voreilige Festlegung auf AODV o.ä.; erst simulieren und evaluieren.
-- Jeder Relay-Node: separate Routingtabelle, Loop-Schutz, Hop-Limit / IPv4-TTL, Kanalzugriff, Wiederholungs-/Retry-Limits und Warteschlange.
-- Weiterleitung **freiwillig** und pro Transport/pro Frequenz absicherbar.
-- Routingmetriken: Hops, geschätzte Erfolgsrate, Belegungszeit, RTT / gemessene Paketverluste; kein unkritisches RSSI-Äquivalent behaupten.
-- Tests A↔B↔C, A nicht direkt C; danach Linkausfall B und alternative Route bei 4 Knoten.
-
-## Native Messaging / Chat
-
-- Separat von transparentem TCP/IP, für kurze Nachrichten effizient.
-- Nachrichten-ID, Sender, Empfänger/Gruppe, Zeitinformation wenn vorhanden, Payload-Limit, ACK und Retransmission mit Backoff; dedup und Idempotenz.
-- Chat/Anwendungs-Zustellbestätigung von RF/AX.25-Frame-ACK unterscheiden.
-- Store-and-Forward später: Empfang durch Zwischenknoten, sichere Persistenz, maximale Lebensdauer/Queue-Größe, Authentizität/Spam-/Relay-Policy. Normale TCP-Verbindungen **nicht** store-and-forward-fähig.
-- BPQ-Chat/Mailbox als separates Gateway evaluieren; keine vollständige native Kompatibilität annehmen.
-
-## Landingpages & HTTP
-
-- Standard-HTTP: Jeder Teilnehmer kann auf `10.x.x.x:PORT` einen bestehenden Webserver hosten. Bei 1200 bit/s nur **minimalistische** Seiten sinnvoll, keine großen JS-Bundles, Bilder oder zahlreiche Requests.
-- Funk-Landingpage: optionales kompaktes format-/versionsdefiniertes Protokoll, cachebar, ggf. textorientiertes Markup mit maximalem Inhaltsbudget und Abruf auf Anfrage.
-- Service-Discovery trennt `http` und `radio-page`; keine stillschweigende Übersetzung aller externen Internetdienste.
-- Bewusst keine Verschlüsselung/Inhaltsverschleierung über deutschen Amateurfunk; außerdem Dienste whitelist-basiert und lokal begrenzter Webserver-Zugriff.
-
-## Windows/Linux
-
-| Thema | Linux | Windows |
-|---|---|---|
-| USB-KISS | `/dev/ttyACM*` oder anderer tty | `COM*` |
-| IP-Interface | `/dev/net/tun` | Wintun (noch zu implementieren/prüfen) |
-| Rechte | `CAP_NET_ADMIN`/privilegierter Helper | Admin/Treiberinstallation |
-| Dienst | systemd (optional) | Windows Service (optional) |
-| UI | localhost HTTP | localhost HTTP |
-
-Hinweis: Die Upstream-`pdn-net`-Implementierung ist derzeit **Linux-only** hinsichtlich TUN; Windows darf nicht als fertig beschrieben werden.
-
-## Reticulum/NomadNet
-
-- Separater optionaler Adapter/Sidecar; Reticulum/LXMF **nicht** als IP-Stack-Ersatz.
-- Möglichkeiten: Reticulum über einen dafür geeigneten Nicht-Amateurfunk-IP-Transport; direkter KISS-Austausch nur mit kontrolliertem gemeinsamem Modemzugriff; LXMF-Nachrichten-Bridge; NomadNet-Seitenrendering.
-- Über Amateurfunk in Deutschland **keine gewöhnlich verschlüsselten Reticulum-Nutzdaten** aussenden.
-- Lizenz/Compliance der aktuellen Reticulum-Referenzimplementierung vor Bundle/Weiterverteilung prüfen.
-
-## Ressourcen- und Rechtsgrenzen
-
-- §13 AFuV für automatisch arbeitende Stationen und §16 AFuV (u.a. offener Verkehr/Bestimmbarkeit, Verbot der Inhaltsverschlüsselung, technische Pflichten) ausdrücklich berücksichtigen.
-- „ISM“ bedeutet nicht automatisch, dass Quansheng-Firmware, Leistung, Frequenz und Verschlüsselung frei wählbar sind. Konforme Funkhardware und Bedingungen der Allgemeinzuteilung sind Voraussetzung.
-- Nur bewusst konfigurierte Aussendungen; „Simulation only“ ist Default bis Betreiber eine legale Funkkonfiguration erstellt hat.
-- Keine globalen Default-Routen ins Funknetz, kein unkontrolliertes VPN/HTTPS, keine offenen transparenten Internet-Gateways.
-
-## Erste zu definierende Software-Interfaces (Vorschläge)
+## Today
 
 ```text
-IKissTransport       Open/Close/SendFrame/ReceiveFrame; Diagnostic
-IAx25Gateway         SendUiFrame/SubscribeFrames; Callsign
-IIPNetworkAdapter    Open/SetMtu/AddAddress/AddRoute/Close
-IStationRegistry     Upsert/Expire/List/OnStationChanged
-IRouteResolver       ResolveNextHop(destination)/UpdateNeighbors
-IServiceDirectory    Announce/Query/ListByStation
-IMessageService      Send/Ack/Inbox/Outbox
-ITransportPolicy     CanTransmit/CanRelay/EncryptionAllowed
+ ordinary programs (ping, curl, servers)
+          │ sockets
+   operating-system IPv4 stack
+          │ axl0 (TUN, MTU 256)
+┌──────────────────────────── axlinkd ─────────────────────────────┐
+│ internal/tun        virtual network adapter (Linux)               │
+│ internal/ipbridge   IPv4 ↔ AX.25 UI/PID 0xCC, destination filter, │
+│                     routes, broadcast filter                       │
+│ internal/tnc        connection, reconnecting, paced sending        │
+│ internal/pacing     profile per TNC                                │
+│ internal/kiss · internal/ax25 · internal/airtime                   │
+└────────────────────────────────────────────────────────────────────┘
+          │ USB-CDC (serial) · KISS over TCP · Unix socket
+   radio with the F4HWN KISS app · any KISS TNC · the lab channel
 ```
 
-Der echte RHPv2-/Packet.NET-Code bestimmt später die tatsächlichen Interfaces. Dies ist **kein fertiges API-Design**.
+## Data path
+
+**Out:** the operating system routes a packet to `axl0`. The bridge checks the IPv4 header,
+drops broadcast and multicast (switchable), finds the destination callsign by the longest
+matching route, and builds a UI command frame: destination the route's callsign, source the
+own callsign, PID `0xCC`, the IP packet as the information field. The frame goes into the port's
+queue; the sender encodes it as KISS (or ACKMODE) and writes it as the TNC profile's plan says.
+
+**In:** the KISS decoder hands every data frame to the bridge. Only UI frames with PID `0xCC`
+addressed to the own callsign and SSID pass, and only with a valid IPv4 header (checksum,
+length). The packet then goes to `axl0`.
+
+## TNC profiles
+
+| Profile | For | Behaviour |
+|---|---|---|
+| `generic-kiss` | TNCs with a queue (Dire Wolf, most hardware TNCs) | whole frames, no waiting |
+| `f4hwn-kisstnc` | the KISS TNC app of the F4HWN firmware as it is | one frame in flight; writes of ≤ 64 B every 40 ms (the app drains 1.6 kB/s); the next frame after the estimated airtime; PERSIST 255 with channel access left to the host |
+| `f4hwn-kisstnc-ackmode` | AXLink TNC with ACKMODE | as above, but waits for the ACKMODE echo instead of an estimate |
+
+Why: the F4HWN app holds one frame and its USB ring has no back-pressure; see section 4 of
+[REVIEW_2026-11-02.md](REVIEW_2026-11-02.md).
+
+After a USB reset (RF on the cable at key-up) the port dials again, finding the radio by USB ID
+`36B7:FFFF`. It then sends `FESC 00 FEND`, which makes the app drop a frame the reset cut off, and
+the KISS parameters again. A frame that did not reach the TNC completely is sent once more.
+
+## Addressing
+
+For now static: the own address and prefix on the adapter, routes `IP/PREFIX=CALLSIGN`.
+Private addresses (e.g. `10.73.0.0/24`) suit tests and private networks; AMPRNet (44/8)
+addresses come with an allocation. Automatic addressing comes with station discovery.
+
+## Simulation and lab
+
+- `internal/sim/f4hwnkiss`: a behavioural model of the F4HWN KISS app, written from its source,
+  in virtual time.
+- `internal/sim/channel`: a frame-level radio channel in real time: half duplex, collisions, a
+  JSON trace; in front of each station either an ideal TNC or the F4HWN model (optionally with
+  ACKMODE).
+- `scripts/lab-netns.sh`: two stations in their own network namespaces with real kernel IP
+  stacks; ping, UDP and HTTP. Also in CI.
+
+Results from the model are not hardware results.
+
+## Platforms
+
+- Linux: TUN through wireguard-go without offloads (one packet per read), configured with
+  iproute2; root or `CAP_NET_ADMIN`. Builds for amd64, arm64 and ARMv6 (Pi Zero W).
+- Windows: serial ports work; the adapter (Wintun through wireguard-go) is planned.
+- macOS: serial ports work (USB details need cgo); the adapter (utun) is planned.
+
+## Planned
+
+- Station discovery with tags `RELAY`, `INET`, `LINK`, `AUTO`.
+- Chat in the APRS message format, so that messenger radios can take part.
+- A transmit queue with priorities and duplicate suppression.
+- A link gateway (AXUDP between radio islands) and an internet gateway in userspace (gVisor
+  netstack); operation without admin rights through a local proxy.
+- Mesh forwarding in userspace, independent of the operating system's forwarding.
+- A KISS-TCP multiplexer, so that other programs can share the radio.
+- A web UI in English and German.
+
+## Design rules
+
+- Strict parsers; frames of other implementations serve as cross-checks.
+- One process owns a serial port (it is opened exclusively).
+- No legal restrictions built in (D2); technical channel protection can be switched off.
+- Placeholder callsigns only (D3). No transmission in tests.
