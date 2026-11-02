@@ -1,5 +1,10 @@
 # AXLink — Agent Instructions (Codex / other coding agents)
 
+> **As of 2026-11-02:** `docs/DECISIONS.md` overrides this file wherever they conflict:
+> Go core instead of C#/pdn-net, no built-in legal restrictions (operator responsibility;
+> technical channel-protection filters stay configurable), placeholder callsigns only.
+> The rules below date from the planning phase; the pdn/pdn-net state is tag `v0.1.0-alpha.1`.
+
 ## Mission
 
 Build an open, portable AX.25/KISS/IP radio mesh platform. Reuse rather than rewrite existing Packet.NET/pdn-net components. **Normal IP applications must keep working.** See `README.md`, `docs/PROJECT_HANDOFF.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/RESEARCH.md` and `docs/OPEN_QUESTIONS.md` before editing code.

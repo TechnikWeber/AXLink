@@ -1,5 +1,5 @@
 # Claude Code — AXLink
 
-Lies zuerst `AGENTS.md` und dann `docs/START_PROMPT.md`. Die vollständige Aufgabenübergabe steht in `README.md` und `docs/PROJECT_HANDOFF.md`. Der aktuelle Ordner enthält ausschließlich **Konzeptdokumente**, noch keinen ausführbaren Code.
+Lies zuerst `docs/DECISIONS.md` (geht allen anderen Dokumenten vor), dann `AGENTS.md` und `docs/REVIEW_2026-11-02.md`. Die ursprüngliche Planungsübergabe steht in `README.md` und `docs/PROJECT_HANDOFF.md`; der Stand mit pdn/pdn-net ist als Tag `v0.1.0-alpha.1` erhalten.
 
-Arbeite in kleinen testbaren Schritten, verwende bestehende Packet.NET-/pdn-net-Komponenten, evaluiere Upstream vor Forks, und erfinde keine erfolgreichen Tests oder Hardware-Kompatibilität. Beachte die rechtlich eingeschränkten Funk- und Verschlüsselungsprofile sowie die AGPL-/GPL-Lizenzen.
+Arbeite in kleinen testbaren Schritten und erfinde keine erfolgreichen Tests oder Hardware-Kompatibilität. Der neue Kern entsteht in Go; Packet.NET/pdn-net dienen als Interop-Gegenstelle. Die Software erzwingt keine rechtlichen Beschränkungen, das liegt beim Betreiber (siehe DECISIONS). Rufzeichen nur als Platzhalter. Lizenzen der Upstreams beachten; die eigene Lizenz ist noch offen.
