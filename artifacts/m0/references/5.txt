@@ -1,0 +1,143 @@
+# mod-orphan
+
+Linux networking modules that were removed from the kernel tree because
+nobody maintained them and they had too many bugs, kept here as
+out-of-tree modules so that the people who still use them can keep
+running them.
+
+This repository is also where the **AX.25, NET/ROM and ROSE fixes** are
+developed, reviewed and merged before they are sent to the stable and
+long-term kernels that still carry these protocols in-tree.
+
+## Contents
+
+| Subsystem | Modules | Removed from the kernel by |
+|---|---|---|
+| Amateur radio | `ax25`, `netrom`, `rose`, and the drivers `6pack`, `baycom_*`, `bpqether`, `hdlcdrv`, `mkiss`, `scc`, `yam` | commit 32bb4a38e352 ("net: remove amateur radio (hamradio) subsystem") |
+| ATM | `clip`, `lec`, `mpoa` and the PCI/SBUS drivers (ATM core, PPPoA, br2684, solos-pci and the USB DSL drivers went back in-tree) | commit c29fbdee0b9d ("net: remove ATM networking subsystem") |
+| ISDN | `mISDN_core`, `mISDN_dsp`, `l1oip`, the mISDN hardware drivers, `kernelcapi` and Bluetooth `cmtp` | commit afee2aa98a00 ("net: remove ISDN subsystem and Bluetooth CMTP") |
+| AppleTalk | `appletalk` (DDP, AARP) | removal of the AppleTalk protocol |
+
+The code is the in-tree code at the time of removal, with only the
+changes needed to build outside the tree. Each import commit lists
+these changes. Examples: `dev->ax25_ptr` and `dev->atalk_ptr` no longer
+exist in `struct net_device`, so the modules keep their own lists, and
+local copies of the removed headers are used instead of the kernel's.
+
+## Building
+
+You need the headers or the build tree of the kernel you run.
+
+```sh
+make                          # against the running kernel
+make KDIR=/path/to/kernel     # against another kernel tree
+sudo make install             # modules_install, then: sudo depmod -a
+make clean
+```
+
+`include/hamradio_compat.h` supplies helpers that are missing from older
+kernels, so the same sources also build on kernels that still have the
+subsystems in-tree (6.12.y, 6.18.y, 7.0). The modules built here then
+replace the in-tree ones, which is how the AX.25 fixes are tested on
+live networks before they reach a stable release.
+
+Always build on the machine that will load the modules, or against the
+exact build tree of its kernel: a matching `uname -r` alone is not enough
+to guarantee a compatible module.
+
+AppleTalk needs `CONFIG_LLC` in the host kernel (see
+`net/appletalk/Kbuild`).
+
+## Amateur radio: AX.25, NET/ROM and ROSE
+
+### What AX.25 is
+
+AX.25 is the link layer protocol of amateur packet radio. It was derived
+from X.25 by radio amateurs in the early 1980s and standardised as
+AX.25 version 2.0 in 1984. Each station is identified by its callsign,
+and frames can be relayed by other stations ("digipeaters"). With AX.25,
+amateur radio operators send messages, files and data by radio, without
+any commercial network:
+
+- on VHF and UHF, most often at 1200 bit/s (AFSK) or 9600 bit/s (G3RUH
+  FSK), and on HF at lower speeds;
+- through amateur satellites and the International Space Station: the
+  PACSAT store-and-forward satellites, and the APRS digipeaters in orbit;
+- with APRS (Automatic Packet Reporting System), which sends position
+  reports, weather data and short messages in AX.25 frames;
+- through bulletin board systems (BBS) that forward personal messages
+  and bulletins between themselves around the world.
+
+Above AX.25, NET/ROM and ROSE add a network layer, so that a user can
+reach a distant station across a chain of nodes:
+
+- **NET/ROM** builds its routes automatically from the broadcasts of
+  neighbouring nodes;
+- **ROSE** (X.25 packet layer protocol over AX.25) routes calls by
+  address, much like the X.25 public data networks it was derived from.
+  Its addresses use an X.121 numbering plan (DNIC + area + node).
+
+### AX.25 and the Internet
+
+AX.25 was tied to the Internet from the beginning. IP over AX.25 has
+worked since the mid-1980s (notably with Phil Karn's KA9Q NOS), ARP has a
+hardware type for AX.25, and since 1981 radio amateurs have had their
+own IPv4 address block, 44.0.0.0/8 (AMPRNet). So TCP/IP has run on radio
+links for decades, and packet radio networks are linked to each other
+over the Internet: AX.25 frames are carried in UDP or IP datagrams
+(`ax25ipd`, `bpqether` on Ethernet), which lets nodes on different
+continents talk as if they were neighbours on the air.
+
+Linux has supported AX.25 almost since its first releases. It includes
+NET/ROM and ROSE sockets, KISS interfaces (`mkiss`, `6pack`), interfaces
+for the classic packet radio cards (`scc`, `baycom`, `yam`), and AX.25
+over Ethernet (`bpqether`). The user space side is the `ax25-tools` and
+`ax25-apps` packages, with programs such as `kissattach`, `ax25d`,
+`ax25ipd`, `netromd` and `call`. On top of these run full node and BBS
+packages such as FPAC (ROSE/NET/ROM node) and LinFBB (BBS).
+
+### Where the AX.25 fixes come from
+
+Many amateur radio networks run on Linux, from Raspberry Pi nodes at
+home to gateways linking whole countries. The ROSE and NET/ROM networks
+connected to the F6BVP nodes in France, and their links abroad, depend
+directly on these kernel modules.
+
+When the amateur radio subsystem was removed from the kernel because
+of its bug count, the bugs did not go away for the people who use it.
+Since May 2026, Bernard Pidoux, F6BVP, a long-time contributor to the
+Linux ROSE code and to the FPAC node software, has used this repository
+to fix them. The fixes:
+
+- come from failures seen on real packet radio links and from syzbot
+  reports: reference leaks, use-after-free, races at module removal and
+  on device shutdown, ROSE circuits that are never released, AX.25 links
+  that stall after a retransmission, unchecked frame lengths in AX.25
+  and NET/ROM;
+- run for days on a live network of eight Linux nodes (Raspberry Pi and
+  PC, kernels 5.4 to 7.0) with real packet radio traffic before they are
+  proposed;
+- are reviewed here as pull requests and merged into `main`;
+- are then picked up by the stable maintainers for the long-term
+  kernels that still contain these protocols (6.12.y and 6.18.y).
+
+To see which stable and long-term releases already contain each fix,
+and when they reach Raspberry Pi kernels, see
+<http://f6bvp.org/kernels-lts.html> (French: <http://f6bvp.org/noyaux-lts.html>).
+That page is updated automatically.
+
+## Contributing
+
+- Open a pull request against `main`, one fix per commit, with a commit
+  message in the kernel style: `subsystem: summary`, an explanation of
+  the bug and of the fix, `Fixes:` when relevant, and `Signed-off-by:`.
+- For amateur radio, say how the fix was tested, and if possible test
+  it on a real link or with realistic traffic.
+- Discussion of the amateur radio protocols takes place on the
+  linux-hams mailing list (<linux-hams@vger.kernel.org>).
+
+## License
+
+GPL-2.0, like the Linux kernel code these modules come from. See the
+SPDX headers in each file.
+

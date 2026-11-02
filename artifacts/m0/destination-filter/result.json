@@ -1,0 +1,44 @@
+{
+  "status": "failed",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "91c412c91604c17bc28abd49e66443377292e5dc\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "dotnet",
+        "test",
+        "/tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/Packet.Net.Tests.csproj",
+        "--configuration",
+        "Release",
+        "--filter",
+        "FullyQualifiedName~AXLinkDestinationFilterTests",
+        "--logger",
+        "trx",
+        "--results-directory",
+        "/home/philipp/AXLink/artifacts/m0/destination-filter"
+      ],
+      "exit": 1,
+      "stdout": "  Determining projects to restore...\n  Restored /tmp/axlink-f1-4ffkrjta/src/Packet.Net/Packet.Net.csproj (in 1.68 sec).\n  Restored /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/Packet.Net.Tests.csproj (in 5.33 sec).\n  Packet.Net -> /tmp/axlink-f1-4ffkrjta/src/Packet.Net/bin/Release/net10.0/Packet.Net.dll\n  Packet.Net.Tests -> /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll\nTest run for /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll (.NETCoreApp,Version=v10.0)\nVSTest version 18.0.2 (x64)\n\nStarting test execution, please wait...\nA total of 1 test files matched the specified pattern.\n  Failed Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: \"TESTB-2\", deliver: False) [74 ms]\n  Error Message:\n   Assert.Empty() Failure: Collection was not empty\nCollection: [[69, 0, 0, 32, 0, \u00b7\u00b7\u00b7]]\n  Stack Trace:\n     at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 38\n   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 39\n--- End of stack trace from previous location ---\n  Failed Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: \"TESTC-1\", deliver: False) [6 ms]\n  Error Message:\n   Assert.Empty() Failure: Collection was not empty\nCollection: [[69, 0, 0, 32, 0, \u00b7\u00b7\u00b7]]\n  Stack Trace:\n     at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 38\n   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 39\n--- End of stack trace from previous location ---\nResults File: /home/philipp/AXLink/artifacts/m0/destination-filter/_LAP-PW-01FED_2026-10-31_19_15_26.trx\n\nFailed!  - Failed:     2, Passed:     1, Skipped:     0, Total:     3, Duration: 176 ms - Packet.Net.Tests.dll (net10.0)\n",
+      "stderr": "[xUnit.net 00:00:00.79]     Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: \"TESTB-2\", deliver: False) [FAIL]\n[xUnit.net 00:00:00.82]     Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: \"TESTC-1\", deliver: False) [FAIL]\n"
+    }
+  ],
+  "reason": "Exit 1: ['dotnet', 'test', '/tmp/axlink-f1-4ffkrjta/tests/Packet.Net.Tests/Packet.Net.Tests.csproj', '--configuration', 'Release', '--filter', 'FullyQualifiedName~AXLinkDestinationFilterTests', '--logger', 'trx', '--results-directory', '/home/philipp/AXLink/artifacts/m0/destination-filter']"
+}

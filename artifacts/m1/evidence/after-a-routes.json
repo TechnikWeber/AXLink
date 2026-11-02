@@ -1,0 +1,1 @@
+[{"dst":"10.73.0.2","dev":"radio0","scope":"link","flags":[]},{"dst":"172.19.0.0/16","dev":"eth0","protocol":"kernel","scope":"link","prefsrc":"172.19.0.3","flags":[]}]

@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="cb6e0548-b939-4bf0-b7e8-bb62fea89994" name="@LAP-PW-01FED 2026-10-31 19:16:06" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-31T19:16:06.6200086+01:00" queuing="2026-10-31T19:16:06.6200087+01:00" start="2026-10-31T19:16:04.3100968+01:00" finish="2026-10-31T19:16:06.6300259+01:00" />
+  <TestSettings name="default" id="daf9aa67-2585-4cbc-94cc-eb5f8aa7d18b">
+    <Deployment runDeploymentRoot="_LAP-PW-01FED_2026-10-31_19_16_06" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="6d97b624-7fb8-4474-81e7-72a3e64e445a" testId="aa20377e-0894-ffc1-6a57-cac402428d51" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Broadcast_arp_for_our_ip_still_receives_a_reply" computerName="LAP-PW-01FED" duration="00:00:00.0159060" startTime="2026-10-31T19:16:06.4415038+01:00" endTime="2026-10-31T19:16:06.4416726+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6d97b624-7fb8-4474-81e7-72a3e64e445a" />
+    <UnitTestResult executionId="840056e0-fce0-4f05-9df1-721e8a777688" testId="2cfba16b-7213-0a84-c0dd-f559850cc257" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;QST&quot;, deliver: False)" computerName="LAP-PW-01FED" duration="00:00:00.0273736" startTime="2026-10-31T19:16:06.3580129+01:00" endTime="2026-10-31T19:16:06.4017655+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="840056e0-fce0-4f05-9df1-721e8a777688">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Empty() Failure: Collection was not empty
+Collection: [[69, 0, 0, 32, 0, ···]]</Message>
+          <StackTrace>   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 41
+   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1681f0d1-36d9-47d0-a319-8f028ccfa83c" testId="2aaaeb16-6a37-3ae7-572d-000ae303acb4" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly" computerName="LAP-PW-01FED" duration="00:00:00.0026756" startTime="2026-10-31T19:16:06.4430920+01:00" endTime="2026-10-31T19:16:06.4432373+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1681f0d1-36d9-47d0-a319-8f028ccfa83c">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Empty() Failure: Collection was not empty
+Collection: [[69, 255]]</Message>
+          <StackTrace>   at Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly() in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 71
+   at Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly() in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 74
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="64accfac-54d8-4182-88ae-e1476dee55c4" testId="20a144f0-458b-de14-870b-df9c1448fc25" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Zero_ssid_has_the_same_identity(local: &quot;TESTB-0&quot;, destination: &quot;testb&quot;)" computerName="LAP-PW-01FED" duration="00:00:00.0002758" startTime="2026-10-31T19:16:06.4425739+01:00" endTime="2026-10-31T19:16:06.4427131+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="64accfac-54d8-4182-88ae-e1476dee55c4" />
+    <UnitTestResult executionId="033ba786-a9d5-4b97-8663-61eb2777d1e3" testId="1a6afa6f-e677-a049-cd73-3ac73b29297b" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;TESTB-2&quot;, deliver: False)" computerName="LAP-PW-01FED" duration="00:00:00.0007644" startTime="2026-10-31T19:16:06.4316672+01:00" endTime="2026-10-31T19:16:06.4319976+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="033ba786-a9d5-4b97-8663-61eb2777d1e3">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Empty() Failure: Collection was not empty
+Collection: [[69, 0, 0, 32, 0, ···]]</Message>
+          <StackTrace>   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 41
+   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b5908d5d-8a4a-45fd-965e-0ebcb20a7acd" testId="8ef5f99d-88c5-31a0-f8b6-c27193ae083d" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;TESTB-1&quot;, deliver: True)" computerName="LAP-PW-01FED" duration="00:00:00.0031110" startTime="2026-10-31T19:16:06.4355200+01:00" endTime="2026-10-31T19:16:06.4364268+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b5908d5d-8a4a-45fd-965e-0ebcb20a7acd" />
+    <UnitTestResult executionId="fa3cbb5b-1a33-4e8f-abb1-5a19e70901e6" testId="3c20d229-6bc6-0eaf-c74d-114a98e1968b" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;testb-1&quot;, deliver: True)" computerName="LAP-PW-01FED" duration="00:00:00.0004290" startTime="2026-10-31T19:16:06.4387716+01:00" endTime="2026-10-31T19:16:06.4390236+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fa3cbb5b-1a33-4e8f-abb1-5a19e70901e6" />
+    <UnitTestResult executionId="1222e97a-2ac0-4c58-924a-a814c2c58b16" testId="597ff966-29b5-1e50-c74a-5afaf352fd76" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Zero_ssid_has_the_same_identity(local: &quot;TESTB&quot;, destination: &quot;TESTB-0&quot;)" computerName="LAP-PW-01FED" duration="00:00:00.0011348" startTime="2026-10-31T19:16:06.4421330+01:00" endTime="2026-10-31T19:16:06.4423049+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1222e97a-2ac0-4c58-924a-a814c2c58b16" />
+    <UnitTestResult executionId="e07759d4-d8e5-4a31-b163-f62d0cf33344" testId="1dc409aa-1da2-557e-612d-cd1402f75789" testName="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;TESTC-1&quot;, deliver: False)" computerName="LAP-PW-01FED" duration="00:00:00.0001023" startTime="2026-10-31T19:16:06.4342596+01:00" endTime="2026-10-31T19:16:06.4344352+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e07759d4-d8e5-4a31-b163-f62d0cf33344">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Empty() Failure: Collection was not empty
+Collection: [[69, 0, 0, 32, 0, ···]]</Message>
+          <StackTrace>   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 41
+   at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver) in /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs:line 42
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;TESTB-2&quot;, deliver: False)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="1a6afa6f-e677-a049-cd73-3ac73b29297b">
+      <Execution id="033ba786-a9d5-4b97-8663-61eb2777d1e3" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Only_the_addressed_station_receives_unicast_ip" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;TESTB-1&quot;, deliver: True)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="8ef5f99d-88c5-31a0-f8b6-c27193ae083d">
+      <Execution id="b5908d5d-8a4a-45fd-965e-0ebcb20a7acd" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Only_the_addressed_station_receives_unicast_ip" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Broadcast_arp_for_our_ip_still_receives_a_reply" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="aa20377e-0894-ffc1-6a57-cac402428d51">
+      <Execution id="6d97b624-7fb8-4474-81e7-72a3e64e445a" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Broadcast_arp_for_our_ip_still_receives_a_reply" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;TESTC-1&quot;, deliver: False)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="1dc409aa-1da2-557e-612d-cd1402f75789">
+      <Execution id="e07759d4-d8e5-4a31-b163-f62d0cf33344" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Only_the_addressed_station_receives_unicast_ip" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="2aaaeb16-6a37-3ae7-572d-000ae303acb4">
+      <Execution id="1681f0d1-36d9-47d0-a319-8f028ccfa83c" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Foreign_segments_cannot_complete_or_poison_a_local_reassembly" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Zero_ssid_has_the_same_identity(local: &quot;TESTB-0&quot;, destination: &quot;testb&quot;)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="20a144f0-458b-de14-870b-df9c1448fc25">
+      <Execution id="64accfac-54d8-4182-88ae-e1476dee55c4" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Zero_ssid_has_the_same_identity" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;testb-1&quot;, deliver: True)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="3c20d229-6bc6-0eaf-c74d-114a98e1968b">
+      <Execution id="fa3cbb5b-1a33-4e8f-abb1-5a19e70901e6" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Only_the_addressed_station_receives_unicast_ip" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: &quot;QST&quot;, deliver: False)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="2cfba16b-7213-0a84-c0dd-f559850cc257">
+      <Execution id="840056e0-fce0-4f05-9df1-721e8a777688" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Only_the_addressed_station_receives_unicast_ip" />
+    </UnitTest>
+    <UnitTest name="Packet.Net.Tests.AXLinkDestinationFilterTests.Zero_ssid_has_the_same_identity(local: &quot;TESTB&quot;, destination: &quot;TESTB-0&quot;)" storage="/tmp/axlink-f1-p2jx79ih/tests/packet.net.tests/bin/release/net10.0/packet.net.tests.dll" id="597ff966-29b5-1e50-c74a-5afaf352fd76">
+      <Execution id="1222e97a-2ac0-4c58-924a-a814c2c58b16" />
+      <TestMethod codeBase="/tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Packet.Net.Tests.AXLinkDestinationFilterTests" name="Zero_ssid_has_the_same_identity" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="aa20377e-0894-ffc1-6a57-cac402428d51" executionId="6d97b624-7fb8-4474-81e7-72a3e64e445a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2cfba16b-7213-0a84-c0dd-f559850cc257" executionId="840056e0-fce0-4f05-9df1-721e8a777688" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2aaaeb16-6a37-3ae7-572d-000ae303acb4" executionId="1681f0d1-36d9-47d0-a319-8f028ccfa83c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="20a144f0-458b-de14-870b-df9c1448fc25" executionId="64accfac-54d8-4182-88ae-e1476dee55c4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1a6afa6f-e677-a049-cd73-3ac73b29297b" executionId="033ba786-a9d5-4b97-8663-61eb2777d1e3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8ef5f99d-88c5-31a0-f8b6-c27193ae083d" executionId="b5908d5d-8a4a-45fd-965e-0ebcb20a7acd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3c20d229-6bc6-0eaf-c74d-114a98e1968b" executionId="fa3cbb5b-1a33-4e8f-abb1-5a19e70901e6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="597ff966-29b5-1e50-c74a-5afaf352fd76" executionId="1222e97a-2ac0-4c58-924a-a814c2c58b16" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1dc409aa-1da2-557e-612d-cd1402f75789" executionId="e07759d4-d8e5-4a31-b163-f62d0cf33344" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="9" executed="9" passed="5" failed="4" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.7)
+[xUnit.net 00:00:00.19]   Discovering: Packet.Net.Tests
+[xUnit.net 00:00:00.47]   Discovered:  Packet.Net.Tests
+[xUnit.net 00:00:00.54]   Starting:    Packet.Net.Tests
+[xUnit.net 00:00:00.64]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:00.64]       Collection: [[69, 0, 0, 32, 0, ···]]
+[xUnit.net 00:00:00.64]       Stack Trace:
+[xUnit.net 00:00:00.64]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(41,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver)
+[xUnit.net 00:00:00.64]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(42,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver)
+[xUnit.net 00:00:00.64]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.66]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:00.66]       Collection: [[69, 0, 0, 32, 0, ···]]
+[xUnit.net 00:00:00.66]       Stack Trace:
+[xUnit.net 00:00:00.66]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(41,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver)
+[xUnit.net 00:00:00.67]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(42,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver)
+[xUnit.net 00:00:00.67]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.67]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:00.67]       Collection: [[69, 0, 0, 32, 0, ···]]
+[xUnit.net 00:00:00.67]       Stack Trace:
+[xUnit.net 00:00:00.67]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(41,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver)
+[xUnit.net 00:00:00.67]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(42,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(String destination, Boolean deliver)
+[xUnit.net 00:00:00.67]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.68]       Assert.Empty() Failure: Collection was not empty
+[xUnit.net 00:00:00.68]       Collection: [[69, 255]]
+[xUnit.net 00:00:00.68]       Stack Trace:
+[xUnit.net 00:00:00.68]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(71,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly()
+[xUnit.net 00:00:00.68]         /tmp/axlink-f1-p2jx79ih/tests/Packet.Net.Tests/AXLinkDestinationFilterTests.cs(74,0): at Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly()
+[xUnit.net 00:00:00.68]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:00.68]   Finished:    Packet.Net.Tests
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="LAP-PW-01FED" outcome="Error" timestamp="2026-10-31T19:16:06.4074055+01:00">
+        <Text>[xUnit.net 00:00:00.64]     Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: "QST", deliver: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="LAP-PW-01FED" outcome="Error" timestamp="2026-10-31T19:16:06.4326576+01:00">
+        <Text>[xUnit.net 00:00:00.66]     Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: "TESTB-2", deliver: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="LAP-PW-01FED" outcome="Error" timestamp="2026-10-31T19:16:06.4349025+01:00">
+        <Text>[xUnit.net 00:00:00.67]     Packet.Net.Tests.AXLinkDestinationFilterTests.Only_the_addressed_station_receives_unicast_ip(destination: "TESTC-1", deliver: False) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="LAP-PW-01FED" outcome="Error" timestamp="2026-10-31T19:16:06.4437289+01:00">
+        <Text>[xUnit.net 00:00:00.68]     Packet.Net.Tests.AXLinkDestinationFilterTests.Foreign_segments_cannot_complete_or_poison_a_local_reassembly [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

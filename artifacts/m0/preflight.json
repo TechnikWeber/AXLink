@@ -1,0 +1,260 @@
+{
+  "mode": "run",
+  "checks": [
+    {
+      "source": "firmware/README.md",
+      "ok": true
+    },
+    {
+      "source": "firmware/kisstnc_app.c",
+      "ok": true
+    },
+    {
+      "source": "references/0.txt",
+      "ok": true
+    },
+    {
+      "source": "references/1.txt",
+      "ok": true
+    },
+    {
+      "source": "references/2.txt",
+      "ok": true
+    },
+    {
+      "source": "references/3.txt",
+      "ok": true
+    },
+    {
+      "source": "references/4.txt",
+      "ok": true
+    },
+    {
+      "source": "references/5.txt",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/Directory.Build.props",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/LICENSE",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/docs/rhp2-server.md",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/global.json",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/src/Packet.Kiss/KissAx25Bridge.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/src/Packet.Kiss/KissTcpClient.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/src/Packet.Rhp2.Server/IRhpGateway.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/packet.net/tests/Packet.Interop.Tests/Netsim/NetsimKissTcpInterop.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/.github/workflows/ci.yml",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/Directory.Build.props",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/Directory.Packages.props",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/LICENSE",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/README.md",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/global.json",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/Packet.Net/Bridge/IpAx25Bridge.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/Packet.Net/Rhp/RhpCustomClient.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/Packet.Net/Rhp/RhpFraming.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/Packet.Net/Routing/CallsignResolver.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/Packet.Net/Tun/ITunDevice.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/Packet.Net/Tun/TunDevice.cs",
+      "ok": true
+    },
+    {
+      "source": "sources/pdn-net/src/pdn-net/Program.cs",
+      "ok": true
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "dotnet",
+        "--info"
+      ],
+      "cwd": "/home/philipp/AXLink",
+      "exit": 0,
+      "log": "dotnet-info.log"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/packet.net",
+      "exit": 0,
+      "log": "packet.net-head.log"
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/packet.net",
+      "exit": 0,
+      "log": "packet.net-status.log"
+    },
+    {
+      "argv": [
+        "git",
+        "submodule",
+        "update",
+        "--init",
+        "--recursive"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/packet.net",
+      "exit": 0,
+      "log": "packet.net-submodules.log"
+    },
+    {
+      "argv": [
+        "git",
+        "submodule",
+        "status",
+        "--recursive"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/packet.net",
+      "exit": 0,
+      "log": "packet.net-submodule-status.log"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "build",
+        "Packet.NET.slnx",
+        "--configuration",
+        "Release"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/packet.net",
+      "exit": 0,
+      "log": "packet.net-build.log"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "test",
+        "Packet.NET.slnx",
+        "--configuration",
+        "Release",
+        "--no-build",
+        "--filter",
+        "Category!=HardwareLoop&Category!=Interop",
+        "--logger",
+        "trx",
+        "--results-directory",
+        "/home/philipp/AXLink/artifacts/m0/test-results/unit/packet.net"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/packet.net",
+      "exit": 0,
+      "log": "packet.net-test.log"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/pdn-net",
+      "exit": 0,
+      "log": "pdn-net-head.log"
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/pdn-net",
+      "exit": 0,
+      "log": "pdn-net-status.log"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "build",
+        "pdn-net.slnx",
+        "--configuration",
+        "Release"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/pdn-net",
+      "exit": 0,
+      "log": "pdn-net-build.log"
+    },
+    {
+      "argv": [
+        "dotnet",
+        "test",
+        "pdn-net.slnx",
+        "--configuration",
+        "Release",
+        "--no-build",
+        "--filter",
+        "Category!=HardwareLoop&Category!=Interop",
+        "--logger",
+        "trx",
+        "--results-directory",
+        "/home/philipp/AXLink/artifacts/m0/test-results/unit/pdn-net"
+      ],
+      "cwd": "/home/philipp/AXLink/upstream/pdn-net",
+      "exit": 0,
+      "log": "pdn-net-test.log"
+    }
+  ],
+  "test_filter": "Category!=HardwareLoop&Category!=Interop",
+  "test_locale": "en_US.UTF-8",
+  "status": "passed"
+}

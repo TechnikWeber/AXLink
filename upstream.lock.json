@@ -1,0 +1,148 @@
+{
+  "retrieved": "2026-10-31",
+  "repositories": {
+    "packet.net": {
+      "url": "https://github.com/packet-net/packet.net.git",
+      "commit": "bded4671cc958808d4a2746d18e6636066767d42",
+      "solution": "Packet.NET.slnx",
+      "submodules": {
+        "spec/aprs": {
+          "url": "https://github.com/packet-net/aprs-vectors",
+          "commit": "dc3854a796e4a34834f83ff69472cb63ca26c618"
+        }
+      }
+    },
+    "pdn-net": {
+      "url": "https://github.com/packet-net/pdn-net.git",
+      "commit": "91c412c91604c17bc28abd49e66443377292e5dc",
+      "solution": "pdn-net.slnx"
+    }
+  },
+  "sources": [
+    {
+      "file": "sources/pdn-net/README.md",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/README.md"
+    },
+    {
+      "file": "sources/pdn-net/LICENSE",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/LICENSE"
+    },
+    {
+      "file": "sources/pdn-net/global.json",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/global.json"
+    },
+    {
+      "file": "sources/pdn-net/Directory.Build.props",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/Directory.Build.props"
+    },
+    {
+      "file": "sources/pdn-net/Directory.Packages.props",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/Directory.Packages.props"
+    },
+    {
+      "file": "sources/pdn-net/src/Packet.Net/Tun/ITunDevice.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/Packet.Net/Tun/ITunDevice.cs"
+    },
+    {
+      "file": "sources/pdn-net/src/Packet.Net/Tun/TunDevice.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/Packet.Net/Tun/TunDevice.cs"
+    },
+    {
+      "file": "sources/pdn-net/src/Packet.Net/Bridge/IpAx25Bridge.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/Packet.Net/Bridge/IpAx25Bridge.cs"
+    },
+    {
+      "file": "sources/pdn-net/src/Packet.Net/Rhp/RhpCustomClient.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/Packet.Net/Rhp/RhpCustomClient.cs"
+    },
+    {
+      "file": "sources/pdn-net/src/Packet.Net/Rhp/RhpFraming.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/Packet.Net/Rhp/RhpFraming.cs"
+    },
+    {
+      "file": "sources/pdn-net/src/Packet.Net/Routing/CallsignResolver.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/Packet.Net/Routing/CallsignResolver.cs"
+    },
+    {
+      "file": "sources/pdn-net/src/pdn-net/Program.cs",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/src/pdn-net/Program.cs"
+    },
+    {
+      "file": "sources/pdn-net/.github/workflows/ci.yml",
+      "url": "https://github.com/packet-net/pdn-net/blob/91c412c91604c17bc28abd49e66443377292e5dc/.github/workflows/ci.yml"
+    },
+    {
+      "file": "sources/packet.net/LICENSE",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/LICENSE"
+    },
+    {
+      "file": "sources/packet.net/global.json",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/global.json"
+    },
+    {
+      "file": "sources/packet.net/Directory.Build.props",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/Directory.Build.props"
+    },
+    {
+      "file": "sources/packet.net/docs/rhp2-server.md",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/docs/rhp2-server.md"
+    },
+    {
+      "file": "sources/packet.net/src/Packet.Rhp2.Server/IRhpGateway.cs",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/src/Packet.Rhp2.Server/IRhpGateway.cs"
+    },
+    {
+      "file": "sources/packet.net/src/Packet.Kiss/KissAx25Bridge.cs",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/src/Packet.Kiss/KissAx25Bridge.cs"
+    },
+    {
+      "file": "sources/packet.net/src/Packet.Kiss/KissTcpClient.cs",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/src/Packet.Kiss/KissTcpClient.cs"
+    },
+    {
+      "file": "sources/packet.net/tests/Packet.Interop.Tests/Netsim/NetsimKissTcpInterop.cs",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/tests/Packet.Interop.Tests/Netsim/NetsimKissTcpInterop.cs"
+    }
+  ],
+  "references": [
+    {
+      "file": "references/0.txt",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/src/Packet.Rhp2.Server/RhpServer.cs"
+    },
+    {
+      "file": "references/1.txt",
+      "url": "https://github.com/packet-net/packet.net/blob/bded4671cc958808d4a2746d18e6636066767d42/src/Packet.Node/Rhp/SupervisorRhpGateway.cs"
+    },
+    {
+      "file": "references/2.txt",
+      "url": "https://api.github.com/repos/armel/uv-k1-k5v3-firmware-custom/releases/latest"
+    },
+    {
+      "file": "references/3.txt",
+      "url": "https://github.com/markqvist/tncattach/blob/master/README.md"
+    },
+    {
+      "file": "references/4.txt",
+      "url": "https://github.com/g8bpq/linbpq/blob/master/Bpq32.c"
+    },
+    {
+      "file": "references/5.txt",
+      "url": "https://github.com/linux-netdev/mod-orphan/blob/main/README.md"
+    }
+  ],
+  "firmware": {
+    "commit": "ca3a4271386049e7b459b215cef0ad0eea1a30ca",
+    "tag": "v6.3.0",
+    "url": "https://github.com/armel/uv-k1-k5v3-firmware-custom"
+  },
+  "simulator": {
+    "image": "ghcr.io/packethacking/net-sim@sha256:b28c357a0a019e454e1cbf672849d4bb9089b62bfdefed94d2d6d9d016791315",
+    "source_url": "https://github.com/packethacking/net-sim",
+    "source_commit_from_image_label": "872d78a81b068dc6d96035c9cb85e23b21c8945b",
+    "license_from_image_label": "MIT"
+  },
+  "lab_runtime": {
+    "image": "mcr.microsoft.com/dotnet/aspnet@sha256:de0ee358cdd672f7017a003bed21e9ac9ed48a27c922a59b18175b6e82fa7fee",
+    "packages": "artifacts/m1/evidence/container-packages.txt"
+  }
+}

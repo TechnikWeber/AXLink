@@ -1,0 +1,64 @@
+{
+  "status": "passed",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "91c412c91604c17bc28abd49e66443377292e5dc\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "/home/philipp/AXLink/patches/pdn-net-destination-filter.patch"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "apply",
+        "/home/philipp/AXLink/patches/pdn-net-destination-filter.patch"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "dotnet",
+        "test",
+        "/tmp/axlink-f1-yxbrlqad/tests/Packet.Net.Tests/Packet.Net.Tests.csproj",
+        "--configuration",
+        "Release",
+        "--filter",
+        "Category!=HardwareLoop&Category!=Interop",
+        "--logger",
+        "trx",
+        "--results-directory",
+        "/home/philipp/AXLink/artifacts/m0/destination-filter/patched"
+      ],
+      "exit": 0,
+      "stdout": "  Determining projects to restore...\n  Restored /tmp/axlink-f1-yxbrlqad/tests/Packet.Net.Tests/Packet.Net.Tests.csproj (in 980 ms).\n  Restored /tmp/axlink-f1-yxbrlqad/src/Packet.Net/Packet.Net.csproj (in 980 ms).\n  Packet.Net -> /tmp/axlink-f1-yxbrlqad/src/Packet.Net/bin/Release/net10.0/Packet.Net.dll\n  Packet.Net.Tests -> /tmp/axlink-f1-yxbrlqad/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll\nTest run for /tmp/axlink-f1-yxbrlqad/tests/Packet.Net.Tests/bin/Release/net10.0/Packet.Net.Tests.dll (.NETCoreApp,Version=v10.0)\nVSTest version 18.0.2 (x64)\n\nStarting test execution, please wait...\nA total of 1 test files matched the specified pattern.\nResults File: /home/philipp/AXLink/artifacts/m0/destination-filter/patched/_LAP-PW-01FED_2026-10-31_19_16_24.trx\n\nPassed!  - Failed:     0, Passed:    49, Skipped:     0, Total:    49, Duration: 179 ms - Packet.Net.Tests.dll (net10.0)\n",
+      "stderr": ""
+    }
+  ]
+}

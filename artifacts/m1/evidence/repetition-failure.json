@@ -1,0 +1,363 @@
+{
+  "status": "failed",
+  "run": "artifacts/m1/runs/20261031T222336Z-12d2",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "ps",
+        "-aq"
+      ],
+      "exit": 0,
+      "log": "000-existing.log"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/philipp/AXLink/scripts/prepare-ip-lab.py"
+      ],
+      "exit": 0,
+      "log": "001-prepare.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--load",
+        "--allow=network.host",
+        "--network=host",
+        "-f",
+        "simulator/node.Dockerfile",
+        "-t",
+        "axlink-ip-lab-node:local",
+        "simulator"
+      ],
+      "exit": 0,
+      "log": "002-image-build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "up",
+        "-d",
+        "--no-build"
+      ],
+      "exit": 0,
+      "log": "003-start.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "test",
+        "-f",
+        "/tmp/ready"
+      ],
+      "exit": 1,
+      "log": "004-ready-a.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "test",
+        "-f",
+        "/tmp/ready"
+      ],
+      "exit": 1,
+      "log": "005-ready-a.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "test",
+        "-f",
+        "/tmp/ready"
+      ],
+      "exit": 0,
+      "log": "006-ready-a.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "b",
+        "test",
+        "-f",
+        "/tmp/ready"
+      ],
+      "exit": 0,
+      "log": "007-ready-b.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "ip",
+        "-j",
+        "address"
+      ],
+      "exit": 0,
+      "log": "008-before-a-addresses.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "ip",
+        "-j",
+        "route"
+      ],
+      "exit": 0,
+      "log": "009-before-a-routes.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "ip",
+        "-j",
+        "-s",
+        "link",
+        "show",
+        "radio0"
+      ],
+      "exit": 0,
+      "log": "010-before-a-counters.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "ip",
+        "-j",
+        "route",
+        "get",
+        "10.73.0.2"
+      ],
+      "exit": 0,
+      "log": "011-before-a-peerroute.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "b",
+        "ip",
+        "-j",
+        "address"
+      ],
+      "exit": 0,
+      "log": "012-before-b-addresses.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "b",
+        "ip",
+        "-j",
+        "route"
+      ],
+      "exit": 0,
+      "log": "013-before-b-routes.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "b",
+        "ip",
+        "-j",
+        "-s",
+        "link",
+        "show",
+        "radio0"
+      ],
+      "exit": 0,
+      "log": "014-before-b-counters.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "b",
+        "ip",
+        "-j",
+        "route",
+        "get",
+        "10.73.0.1"
+      ],
+      "exit": 0,
+      "log": "015-before-b-peerroute.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "python3",
+        "/lab/node.py",
+        "probe",
+        "udp",
+        "10.73.0.2",
+        "ed94edd68926214b",
+        "30"
+      ],
+      "exit": 0,
+      "log": "016-connected-a-udp.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "a",
+        "python3",
+        "/lab/node.py",
+        "probe",
+        "http",
+        "10.73.0.2",
+        "8f5df423be68cfd8",
+        "30"
+      ],
+      "exit": 0,
+      "log": "017-connected-a-http.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "exec",
+        "-T",
+        "b",
+        "python3",
+        "/lab/node.py",
+        "probe",
+        "udp",
+        "10.73.0.1",
+        "f60468e170bf865c",
+        "30"
+      ],
+      "exit": 2,
+      "log": "018-connected-b-udp.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "logs",
+        "--no-color"
+      ],
+      "exit": 0,
+      "log": "019-container-logs.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "-f",
+        "/home/philipp/AXLink/simulator/compose.ip.yaml",
+        "down",
+        "--timeout",
+        "10"
+      ],
+      "exit": 0,
+      "log": "020-cleanup.log"
+    }
+  ],
+  "exchanges": [
+    {
+      "origin": "a",
+      "phase": "connected",
+      "protocol": "udp",
+      "nonce": "ed94edd68926214b",
+      "reply": "AXLink-ed94edd68926214b",
+      "seconds": 2.491
+    },
+    {
+      "origin": "a",
+      "phase": "connected",
+      "protocol": "http",
+      "nonce": "8f5df423be68cfd8",
+      "reply": "AXLink-8f5df423be68cfd8",
+      "seconds": 9.964
+    }
+  ],
+  "negative_controls": [],
+  "reason": "connected/udp: {'error': 'TimeoutError', 'message': 'timed out'}"
+}

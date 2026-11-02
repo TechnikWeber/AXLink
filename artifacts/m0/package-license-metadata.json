@@ -1,0 +1,5689 @@
+{
+  "Microsoft.Data.Sqlite/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.data.sqlite/10.0.11/microsoft.data.sqlite.nuspec"
+  },
+  "Microsoft.Data.Sqlite.Core/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.data.sqlite.core/10.0.11/microsoft.data.sqlite.core.nuspec"
+  },
+  "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25",
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Axudp",
+      "upstream/packet.net/src/Packet.Kiss",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Mcp",
+      "upstream/packet.net/src/Packet.NetRom",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.11/microsoft.extensions.dependencyinjection.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Abstractions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25",
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Axudp",
+      "upstream/packet.net/src/Packet.Kiss",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Mcp",
+      "upstream/packet.net/src/Packet.NetRom",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.abstractions/10.0.11/microsoft.extensions.logging.abstractions.nuspec"
+  },
+  "Packet.Ax25.Sdl/0.11.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25",
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Axudp",
+      "upstream/packet.net/src/Packet.Kiss",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Mcp",
+      "upstream/packet.net/src/Packet.NetRom",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) Tom Fanning and Packet.NET contributors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/m0lte/ax25sdl",
+        "commit": "40ba9c53e94d1228dfa780f39e406604f9b882c6"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/packet.ax25.sdl/0.11.0/packet.ax25.sdl.nuspec"
+  },
+  "SQLitePCLRaw.bundle_e_sqlite3/2.1.12": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright 2014-2024 SourceGear, LLC",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/ericsink/SQLitePCL.raw"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.12/sqlitepclraw.bundle_e_sqlite3.nuspec"
+  },
+  "SQLitePCLRaw.core/2.1.12": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright 2014-2024 SourceGear, LLC",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/ericsink/SQLitePCL.raw"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sqlitepclraw.core/2.1.12/sqlitepclraw.core.nuspec"
+  },
+  "SQLitePCLRaw.lib.e_sqlite3/2.1.12": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright 2014-2024 SourceGear, LLC",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/ericsink/SQLitePCL.raw"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.12/sqlitepclraw.lib.e_sqlite3.nuspec"
+  },
+  "SQLitePCLRaw.provider.e_sqlite3/2.1.12": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.AprsIs.Spike",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright 2014-2024 SourceGear, LLC",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/ericsink/SQLitePCL.raw"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sqlitepclraw.provider.e_sqlite3/2.1.12/sqlitepclraw.provider.e_sqlite3.nuspec"
+  },
+  "Dapper/2.1.79": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "2019 Stack Exchange, Inc.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/DapperLib/Dapper",
+        "commit": "72a54c475f75e18cb93cba0809d00a5e6e49efd9"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/dapper/2.1.79/dapper.nuspec"
+  },
+  "dnlib/4.4.0": {
+    "projects": [
+      "upstream/packet.net/tools/Packet.Fuzz"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) 2012-2019 de4dot@gmail.com",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/0xd4d/dnlib",
+        "commit": "34267646667b97717067c9f408c2b6333f438331"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/dnlib/4.4.0/dnlib.nuspec"
+  },
+  "FluentValidation/12.1.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) Jeremy Skinner, .NET Foundation, and contributors 2008-2025",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/JeremySkinner/fluentvalidation",
+        "branch": "refs/heads/main",
+        "commit": "71b3c60cb5a16e02cb7957e478ec3fb6b983a73c"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fluentvalidation/12.1.1/fluentvalidation.nuspec"
+  },
+  "Konscious.Security.Cryptography.Argon2/1.3.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "(c) 2024 Keef Aragon",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/kmaragon/Konscious.Security.Cryptography.git",
+        "commit": "4ed95a5377e411506ca6868409b5c7d7ecaa859b"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/konscious.security.cryptography.argon2/1.3.1/konscious.security.cryptography.argon2.nuspec"
+  },
+  "Konscious.Security.Cryptography.Blake2/1.1.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "(c) 2024 Keef Aragon",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/kmaragon/Konscious.Security.Cryptography.git",
+        "commit": "4ed95a5377e411506ca6868409b5c7d7ecaa859b"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/konscious.security.cryptography.blake2/1.1.1/konscious.security.cryptography.blake2.nuspec"
+  },
+  "M0LTE.Ardop/0.4.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Ardop",
+        "commit": "7616ce967234e3373f198c20cf893bf9f89b6c4a"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.ardop/0.4.0/m0lte.ardop.nuspec"
+  },
+  "M0LTE.Dsp/0.2.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Dsp",
+        "commit": "2acc89b90d5d951f5488538757d3cf874f2a050d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.dsp/0.2.0/m0lte.dsp.nuspec"
+  },
+  "M0LTE.Fec/0.3.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Fec",
+        "commit": "1b166fed42197b5702c860f5982c9c58a6974fee"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.fec/0.3.0/m0lte.fec.nuspec"
+  },
+  "M0LTE.FecLdpc/0.1.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.FecLdpc",
+        "commit": "6b8f18cdce46486b3b0826e63113de069aeb7078"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.fecldpc/0.1.0/m0lte.fecldpc.nuspec"
+  },
+  "M0LTE.Flex/0.14.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Flex",
+        "commit": "63f1d077a98523ec8d305d5bf7b5e95d5d460540"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.flex/0.14.1/m0lte.flex.nuspec"
+  },
+  "M0LTE.Il2p/0.3.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "GPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/GPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Il2p",
+        "commit": "7c6f457f805784ef6ad57162c12276d69b247b99"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.il2p/0.3.0/m0lte.il2p.nuspec"
+  },
+  "M0LTE.Ofdm/0.1.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Ofdm",
+        "commit": "1ae678b42adbae892e014164a16ad376ba831e47"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.ofdm/0.1.0/m0lte.ofdm.nuspec"
+  },
+  "M0LTE.Pocsag/0.1.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Pocsag",
+        "commit": "9e858cf032532f4c518002a3329f19dda7cc67fd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.pocsag/0.1.0/m0lte.pocsag.nuspec"
+  },
+  "M0LTE.Radio.Audio/0.1.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning M0LTE",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Radio.Audio",
+        "commit": "a10e65220d7f4610ff5fcbfae312e91dcfe35d4b"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.radio.audio/0.1.0/m0lte.radio.audio.nuspec"
+  },
+  "M0LTE.Rig/0.2.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio",
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Rig",
+        "commit": "0c914df8cf56b732335acee22aa468b4031ecf5c"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.rig/0.2.1/m0lte.rig.nuspec"
+  },
+  "M0LTE.Rig.Flrig/0.2.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Rig",
+        "commit": "0c914df8cf56b732335acee22aa468b4031ecf5c"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.rig.flrig/0.2.1/m0lte.rig.flrig.nuspec"
+  },
+  "M0LTE.Rig.Hamlib/0.2.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Rig",
+        "commit": "0c914df8cf56b732335acee22aa468b4031ecf5c"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.rig.hamlib/0.2.1/m0lte.rig.hamlib.nuspec"
+  },
+  "M0LTE.Tait.Ccdi/0.2.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/M0LTE.Tait.Ccdi",
+        "commit": "fe16a16f1b9550f8800b785858e598ce5a9ff817"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.tait.ccdi/0.2.0/m0lte.tait.ccdi.nuspec"
+  },
+  "M0LTE.Tait.Codeplug/0.8.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "AGPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/AGPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/M0LTE/tait-codeplug",
+        "commit": "d1fb298438535c4d22647df7c165a278c2a920c5"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/m0lte.tait.codeplug/0.8.0/m0lte.tait.codeplug.nuspec"
+  },
+  "Microsoft.Bcl.Cryptography/10.0.2": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "44525024595742ebe09023abe709df51de65009b"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.bcl.cryptography/10.0.2/microsoft.bcl.cryptography.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.Abstractions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.abstractions/10.0.11/microsoft.extensions.configuration.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Diagnostics.Abstractions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.diagnostics.abstractions/10.0.11/microsoft.extensions.diagnostics.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.FileProviders.Abstractions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.fileproviders.abstractions/10.0.11/microsoft.extensions.fileproviders.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Hosting.Abstractions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.hosting.abstractions/10.0.11/microsoft.extensions.hosting.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Options/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.options/10.0.11/microsoft.extensions.options.nuspec"
+  },
+  "Microsoft.Extensions.Primitives/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.primitives/10.0.11/microsoft.extensions.primitives.nuspec"
+  },
+  "Microsoft.IdentityModel.Abstractions/8.22.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "0472f79d9f346c9519fb43d877612a1d8dd22e1e"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.identitymodel.abstractions/8.22.0/microsoft.identitymodel.abstractions.nuspec"
+  },
+  "Microsoft.IdentityModel.JsonWebTokens/8.22.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "0472f79d9f346c9519fb43d877612a1d8dd22e1e"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.identitymodel.jsonwebtokens/8.22.0/microsoft.identitymodel.jsonwebtokens.nuspec"
+  },
+  "Microsoft.IdentityModel.Logging/8.22.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "0472f79d9f346c9519fb43d877612a1d8dd22e1e"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.identitymodel.logging/8.22.0/microsoft.identitymodel.logging.nuspec"
+  },
+  "Microsoft.IdentityModel.Tokens/8.22.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "0472f79d9f346c9519fb43d877612a1d8dd22e1e"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.identitymodel.tokens/8.22.0/microsoft.identitymodel.tokens.nuspec"
+  },
+  "MQTTnet/5.2.0.1603": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.Mqtt.Spike"
+    ],
+    "license": {
+      "text": "LICENSE",
+      "attributes": {
+        "type": "file"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://aka.ms/deprecateLicenseUrl",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/MQTTnet.git",
+        "commit": "14463d1ef9f1f119514185c1832905b91bff827d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/mqttnet/5.2.0.1603/mqttnet.nuspec"
+  },
+  "pdn-soundmodem/0.43.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "GPL-3.0-or-later",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/GPL-3.0-or-later",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2026 Tom Fanning and Packet.NET contributors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/packet-net/pdn-soundmodem",
+        "commit": "d7e0d0f8911d04fd73617f01f0a8972f061fef9b"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/pdn-soundmodem/0.43.0/pdn-soundmodem.nuspec"
+  },
+  "runtime.android-arm.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.android-arm.runtime.native.system.io.ports/10.0.11/runtime.android-arm.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.android-arm64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.android-arm64.runtime.native.system.io.ports/10.0.11/runtime.android-arm64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.android-x64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.android-x64.runtime.native.system.io.ports/10.0.11/runtime.android-x64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.android-x86.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.android-x86.runtime.native.system.io.ports/10.0.11/runtime.android-x86.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-arm.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-arm.runtime.native.system.io.ports/10.0.11/runtime.linux-arm.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-arm64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-arm64.runtime.native.system.io.ports/10.0.11/runtime.linux-arm64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-bionic-arm64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-bionic-arm64.runtime.native.system.io.ports/10.0.11/runtime.linux-bionic-arm64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-bionic-x64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-bionic-x64.runtime.native.system.io.ports/10.0.11/runtime.linux-bionic-x64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-musl-arm.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-musl-arm.runtime.native.system.io.ports/10.0.11/runtime.linux-musl-arm.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-musl-arm64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-musl-arm64.runtime.native.system.io.ports/10.0.11/runtime.linux-musl-arm64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-musl-x64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-musl-x64.runtime.native.system.io.ports/10.0.11/runtime.linux-musl-x64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.linux-x64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.linux-x64.runtime.native.system.io.ports/10.0.11/runtime.linux-x64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.maccatalyst-arm64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.maccatalyst-arm64.runtime.native.system.io.ports/10.0.11/runtime.maccatalyst-arm64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.maccatalyst-x64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.maccatalyst-x64.runtime.native.system.io.ports/10.0.11/runtime.maccatalyst-x64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.native.system.io.ports/10.0.11/runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.osx-arm64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.osx-arm64.runtime.native.system.io.ports/10.0.11/runtime.osx-arm64.runtime.native.system.io.ports.nuspec"
+  },
+  "runtime.osx-x64.runtime.native.System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/runtime.osx-x64.runtime.native.system.io.ports/10.0.11/runtime.osx-x64.runtime.native.system.io.ports.nuspec"
+  },
+  "SharpFuzz/2.3.0": {
+    "projects": [
+      "upstream/packet.net/tools/Packet.Fuzz"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2018-2025, Nemanja Mijailovic",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/Metalnem/sharpfuzz.git",
+        "commit": "7dde242459c5459cb988fb8ace4397a9485d720f"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sharpfuzz/2.3.0/sharpfuzz.nuspec"
+  },
+  "SharpFuzz.Common/2.2.0": {
+    "projects": [
+      "upstream/packet.net/tools/Packet.Fuzz"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2018, Nemanja Mijailovic",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/Metalnem/sharpfuzz.git"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sharpfuzz.common/2.2.0/sharpfuzz.common.nuspec"
+  },
+  "System.IO.Ports/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Ax25.Radio.Tait",
+      "upstream/packet.net/src/Packet.Kiss.NinoTnc",
+      "upstream/packet.net/src/Packet.Kiss.Serial",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/src/Packet.Tune.Core",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench",
+      "upstream/packet.net/tools/Packet.NinoTnc.Spike",
+      "upstream/packet.net/tools/Packet.Tait.Spike",
+      "upstream/packet.net/tools/Packet.Tune"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.io.ports/10.0.11/system.io.ports.nuspec"
+  },
+  "System.Reactive/5.0.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/reactive",
+        "commit": "103c252a0ec94eac753f353131ad95cc0be1b390"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.reactive/5.0.0/system.reactive.nuspec"
+  },
+  "YamlDotNet/18.1.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) Antoine Aubry and contributors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/aaubry/YamlDotNet",
+        "commit": "748334a8fa7c227740018b284b71ad95cc6b7fc7"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/yamldotnet/18.1.0/yamldotnet.nuspec"
+  },
+  "Zeroconf/3.7.16": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Claire Novotny 2016-2024",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/novotnyllc/Zeroconf",
+        "branch": "refs/heads/main",
+        "commit": "bd4bd55e044a9aa4b8656741214c989a5ee50ded"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/zeroconf/3.7.16/zeroconf.nuspec"
+  },
+  "ZstdSharp.Port/0.8.8": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/src/Packet.Node.Core",
+      "upstream/packet.net/src/Packet.Rhp2.Server",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tools/Packet.Fuzz",
+      "upstream/packet.net/tools/Packet.LinkBench"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright Oleg Stepanischev 2026",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/oleg-st/ZstdSharp.git",
+        "branch": "refs/heads/master",
+        "commit": "2cd0c019693bc786a5fe5c3be94e107b24e7267e"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/zstdsharp.port/0.8.8/zstdsharp.port.nuspec"
+  },
+  "AwesomeAssertions/9.5.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright Dennis Doomen 2010-2025, AwesomeAssertions 2025-",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AwesomeAssertions/AwesomeAssertions",
+        "commit": "bff44eb60d7e11df2d3cea1ee676974e2a83b818"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/awesomeassertions/9.5.0/awesomeassertions.nuspec"
+  },
+  "Microsoft.CodeAnalysis.BannedApiAnalyzers/5.6.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/roslyn",
+        "commit": "c0573ed0a7dc3e3b4d2e70da47f97cc51a35524f"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.codeanalysis.bannedapianalyzers/5.6.0/microsoft.codeanalysis.bannedapianalyzers.nuspec"
+  },
+  "Microsoft.CodeCoverage/18.9.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "branch": "18.9",
+        "commit": "2b12a89cee3798c4ab3fd301e384d1bd5532f9de"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.codecoverage/18.9.0/microsoft.codecoverage.nuspec"
+  },
+  "Microsoft.NET.Test.Sdk/18.9.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "branch": "18.9",
+        "commit": "2b12a89cee3798c4ab3fd301e384d1bd5532f9de"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.net.test.sdk/18.9.0/microsoft.net.test.sdk.nuspec"
+  },
+  "Microsoft.TestPlatform.ObjectModel/18.9.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "branch": "18.9",
+        "commit": "2b12a89cee3798c4ab3fd301e384d1bd5532f9de"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.testplatform.objectmodel/18.9.0/microsoft.testplatform.objectmodel.nuspec"
+  },
+  "Microsoft.TestPlatform.TestHost/18.9.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "branch": "18.9",
+        "commit": "2b12a89cee3798c4ab3fd301e384d1bd5532f9de"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.testplatform.testhost/18.9.0/microsoft.testplatform.testhost.nuspec"
+  },
+  "Validation/2.6.68": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MS-PL",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MS-PL",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Andrew Arnott. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AArnott/Validation",
+        "branch": "refs/heads/v2.6",
+        "commit": "b67af47e3ded8792b68c575d2a2798dc512e6c00"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/validation/2.6.68/validation.nuspec"
+  },
+  "xunit/2.9.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/xunit",
+        "commit": "9712244020d385955d33136b3fe3e87de43539cd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit/2.9.3/xunit.nuspec"
+  },
+  "xunit.abstractions/2.0.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "licenseUrl": {
+      "text": "https://raw.githubusercontent.com/xunit/xunit/master/license.txt",
+      "attributes": {}
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.abstractions/2.0.3/xunit.abstractions.nuspec"
+  },
+  "xunit.analyzers/1.18.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/xunit.analyzers",
+        "commit": "2620a4ddabcba16ceb64ea9ad19c566252015fe8"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.analyzers/1.18.0/xunit.analyzers.nuspec"
+  },
+  "xunit.assert/2.9.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/xunit",
+        "commit": "9712244020d385955d33136b3fe3e87de43539cd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.assert/2.9.3/xunit.assert.nuspec"
+  },
+  "xunit.core/2.9.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/xunit",
+        "commit": "9712244020d385955d33136b3fe3e87de43539cd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.core/2.9.3/xunit.core.nuspec"
+  },
+  "xunit.extensibility.core/2.9.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/xunit",
+        "commit": "9712244020d385955d33136b3fe3e87de43539cd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.extensibility.core/2.9.3/xunit.extensibility.core.nuspec"
+  },
+  "xunit.extensibility.execution/2.9.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/xunit",
+        "commit": "9712244020d385955d33136b3fe3e87de43539cd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.extensibility.execution/2.9.3/xunit.extensibility.execution.nuspec"
+  },
+  "xunit.runner.visualstudio/4.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/visualstudio.xunit",
+        "commit": "05679a7ab5ca2461d06880faaefe26770e0fdf77"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.runner.visualstudio/4.0.0/xunit.runner.visualstudio.nuspec"
+  },
+  "Xunit.SkippableFact/1.5.61": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Agw.Tests",
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Axudp.Tests",
+      "upstream/packet.net/tests/Packet.Core.Tests",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Serial.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MS-PL",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MS-PL",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AArnott/Xunit.SkippableFact",
+        "branch": "refs/heads/main",
+        "commit": "2ba00755b6e0b2ad63cb72bc1c28969188ccd40d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.skippablefact/1.5.61/xunit.skippablefact.nuspec"
+  },
+  "FsCheck/3.3.4": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "BSD-3-Clause",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/BSD-3-Clause",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright 2008-2024",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/Fscheck/fscheck",
+        "commit": "32e5701143e5cc90ee670b866c9b0cd8abf654bd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fscheck/3.3.4/fscheck.nuspec"
+  },
+  "FsCheck.Xunit/3.3.4": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "BSD-3-Clause",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/BSD-3-Clause",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright 2008-2024",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/Fscheck/fscheck",
+        "commit": "32e5701143e5cc90ee670b866c9b0cd8abf654bd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fscheck.xunit/3.3.4/fscheck.xunit.nuspec"
+  },
+  "FSharp.Core/5.0.2": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Aprs.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/fsharp",
+        "commit": "4aa714b79fbc35c9a39f46fbc77e711eb10a7837"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fsharp.core/5.0.2/fsharp.core.nuspec"
+  },
+  "Mono.Cecil/0.11.6": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Aprs.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "nuspec": "/home/philipp/.nuget/packages/mono.cecil/0.11.6/mono.cecil.nuspec"
+  },
+  "PublicApiGenerator/11.4.5": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Aprs.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright Jake Ginnivan 2010-2025. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/PublicApiGenerator/PublicApiGenerator",
+        "commit": "63395f94d2a4888c4c5874de90ab6442b72e7f03"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/publicapigenerator/11.4.5/publicapigenerator.nuspec"
+  },
+  "System.CodeDom/6.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Aprs.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "4822e3c3aa77eb82b2fb33c9321f923cf11ddde6"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.codedom/6.0.0/system.codedom.nuspec"
+  },
+  "Microsoft.Extensions.TimeProvider.Testing/10.9.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Ax25.Properties",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Radio.Tests",
+      "upstream/packet.net/tests/Packet.Ax25.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests",
+      "upstream/packet.net/tests/Packet.Kiss.Tests",
+      "upstream/packet.net/tests/Packet.NetRom.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests",
+      "upstream/packet.net/tests/Packet.Rhp2.Tests",
+      "upstream/packet.net/tests/Packet.Tune.Core.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/extensions",
+        "commit": "b10f9c0a081b5dbb7755b8f5592e1d3c3f550a3a"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.timeprovider.testing/10.9.0/microsoft.extensions.timeprovider.testing.nuspec"
+  },
+  "BouncyCastle.Cryptography/2.7.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 Legion of the Bouncy Castle Inc. 2000-2026",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/bcgit/bc-csharp",
+        "branch": "refs/heads/release/v2.7",
+        "commit": "4007498b13582d90ee1eda5d9920c324428b98b3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/bouncycastle.cryptography/2.7.0/bouncycastle.cryptography.nuspec"
+  },
+  "Docker.DotNet.Enhanced/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced/4.3.3/docker.dotnet.enhanced.nuspec"
+  },
+  "Docker.DotNet.Enhanced.Handler.Abstractions/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced.handler.abstractions/4.3.3/docker.dotnet.enhanced.handler.abstractions.nuspec"
+  },
+  "Docker.DotNet.Enhanced.LegacyHttp/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced.legacyhttp/4.3.3/docker.dotnet.enhanced.legacyhttp.nuspec"
+  },
+  "Docker.DotNet.Enhanced.NativeHttp/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced.nativehttp/4.3.3/docker.dotnet.enhanced.nativehttp.nuspec"
+  },
+  "Docker.DotNet.Enhanced.NPipe/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced.npipe/4.3.3/docker.dotnet.enhanced.npipe.nuspec"
+  },
+  "Docker.DotNet.Enhanced.Unix/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced.unix/4.3.3/docker.dotnet.enhanced.unix.nuspec"
+  },
+  "Docker.DotNet.Enhanced.X509/4.3.3": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors; Andre Hofmeister",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/Docker.DotNet/",
+        "commit": "1e4015a84fa48cbcfe9002ecc4e2cf14177edc2d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/docker.dotnet.enhanced.x509/4.3.3/docker.dotnet.enhanced.x509.nuspec"
+  },
+  "Fido2/4.0.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/passwordless-lib/fido2-net-lib",
+        "commit": "0d7d16a001b8d635a7a488362b08b5cf88d7fa6f"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fido2/4.0.1/fido2.nuspec"
+  },
+  "Fido2.AspNet/4.0.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/passwordless-lib/fido2-net-lib",
+        "commit": "0d7d16a001b8d635a7a488362b08b5cf88d7fa6f"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fido2.aspnet/4.0.1/fido2.aspnet.nuspec"
+  },
+  "Fido2.Models/4.0.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/passwordless-lib/fido2-net-lib",
+        "commit": "0d7d16a001b8d635a7a488362b08b5cf88d7fa6f"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/fido2.models/4.0.1/fido2.models.nuspec"
+  },
+  "libsodium/1.0.20.1": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "ISC",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/ISC",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 2024 Frank Denis",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/jedisct1/libsodium.git"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/libsodium/1.0.20.1/libsodium.nuspec"
+  },
+  "Microsoft.AspNetCore.Authentication.JwtBearer/10.0.11": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/10.0.11/microsoft.aspnetcore.authentication.jwtbearer.nuspec"
+  },
+  "Microsoft.Bcl.Memory/9.0.14": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "19c07820cb72aafc554c3bc8fe3c54010f5123f0"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.bcl.memory/9.0.14/microsoft.bcl.memory.nuspec"
+  },
+  "Microsoft.Extensions.AI.Abstractions/10.8.3": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Mcp",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/extensions",
+        "commit": "ccb356f31db9d894807c4fd0c97c2f41553d1524"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.ai.abstractions/10.8.3/microsoft.extensions.ai.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Caching.Abstractions/10.0.10": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "f7d90799ce4ef09a0bb257852a57248d2a8fb8dd"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.caching.abstractions/10.0.10/microsoft.extensions.caching.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Configuration/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration/9.0.0/microsoft.extensions.configuration.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.Binder/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.binder/9.0.0/microsoft.extensions.configuration.binder.nuspec"
+  },
+  "Microsoft.Extensions.DependencyInjection/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.dependencyinjection/9.0.0/microsoft.extensions.dependencyinjection.nuspec"
+  },
+  "Microsoft.Extensions.Diagnostics/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.diagnostics/9.0.0/microsoft.extensions.diagnostics.nuspec"
+  },
+  "Microsoft.Extensions.Http/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.http/9.0.0/microsoft.extensions.http.nuspec"
+  },
+  "Microsoft.Extensions.Logging/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging/9.0.0/microsoft.extensions.logging.nuspec"
+  },
+  "Microsoft.Extensions.Options.ConfigurationExtensions/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.options.configurationextensions/9.0.0/microsoft.extensions.options.configurationextensions.nuspec"
+  },
+  "Microsoft.IdentityModel.Protocols/8.19.2": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "25d90ed3f48854036d444541a049089ccd198707"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.identitymodel.protocols/8.19.2/microsoft.identitymodel.protocols.nuspec"
+  },
+  "Microsoft.IdentityModel.Protocols.OpenIdConnect/8.19.2": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "25d90ed3f48854036d444541a049089ccd198707"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.identitymodel.protocols.openidconnect/8.19.2/microsoft.identitymodel.protocols.openidconnect.nuspec"
+  },
+  "ModelContextProtocol/2.2.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Model Context Protocol a Series of LF Projects, LLC.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/modelcontextprotocol/csharp-sdk",
+        "commit": "6fa3825973949a9c4f0cd8af344e15a8db09dc35"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/modelcontextprotocol/2.2.0/modelcontextprotocol.nuspec"
+  },
+  "ModelContextProtocol.AspNetCore/2.2.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Model Context Protocol a Series of LF Projects, LLC.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/modelcontextprotocol/csharp-sdk",
+        "commit": "6fa3825973949a9c4f0cd8af344e15a8db09dc35"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/modelcontextprotocol.aspnetcore/2.2.0/modelcontextprotocol.aspnetcore.nuspec"
+  },
+  "ModelContextProtocol.Core/2.2.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Mcp",
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Mcp.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Model Context Protocol a Series of LF Projects, LLC.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/modelcontextprotocol/csharp-sdk",
+        "commit": "6fa3825973949a9c4f0cd8af344e15a8db09dc35"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/modelcontextprotocol.core/2.2.0/modelcontextprotocol.core.nuspec"
+  },
+  "NSec.Cryptography/25.4.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 2025 Klaus Hartke",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/ektrah/nsec.git",
+        "commit": "09e4b835e46cefe23bdf658892b2817d1fcb1bcf"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/nsec.cryptography/25.4.0/nsec.cryptography.nuspec"
+  },
+  "SharpZipLib/1.4.2": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 2000-2022 SharpZipLib Contributors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/icsharpcode/SharpZipLib",
+        "commit": "33f64eb0f28cdd2b084cb822fcc224c7c5aba553"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/sharpziplib/1.4.2/sharpziplib.nuspec"
+  },
+  "SSH.NET/2026.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 Renci 2010-2026",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/sshnet/SSH.NET",
+        "commit": "7b2fd3dbf2c86a80a7b06cea020aa5f821c9902e"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/ssh.net/2026.0.0/ssh.net.nuspec"
+  },
+  "System.Formats.Cbor/9.0.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "9d5a6a9aa463d6d10b0b0ba6d5982cc82f363dc3"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.formats.cbor/9.0.0/system.formats.cbor.nuspec"
+  },
+  "System.IdentityModel.Tokens.Jwt/8.19.2": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet",
+        "commit": "25d90ed3f48854036d444541a049089ccd198707"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.identitymodel.tokens.jwt/8.19.2/system.identitymodel.tokens.jwt.nuspec"
+  },
+  "System.IO.Hashing/8.0.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/runtime",
+        "commit": "5535e31a712343a63f5d7d796cd874e563e5ac14"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.io.hashing/8.0.0/system.io.hashing.nuspec"
+  },
+  "Testcontainers/4.14.0": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Interop.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) 2019 - 2026 Andre Hofmeister and other authors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/testcontainers/testcontainers-dotnet",
+        "commit": "f0208578ad1a71c774e26bf5cdda927cc36b256a"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/testcontainers/4.14.0/testcontainers.nuspec"
+  },
+  "Yarp.ReverseProxy/2.3.0": {
+    "projects": [
+      "upstream/packet.net/src/Packet.Node",
+      "upstream/packet.net/tests/Packet.Interop.Tests",
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/yarp",
+        "commit": "4154b6d1eaa0712597e3482f817b400b55268cae"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/yarp.reverseproxy/2.3.0/yarp.reverseproxy.nuspec"
+  },
+  "Microsoft.AspNetCore.Mvc.Testing/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.aspnetcore.mvc.testing/10.0.11/microsoft.aspnetcore.mvc.testing.nuspec"
+  },
+  "Microsoft.AspNetCore.TestHost/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.aspnetcore.testhost/10.0.11/microsoft.aspnetcore.testhost.nuspec"
+  },
+  "Microsoft.Extensions.Configuration/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration/10.0.11/microsoft.extensions.configuration.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.Binder/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.binder/10.0.11/microsoft.extensions.configuration.binder.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.CommandLine/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.commandline/10.0.11/microsoft.extensions.configuration.commandline.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.EnvironmentVariables/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.environmentvariables/10.0.11/microsoft.extensions.configuration.environmentvariables.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.FileExtensions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.fileextensions/10.0.11/microsoft.extensions.configuration.fileextensions.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.Json/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.json/10.0.11/microsoft.extensions.configuration.json.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.UserSecrets/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.usersecrets/10.0.11/microsoft.extensions.configuration.usersecrets.nuspec"
+  },
+  "Microsoft.Extensions.DependencyInjection/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.dependencyinjection/10.0.11/microsoft.extensions.dependencyinjection.nuspec"
+  },
+  "Microsoft.Extensions.DependencyModel/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.dependencymodel/10.0.11/microsoft.extensions.dependencymodel.nuspec"
+  },
+  "Microsoft.Extensions.Diagnostics/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.diagnostics/10.0.11/microsoft.extensions.diagnostics.nuspec"
+  },
+  "Microsoft.Extensions.FileProviders.Physical/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.fileproviders.physical/10.0.11/microsoft.extensions.fileproviders.physical.nuspec"
+  },
+  "Microsoft.Extensions.FileSystemGlobbing/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.filesystemglobbing/10.0.11/microsoft.extensions.filesystemglobbing.nuspec"
+  },
+  "Microsoft.Extensions.Hosting/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.hosting/10.0.11/microsoft.extensions.hosting.nuspec"
+  },
+  "Microsoft.Extensions.Logging/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging/10.0.11/microsoft.extensions.logging.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Configuration/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.configuration/10.0.11/microsoft.extensions.logging.configuration.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Console/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.console/10.0.11/microsoft.extensions.logging.console.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Debug/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.debug/10.0.11/microsoft.extensions.logging.debug.nuspec"
+  },
+  "Microsoft.Extensions.Logging.EventLog/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.eventlog/10.0.11/microsoft.extensions.logging.eventlog.nuspec"
+  },
+  "Microsoft.Extensions.Logging.EventSource/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.eventsource/10.0.11/microsoft.extensions.logging.eventsource.nuspec"
+  },
+  "Microsoft.Extensions.Options.ConfigurationExtensions/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.options.configurationextensions/10.0.11/microsoft.extensions.options.configurationextensions.nuspec"
+  },
+  "MQTTnet.Server/5.2.0.1603": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "LICENSE",
+      "attributes": {
+        "type": "file"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://aka.ms/deprecateLicenseUrl",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (c) .NET Foundation and Contributors",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/MQTTnet.git",
+        "commit": "14463d1ef9f1f119514185c1832905b91bff827d"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/mqttnet.server/5.2.0.1603/mqttnet.server.nuspec"
+  },
+  "System.Diagnostics.EventLog/10.0.11": {
+    "projects": [
+      "upstream/packet.net/tests/Packet.Node.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "e2f47b0110ed922f21a1522da67279133ce28f32"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/system.diagnostics.eventlog/10.0.11/system.diagnostics.eventlog.nuspec"
+  },
+  "AwesomeAssertions/9.2.0": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright Dennis Doomen 2010-2025, AwesomeAssertions 2025-",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/AwesomeAssertions/AwesomeAssertions",
+        "commit": "db98780da145251e22f693a80f2a23776578d6db"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/awesomeassertions/9.2.0/awesomeassertions.nuspec"
+  },
+  "Microsoft.CodeCoverage/17.14.1": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "commit": "490850ae3fdc1b470e3804ceab4f6a41cf89ae51"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.codecoverage/17.14.1/microsoft.codecoverage.nuspec"
+  },
+  "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/Packet.Net",
+      "upstream/pdn-net/src/pdn-net",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.0/microsoft.extensions.dependencyinjection.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Abstractions/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/Packet.Net",
+      "upstream/pdn-net/src/pdn-net",
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.abstractions/10.0.0/microsoft.extensions.logging.abstractions.nuspec"
+  },
+  "Microsoft.NET.Test.Sdk/17.14.1": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "commit": "490850ae3fdc1b470e3804ceab4f6a41cf89ae51"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.net.test.sdk/17.14.1/microsoft.net.test.sdk.nuspec"
+  },
+  "Microsoft.TestPlatform.ObjectModel/17.14.1": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "commit": "490850ae3fdc1b470e3804ceab4f6a41cf89ae51"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.testplatform.objectmodel/17.14.1/microsoft.testplatform.objectmodel.nuspec"
+  },
+  "Microsoft.TestPlatform.TestHost/17.14.1": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/microsoft/vstest",
+        "commit": "490850ae3fdc1b470e3804ceab4f6a41cf89ae51"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.testplatform.testhost/17.14.1/microsoft.testplatform.testhost.nuspec"
+  },
+  "Newtonsoft.Json/13.0.3": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright \u00a9 James Newton-King 2008",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/JamesNK/Newtonsoft.Json",
+        "commit": "0a2e291c0d9c0c7675d445703e51750363a549ef"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.nuspec"
+  },
+  "xunit.runner.visualstudio/3.1.4": {
+    "projects": [
+      "upstream/pdn-net/tests/Packet.Net.Tests"
+    ],
+    "license": {
+      "text": "Apache-2.0",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/Apache-2.0",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "Copyright (C) .NET Foundation",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/xunit/visualstudio.xunit",
+        "commit": "50e68bbb8b9ddd4b1bbb95d062b62010caf99909"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/xunit.runner.visualstudio/3.1.4/xunit.runner.visualstudio.nuspec"
+  },
+  "Microsoft.Extensions.Configuration/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration/10.0.0/microsoft.extensions.configuration.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.Abstractions/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.abstractions/10.0.0/microsoft.extensions.configuration.abstractions.nuspec"
+  },
+  "Microsoft.Extensions.Configuration.Binder/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.configuration.binder/10.0.0/microsoft.extensions.configuration.binder.nuspec"
+  },
+  "Microsoft.Extensions.DependencyInjection/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.dependencyinjection/10.0.0/microsoft.extensions.dependencyinjection.nuspec"
+  },
+  "Microsoft.Extensions.Logging/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging/10.0.0/microsoft.extensions.logging.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Configuration/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.configuration/10.0.0/microsoft.extensions.logging.configuration.nuspec"
+  },
+  "Microsoft.Extensions.Logging.Console/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.logging.console/10.0.0/microsoft.extensions.logging.console.nuspec"
+  },
+  "Microsoft.Extensions.Options/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.options/10.0.0/microsoft.extensions.options.nuspec"
+  },
+  "Microsoft.Extensions.Options.ConfigurationExtensions/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.options.configurationextensions/10.0.0/microsoft.extensions.options.configurationextensions.nuspec"
+  },
+  "Microsoft.Extensions.Primitives/10.0.0": {
+    "projects": [
+      "upstream/pdn-net/src/pdn-net"
+    ],
+    "license": {
+      "text": "MIT",
+      "attributes": {
+        "type": "expression"
+      }
+    },
+    "licenseUrl": {
+      "text": "https://licenses.nuget.org/MIT",
+      "attributes": {}
+    },
+    "copyright": {
+      "text": "\u00a9 Microsoft Corporation. All rights reserved.",
+      "attributes": {}
+    },
+    "repository": {
+      "text": null,
+      "attributes": {
+        "type": "git",
+        "url": "https://github.com/dotnet/dotnet",
+        "commit": "b0f34d51fccc69fd334253924abd8d6853fad7aa"
+      }
+    },
+    "nuspec": "/home/philipp/.nuget/packages/microsoft.extensions.primitives/10.0.0/microsoft.extensions.primitives.nuspec"
+  }
+}

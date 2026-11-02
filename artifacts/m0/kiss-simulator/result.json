@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "command": [
+    "/home/philipp/AXLink/.tools/dotnet/dotnet",
+    "test",
+    "tests/Packet.Interop.Tests/Packet.Interop.Tests.csproj",
+    "--configuration",
+    "Release",
+    "--no-build",
+    "--filter",
+    "FullyQualifiedName=Packet.Interop.Tests.Netsim.NetsimKissTcpInterop.UI_Frame_Sent_On_Node_A_Is_Received_On_Node_B",
+    "--logger",
+    "trx;LogFileName=kiss.trx",
+    "--results-directory",
+    "/home/philipp/AXLink/artifacts/m0/kiss-simulator"
+  ],
+  "exit": 0,
+  "outcomes": [
+    "Passed"
+  ]
+}

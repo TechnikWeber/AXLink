@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "parameters": "--vulnerable --include-transitive",
+  "sources": [
+    "https://api.nuget.org/v3/index.json"
+  ],
+  "projects": [
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Agw/Packet.Agw.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Aprs/Packet.Aprs.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Ax25.Radio.Tait/Packet.Ax25.Radio.Tait.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Ax25.Radio/Packet.Ax25.Radio.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Ax25.Transport.Abstractions/Packet.Ax25.Transport.Abstractions.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Ax25/Packet.Ax25.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Axudp/Packet.Axudp.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Core/Packet.Core.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Kiss.NinoTnc/Packet.Kiss.NinoTnc.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Kiss.Serial/Packet.Kiss.Serial.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Kiss/Packet.Kiss.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Mcp/Packet.Mcp.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.NetRom/Packet.NetRom.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Node.Core/Packet.Node.Core.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Node/Packet.Node.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Rhp2.Server/Packet.Rhp2.Server.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Rhp2/Packet.Rhp2.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/src/Packet.Tune.Core/Packet.Tune.Core.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Agw.Tests/Packet.Agw.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Aprs.Tests/Packet.Aprs.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Ax25.Properties/Packet.Ax25.Properties.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Ax25.Radio.Tait.Tests/Packet.Ax25.Radio.Tait.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Ax25.Radio.Tests/Packet.Ax25.Radio.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Ax25.Tests/Packet.Ax25.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Axudp.Tests/Packet.Axudp.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Core.Tests/Packet.Core.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Interop.Tests/Packet.Interop.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Kiss.NinoTnc.Tests/Packet.Kiss.NinoTnc.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Kiss.Serial.Tests/Packet.Kiss.Serial.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Kiss.Tests/Packet.Kiss.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Mcp.Tests/Packet.Mcp.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.NetRom.Tests/Packet.NetRom.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Node.Tests/Packet.Node.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Rhp2.Tests/Packet.Rhp2.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tests/Packet.Tune.Core.Tests/Packet.Tune.Core.Tests.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.Aprs.Corpus/Packet.Aprs.Corpus.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.AprsIs.Spike/Packet.AprsIs.Spike.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.Fuzz/Packet.Fuzz.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.LinkBench/Packet.LinkBench.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.Mqtt.Spike/Packet.Mqtt.Spike.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.NinoTnc.Spike/Packet.NinoTnc.Spike.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.Tait.Spike/Packet.Tait.Spike.csproj"
+    },
+    {
+      "path": "/home/philipp/AXLink/upstream/packet.net/tools/Packet.Tune/Packet.Tune.csproj"
+    }
+  ]
+}

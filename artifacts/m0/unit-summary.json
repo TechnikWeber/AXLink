@@ -1,0 +1,64 @@
+{
+  "packet.net": {
+    "counts": {
+      "Passed": 13295,
+      "NotExecuted": 48
+    },
+    "skipped": [
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Recv_stream_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.SendReply_with_status_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_crossed_false_is_not_on_the_wire",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Auth_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Status_push_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Socket_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Grammar_rejects_a_payload_that_does_not_match",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Close_push_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.BindReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Bind_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.SocketReply_to_idless_request_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Socket_without_id_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Status_request_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.ConnectReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Accept_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.SendToReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_failure_reason_validates(code: 19, text: \"Refused\")",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Close_request_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Send_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_failure_reason_validates(code: 20, text: \"No answer\")",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_crossed_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Send_empty_data_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_failure_reason_validates(code: 21, text: \"Timed out\")",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Recv_dgram_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.CloseReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Listen_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Connect_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.SendTo_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.StatusReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Open_active_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_error_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.All_vectors_in_corpus_validate_against_grammar",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Open_passive_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.ListenReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.OpenReply_failure_reason_validates(code: 22, text: \"Link reset\")",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.SocketReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.AuthReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.SendReply_validates",
+      "Packet.Rhp2.Tests.CddlWireConformanceTests.Bind_null_port_validates",
+      "Packet.Node.Tests.Rigs.ManagedRigDaemonTests.Dispose_stops_the_child_and_leaves_no_orphan",
+      "Packet.Node.Tests.Rigs.ManagedRigDaemonTests.A_crashed_child_is_respawned_on_the_same_port_and_a_fresh_client_attaches",
+      "Packet.Node.Tests.Oarc.OarcLiveIngestTests.A_link_status_lands_in_the_node_history",
+      "Packet.Node.Tests.Applications.Catalog.AppInstallerTests.Deb_install_extracts_the_app_subtree_and_records_a_marker",
+      "Packet.Node.Tests.Integration.PortRigIntegrationTests.A_node_managed_rig_spawns_a_real_rigctld_and_attaches_through_the_real_factory",
+      "Packet.Node.Tests.Rigs.RigModelCatalogueTests.Real_rigctl_yields_a_usable_catalogue",
+      "Packet.Node.Tests.Rigs.ManagedRigDaemonTests.Spawns_rigctld_and_a_real_client_attaches_via_the_client_config",
+      "Packet.Node.Tests.Oarc.OarcLiveIngestTests.Reports_a_node_up_that_appears_on_the_map_then_marks_it_down"
+    ]
+  },
+  "pdn-net": {
+    "counts": {
+      "Passed": 40
+    },
+    "skipped": []
+  }
+}

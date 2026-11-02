@@ -1,0 +1,45 @@
+--- a/src/Packet.Net/Bridge/IpAx25Bridge.cs
++++ b/src/Packet.Net/Bridge/IpAx25Bridge.cs
+@@ -192,6 +192,16 @@
+         }
+ 
+         int pid = dg.Data.Span[0];
++        // Custom RHP subscriptions are promiscuous. Only our unicast data belongs
++        // on this TUN; filter before reassembly to prevent cross-destination state.
++        // ARP retains its existing learning/target-IP reply policy, including QST.
++        if ((pid == PidIp || pid == PidSegment) &&
++            !SameStation(dg.Dest, _myCallsign))
++        {
++            _log.LogDebug("Ignoring data for {Destination} from {Source}", dg.Dest, dg.Source);
++            return;
++        }
++
+         switch (pid)
+         {
+             case PidIp:
+@@ -218,6 +228,14 @@
+         }
+     }
+ 
++    private static bool SameStation(string left, string right)
++    {
++        // RHP supplies textual callsigns; omitted SSID and explicit -0 are equal.
++        if (left.EndsWith("-0", StringComparison.Ordinal)) left = left[..^2];
++        if (right.EndsWith("-0", StringComparison.Ordinal)) right = right[..^2];
++        return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
++    }
++
+     private async Task HandleArpAsync(RhpDatagram dg, CancellationToken ct)
+     {
+         ReadOnlySpan<byte> payload = dg.Data.Span[1..];
+--- a/tests/Packet.Net.Tests/IpAx25BridgeTests.cs
++++ b/tests/Packet.Net.Tests/IpAx25BridgeTests.cs
+@@ -30,7 +30,7 @@
+     }
+ 
+     private static IpAx25Bridge NewBridge(FakeTunDevice tun, FakeRhpCustomClient rhp, int mtu = 256)
+-        => new(tun, rhp, Resolver(), mtu);
++        => new(tun, rhp, Resolver(), mtu, myCallsign: "N0CALL-10");
+ 
+     // The custom-mode payload the bridge exchanges: [pid] ++ the raw datagram bytes.
+     private static byte[] Framed(int pid, byte[] payload)

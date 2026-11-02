@@ -1,0 +1,54 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>14</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <!-- CS1591 (missing doc on a public member) stays suppressed — we ship the docs we have
+         without mandating 100% coverage. Every OTHER doc-comment diagnostic (malformed XML,
+         bad/ambiguous crefs, incomplete/wrong <param> tags) is LEFT AS AN ERROR under
+         warnings-as-errors, so the XML docs we DO ship (GenerateDocumentationFile, below) are
+         correct — no broken crefs, no mismatched params. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <Authors>Tom Fanning M0LTE and Packet.NET contributors</Authors>
+    <Company>Packet.NET</Company>
+    <Copyright>Copyright © 2026 Tom Fanning and Packet.NET contributors</Copyright>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/packet-net/packet.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/packet-net/packet.net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <PackageReadmeFile Condition="Exists('$(MSBuildProjectDirectory)/README.md')">README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)/README.md')">
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- NuGetAudit suppression (TEMPORARY). GHSA-2m69-gcr7-jv3q is a SQLite-native advisory flagged
+       on the transitive SQLitePCLRaw.lib.e_sqlite3 2.1.11 (pulled by Microsoft.Data.Sqlite 10.0.0).
+       It has NO published fixed package version (Dependabot doesn't track a fixed range), so no
+       version bump clears it; with TreatWarningsAsErrors the NU1903 fails every build in the repo.
+       Suppress this ONE advisory until SQLitePCLRaw ships a patched native bundle (or Microsoft.Data.Sqlite
+       picks one up) — then remove this and bump. See https://github.com/advisories/GHSA-2m69-gcr7-jv3q -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
+  </ItemGroup>
+
+</Project>
+
