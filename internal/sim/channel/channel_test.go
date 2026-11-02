@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"net"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -17,7 +18,14 @@ import (
 
 func listen(t *testing.T, name string) (net.Listener, string) {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), name+".sock")
+	// Not t.TempDir(): with the test name in it the path exceeds the
+	// 104-byte limit of Unix socket paths on macOS.
+	dir, err := os.MkdirTemp("", "axl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.RemoveAll(dir) })
+	path := filepath.Join(dir, name+".sock")
 	ln, err := net.Listen("unix", path)
 	if err != nil {
 		t.Fatal(err)
