@@ -84,7 +84,7 @@ jobs:
           exit $LASTEXITCODE
 
   macos:
-    name: macOS (tests)
+    name: macOS (tests, utun adapter)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
@@ -92,3 +92,7 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go test ./...
+      - name: Network adapter (utun; the runner may use sudo)
+        run: |
+          go test -c -o "$RUNNER_TEMP/tun.test" ./internal/tun
+          sudo AXLINK_TUN_TEST=1 "$RUNNER_TEMP/tun.test" -test.v -test.run TestAdapterCarriesPing

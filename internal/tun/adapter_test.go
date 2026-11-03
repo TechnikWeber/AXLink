@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-//go:build linux || windows
+//go:build linux || windows || darwin
 
 package tun
 
@@ -18,7 +18,7 @@ import (
 
 // openTestAdapter opens a real adapter. It needs CAP_NET_ADMIN (Linux, e.g.
 // inside "unshare -Urn") or administrator rights and wintun.dll (Windows), so
-// it only runs with AXLINK_TUN_TEST=1.
+// it only runs with AXLINK_TUN_TEST=1. On macOS it needs root (sudo).
 func openTestAdapter(t *testing.T) Device {
 	t.Helper()
 	if os.Getenv("AXLINK_TUN_TEST") != "1" {
@@ -53,9 +53,12 @@ func TestAdapterCarriesPing(t *testing.T) {
 		}
 	}()
 	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		cmd = exec.Command("ping", "-n", "3", "-w", "5000", peer.String())
-	} else {
+	case "darwin": // -W in milliseconds
+		cmd = exec.Command("ping", "-c", "3", "-W", "5000", peer.String())
+	default:
 		cmd = exec.Command("ping", "-c", "3", "-W", "5", peer.String())
 	}
 	out, err := cmd.CombinedOutput()

@@ -2,7 +2,7 @@
 
 // Package tun opens AXLink's virtual network adapter: ordinary programs send
 // IP packets to it, AXLink carries them over the radio. One packet per read
-// or write. Linux (TUN) and Windows (Wintun) are implemented; macOS follows.
+// or write. Linux (TUN), Windows (Wintun) and macOS (utun) are implemented.
 package tun
 
 import (
@@ -40,7 +40,8 @@ var ErrUnsupported = errors.New("tun: not implemented on this operating system y
 const MinMTU = minMTU
 
 // Open creates and configures the adapter. It needs the right to configure
-// network interfaces (Linux: CAP_NET_ADMIN; Windows: administrator).
+// network interfaces (Linux: CAP_NET_ADMIN; Windows: administrator; macOS:
+// root).
 func Open(cfg Config) (Device, error) {
 	if cfg.MTU < 68 || cfg.MTU > 65535 {
 		return nil, fmt.Errorf("tun: MTU %d out of range", cfg.MTU)
