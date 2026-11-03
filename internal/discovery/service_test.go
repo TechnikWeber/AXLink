@@ -17,9 +17,10 @@ import (
 
 type testService struct {
 	*Service
-	now  time.Time
-	sent []Beacon
-	log  bytes.Buffer
+	now   time.Time
+	sent  []Beacon
+	paths [][]ax25.Address
+	log   bytes.Buffer
 }
 
 func newTestService(t *testing.T, every time.Duration) *testService {
@@ -37,7 +38,7 @@ func newTestService(t *testing.T, every time.Duration) *testService {
 			if !ok || err != nil {
 				t.Fatalf("sent something that is not a beacon: %v", err)
 			}
-			ts.sent = append(ts.sent, b)
+			ts.sent, ts.paths = append(ts.sent, b), append(ts.paths, f.Path)
 			return true
 		},
 		Logger: slog.New(slog.NewTextHandler(&ts.log, nil)),
@@ -226,11 +227,11 @@ func TestOtherFramesAreLeftToTheCaller(t *testing.T) {
 		t.Fatal("took a non-beacon")
 	}
 	bad, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), nil, ax25.PIDNoL3, []byte("AXL1 ip=nonsense")).Encode()
-	relayed, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), []ax25.Address{ax25.MustAddress("WIDE1-1")}, ax25.PIDNoL3, []byte("AXL1 ip=10.73.0.2/24")).Encode()
-	if !ts.Handle(bad) || !ts.Handle(relayed) {
+	transit, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), []ax25.Address{ax25.MustAddress("TESTD-1")}, ax25.PIDNoL3, []byte("AXL1 ip=10.73.0.2/24")).Encode()
+	if !ts.Handle(bad) || !ts.Handle(transit) {
 		t.Fatal("a beacon frame must be taken even if it is not used")
 	}
-	if s := ts.Stats(); s.Invalid != 1 || s.Relayed != 1 || s.Heard != 0 || len(ts.Stations()) != 0 {
+	if s := ts.Stats(); s.Invalid != 1 || s.Relayed != 0 || s.Heard != 0 || len(ts.Stations()) != 0 {
 		t.Fatalf("stats %+v", s)
 	}
 }
@@ -262,6 +263,79 @@ func TestRunSendsBeaconsInRealTime(t *testing.T) {
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("no beacon")
+	}
+}
+
+// relayed is a beacon from call as the relays in via repeated it (the
+// first repeated it first), with the flood alias used up.
+func relayed(t *testing.T, call string, b Beacon, via ...string) []byte {
+	t.Helper()
+	var path []ax25.Address
+	for _, v := range via {
+		a := ax25.MustAddress(v)
+		a.Bit7 = true
+		path = append(path, a)
+	}
+	path = append(path, ax25.Address{Call: "AXHOP", Bit7: true})
+	if b.Every == 0 {
+		b.Every = DefaultEvery
+	}
+	frame, err := b.FrameVia(ax25.MustAddress(call), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return frame
+}
+
+func TestARelayedBeaconGivesTheWay(t *testing.T) {
+	ts := newTestService(t, DefaultEvery)
+	c := Beacon{Addr: addr("10.73.0.3/24")}
+	ts.Handle(relayed(t, "TESTC-1", c, "TESTD-1", "TESTB-1")) // C repeated by D, then by B, which we hear
+	call, path, ok := ts.Route(netip.MustParseAddr("10.73.0.3"))
+	if !ok || call.String() != "TESTC-1" || pathString(path) != "TESTB-1,TESTD-1" {
+		t.Fatalf("%v %v %v", call, path, ok)
+	}
+	if !strings.Contains(ts.log.String(), "via=TESTB-1,TESTD-1") || ts.Stats().Relayed != 1 {
+		t.Fatalf("%s %+v", ts.log.String(), ts.Stats())
+	}
+	// A shorter way wins and stays while it is heard.
+	ts.Handle(relayed(t, "TESTC-1", c, "TESTB-1"))
+	ts.Handle(relayed(t, "TESTC-1", c, "TESTD-1", "TESTB-1"))
+	if p, _ := ts.PathTo(ax25.MustAddress("TESTC-1")); pathString(p) != "TESTB-1" {
+		t.Fatalf("%v", p)
+	}
+	// Heard directly: no relay needed, as long as that lasts.
+	ts.Handle(beaconFrom(t, "TESTC-1", c))
+	if _, p, _ := ts.Route(netip.MustParseAddr("10.73.0.3")); len(p) != 0 {
+		t.Fatalf("direct, but %v", p)
+	}
+	ts.now = ts.now.Add(3*DefaultEvery + 2*time.Minute)
+	ts.Handle(relayed(t, "TESTC-1", c, "TESTD-1", "TESTB-1"))
+	if p, _ := ts.PathTo(ax25.MustAddress("TESTC-1")); pathString(p) != "TESTB-1,TESTD-1" {
+		t.Fatalf("the direct beacons stopped and the shorter way is old: %v", p)
+	}
+	if _, known := ts.PathTo(ax25.MustAddress("TESTZ-1")); known {
+		t.Fatal("an unknown station")
+	}
+}
+
+func TestBeaconsAreFloodedOnlyNearARelay(t *testing.T) {
+	ts := newTestService(t, DefaultEvery)
+	ts.step(ts.after(time.Minute))
+	if len(ts.paths[0]) != 0 || ts.Flood() != nil {
+		t.Fatalf("no relay around, but %v", ts.paths[0])
+	}
+	ts.Handle(beaconFrom(t, "TESTB-1", Beacon{Addr: addr("10.73.0.2/24"), Tags: []string{"RELAY"}}))
+	ts.step(ts.after(time.Minute))
+	last := ts.paths[len(ts.paths)-1]
+	if len(last) != 1 || last[0].String() != "AXHOP-2" || len(ts.Flood()) != 1 {
+		t.Fatalf("%v", last)
+	}
+	// A relay heard only over another relay does not count.
+	ts2 := newTestService(t, DefaultEvery)
+	ts2.Handle(relayed(t, "TESTD-1", Beacon{Addr: addr("10.73.0.4/24"), Tags: []string{"RELAY"}}, "TESTX-1"))
+	if ts2.Flood() != nil {
+		t.Fatal("flooding for a relay out of reach")
 	}
 }
 

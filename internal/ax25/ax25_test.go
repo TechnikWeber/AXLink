@@ -238,3 +238,35 @@ func TestSource(t *testing.T) {
 		t.Fatal("a short frame gave a source")
 	}
 }
+
+func TestPaths(t *testing.T) {
+	h := func(s string) Address { a := MustAddress(s); a.Bit7 = true; return a }
+	for _, a := range []string{"WIDE1-1", "WIDE2-2", "WIDE7", "AXHOP-2", "AXHOP", "TRACE3-3", "RELAY"} {
+		if !IsAlias(MustAddress(a)) {
+			t.Errorf("%s is an alias", a)
+		}
+	}
+	for _, a := range []string{"TESTB-1", "WIDE8-1", "WIDE", "WIDEN-1", "AXHOPS"} {
+		if IsAlias(MustAddress(a)) {
+			t.Errorf("%s is no alias", a)
+		}
+	}
+	f := NewUI(MustAddress("TESTC-1"), MustAddress("TESTA-1"), []Address{MustAddress("TESTB-1")}, PIDIPv4, nil)
+	if !f.InTransit() {
+		t.Fatal("a frame for TESTB-1 to repeat is in transit")
+	}
+	f.Path[0] = h("TESTB-1")
+	if f.InTransit() || len(f.Repeaters()) != 1 || f.Repeaters()[0].String() != "TESTB-1" || f.Repeaters()[0].Bit7 {
+		t.Fatalf("%v %v", f.InTransit(), f.Repeaters())
+	}
+	f.Path = []Address{MustAddress("WIDE1-1")}
+	if f.InTransit() {
+		t.Fatal("an unused alias does not hold a frame back")
+	}
+	f.Path = []Address{h("TESTD-1"), h("TESTB-1"), h("AXHOP")}
+	r := f.Repeaters()
+	back := Reverse(r)
+	if len(r) != 2 || r[0].String() != "TESTD-1" || back[0].String() != "TESTB-1" || back[1].String() != "TESTD-1" || back[0].Bit7 {
+		t.Fatalf("%v %v", r, back)
+	}
+}

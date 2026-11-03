@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
@@ -21,6 +22,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/locator"
+	"github.com/TechnikWeber/AXLink/internal/mesh"
 	"github.com/TechnikWeber/AXLink/internal/monitor"
 	"github.com/TechnikWeber/AXLink/internal/settings"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
@@ -43,6 +45,7 @@ type node struct {
 	fw        *firewall.Firewall
 	chat      *chat.Service
 	fwd       *forward.Forwarder
+	relay     *mesh.Relay
 	mon       *monitor.Monitor
 	store     *settings.Store
 	choice    *gateway.Choice
@@ -136,18 +139,46 @@ func (n *node) applyShare(s settings.Share) {
 			}
 		}
 	}
-	tags, proxy := n.cfg.tags, uint16(0)
 	if n.gwAddr != "" {
-		proxy = s.Port
-		if !slices.Contains(tags, discovery.TagInet) {
-			tags = append(slices.Clone(tags), discovery.TagInet)
-		}
 		n.log.Info("gateway: sharing the internet connection", "listen", n.gwAddr, "lan", s.LAN, "only", s.Only)
+	}
+	n.announceLocked(s.Port)
+	n.updateSystemRules()
+}
+
+// announceLocked puts the roles into the beacon: those given with -tags,
+// INET while sharing (with the proxy port), RELAY while relaying. The
+// caller holds mu.
+func (n *node) announceLocked(sharePort uint16) {
+	tags, proxy := slices.Clone(n.cfg.tags), uint16(0)
+	add := func(tag string) {
+		if !slices.Contains(tags, tag) {
+			tags = append(tags, tag)
+		}
+	}
+	if n.gwAddr != "" {
+		proxy = sharePort
+		add(discovery.TagInet)
+	}
+	if n.relay.On() {
+		add(discovery.TagRelay)
+	} else {
+		tags = slices.DeleteFunc(tags, func(t string) bool { return t == discovery.TagRelay })
 	}
 	if err := n.disc.SetAnnounce(tags, proxy); err != nil {
 		n.log.Warn("beacon not changed", "err", err)
 	}
-	n.updateSystemRules()
+}
+
+// applyRelay switches relaying on or off and announces it.
+func (n *node) applyRelay(on bool) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	if on != n.relay.On() {
+		n.relay.SetOn(on)
+		n.log.Info("relay for other stations", "on", on)
+	}
+	n.announceLocked(n.store.Get().Share.Port)
 }
 
 // applyWelcome starts, moves or stops the welcome page.
@@ -228,6 +259,9 @@ func (n *node) apply(old, s settings.Settings) {
 			n.log.Warn("locator not announced", "err", err)
 		}
 	}
+	if s.Relay != old.Relay {
+		n.applyRelay(s.Relay || slices.Contains(n.cfg.tags, discovery.TagRelay))
+	}
 	if !slices.EqualFunc(s.Forwards, old.Forwards, func(a, b forward.Rule) bool {
 		return a.Port == b.Port && a.Target == b.Target && slices.Equal(a.Calls, b.Calls) && a.Note == b.Note
 	}) {
@@ -295,6 +329,14 @@ func (n *node) direct(host string) (netip.Addr, bool) {
 	return netip.Addr{}, false
 }
 
+func callStrings(path []ax25.Address) []string {
+	var out []string
+	for _, a := range path {
+		out = append(out, a.String())
+	}
+	return out
+}
+
 func (n *node) totals() monitor.Totals {
 	s := n.port.Stats()
 	return monitor.Totals{BytesIn: s.BytesIn, BytesOut: s.BytesOut, AirOwn: s.AirOut, AirHeard: s.AirHeard,
@@ -316,7 +358,8 @@ func (n *node) status() ui.Status {
 	}
 	own, ownErr := locator.Parse(n.store.Get().Welcome.Locator)
 	for _, s := range n.disc.Stations() {
-		row := ui.Station{Call: s.Call.String(), Addr: s.Addr.String(), Tags: s.Tags, Locator: s.Locator,
+		via, _ := n.disc.PathTo(s.Call)
+		row := ui.Station{Call: s.Call.String(), Addr: s.Addr.String(), Tags: s.Tags, Locator: s.Locator, Via: callStrings(via),
 			HeardAgo: int64(time.Since(s.Heard) / time.Second), Page: "http://" + s.Addr.Addr().String() + "/"}
 		if s.Proxy != 0 {
 			row.Proxy = netip.AddrPortFrom(s.Addr.Addr(), s.Proxy).String()
@@ -351,6 +394,10 @@ func (n *node) status() ui.Status {
 		st.Welcome = "http://" + strings.TrimSuffix(welAddr, ":80") + "/"
 	}
 	st.Counters = counters(n.port.Stats(), n.bridge.Stats(), n.disc.Stats(), ls, gs)
+	st.Relay = n.relay.On()
+	if rs := n.relay.Stats(); st.Relay || rs.Repeated+rs.Flooded > 0 {
+		st.Counters = append(st.Counters, relayCounters(rs)...)
+	}
 	if fs := n.fwd.Stats(); len(n.store.Get().Forwards) > 0 || fs.Connections+fs.Refused+fs.Failed > 0 {
 		st.Counters = append(st.Counters, forwardCounters(fs)...)
 	}
@@ -385,7 +432,7 @@ func counters(p tnc.Stats, b ipbridge.Stats, d discovery.Stats, l *gateway.Local
 		c("ip", "blocked", b.Blocked), c("ip", "answered", b.Refused), c("ip", "bad_packet", b.BadPacket),
 		c("ip", "clamped", b.Clamped), c("ip", "fragmented", b.Fragmented), c("ip", "too_big", b.TooBig),
 		c("beacons", "beacons_sent", d.Sent), c("beacons", "beacons_heard", d.Heard),
-		c("beacons", "beacons_invalid", d.Invalid+d.Relayed),
+		c("beacons", "beacons_relayed", d.Relayed), c("beacons", "beacons_invalid", d.Invalid),
 	}
 	if l != nil {
 		out = append(out, c("internet", "requests", l.Requests), c("internet", "tunnels", l.Tunnels),
@@ -399,6 +446,12 @@ func counters(p tnc.Stats, b ipbridge.Stats, d discovery.Stats, l *gateway.Local
 			c("gateway", "refused", g.Refused), c("gateway", "failed", g.Failed))
 	}
 	return out
+}
+
+// relayCounters are the numbers of the relay.
+func relayCounters(rs mesh.Stats) []ui.Counter {
+	c := func(key string, v uint64) ui.Counter { return ui.Counter{Group: "mesh", Key: key, Value: v} }
+	return []ui.Counter{c("relay_repeated", rs.Repeated), c("relay_flooded", rs.Flooded), c("relay_duplicates", rs.Duplicates)}
 }
 
 // forwardCounters are the numbers of the port forwarding.

@@ -36,9 +36,10 @@ type Config struct {
 	// TCP MSS in both directions and fragments larger packets without DF.
 	LinkMTU int
 	// Learned returns the station that announced an address (station
-	// discovery); nil for none. A configured route for exactly that address
-	// comes first, a learned address before configured shorter prefixes.
-	Learned func(addr netip.Addr) (ax25.Address, bool)
+	// discovery) and the relays to send to it over; nil for none. A
+	// configured route for exactly that address comes first, a learned
+	// address before configured shorter prefixes.
+	Learned func(addr netip.Addr) (ax25.Address, []ax25.Address, bool)
 	// Filter decides about packets from the radio (the firewall); nil lets
 	// every packet for the own address through.
 	Filter Filter
@@ -63,6 +64,7 @@ type Stats struct {
 	NoRoute, Filtered, NotIPv4    uint64 // dropped on the way out
 	QueueFull                     uint64
 	NotForUs, BadPacket, OtherPID uint64 // dropped on the way in
+	InTransit                     uint64 // for us, but a relay has still to repeat it
 	DeliverErrors                 uint64
 	Clamped, Fragmented, TooBig   uint64 // MSS lowered; packets split; dropped with DF set
 	WrongAddress, Blocked         uint64 // from the radio: not for the own address; refused by the filter
@@ -76,7 +78,7 @@ type Bridge struct {
 	deliver func(pkt []byte) error
 
 	toRadio, fromRadio, noRoute, filtered, notIPv4, queueFull atomic.Uint64
-	notForUs, badPacket, otherPID, deliverErrors              atomic.Uint64
+	notForUs, badPacket, otherPID, deliverErrors, inTransit   atomic.Uint64
 	clamped, fragmented, tooBig                               atomic.Uint64
 	wrongAddress, blocked, refused                            atomic.Uint64
 }
@@ -112,6 +114,7 @@ func (b *Bridge) Stats() Stats {
 		NoRoute: b.noRoute.Load(), Filtered: b.filtered.Load(), NotIPv4: b.notIPv4.Load(),
 		QueueFull: b.queueFull.Load(),
 		NotForUs:  b.notForUs.Load(), BadPacket: b.badPacket.Load(), OtherPID: b.otherPID.Load(),
+		InTransit:     b.inTransit.Load(),
 		DeliverErrors: b.deliverErrors.Load(),
 		Clamped:       b.clamped.Load(), Fragmented: b.fragmented.Load(), TooBig: b.tooBig.Load(),
 		WrongAddress: b.wrongAddress.Load(), Blocked: b.blocked.Load(), Refused: b.refused.Load(),
@@ -134,7 +137,7 @@ func (b *Bridge) FromAdapter(pkt []byte) {
 		b.filtered.Add(1)
 		return
 	}
-	call, ok := b.route(h.dst)
+	call, path, ok := b.route(h.dst)
 	if !ok {
 		b.noRoute.Add(1)
 		return
@@ -159,7 +162,7 @@ func (b *Bridge) FromAdapter(pkt []byte) {
 		b.fragmented.Add(1)
 	}
 	for _, p := range packets {
-		frame, err := ax25.NewUI(call, b.cfg.MyCall, nil, ax25.PIDIPv4, p).Encode()
+		frame, err := ax25.NewUI(call, b.cfg.MyCall, path, ax25.PIDIPv4, p).Encode()
 		if err != nil {
 			b.badPacket.Add(1)
 			return
@@ -189,6 +192,12 @@ func (b *Bridge) FromRadio(frame []byte) {
 		b.notForUs.Add(1)
 		return
 	}
+	// Sent to us over a relay that has not repeated it yet: we take the
+	// relay's copy, not this one.
+	if f.InTransit() {
+		b.inTransit.Add(1)
+		return
+	}
 	h, err := parseIPv4(f.Info, true)
 	if err != nil {
 		b.badPacket.Add(1)
@@ -203,7 +212,7 @@ func (b *Bridge) FromRadio(frame []byte) {
 	}
 	if b.cfg.Filter != nil && !b.cfg.Filter.Inbound(f.Info[:h.totalLen], f.Src) {
 		b.blocked.Add(1)
-		b.refuse(f.Info[:h.totalLen], h, f.Src)
+		b.refuse(f.Info[:h.totalLen], h, f.Src, ax25.Reverse(f.Repeaters()))
 		return
 	}
 	pkt := append([]byte(nil), f.Info[:h.totalLen]...)
@@ -219,8 +228,9 @@ func (b *Bridge) FromRadio(frame []byte) {
 }
 
 // refuse sends the filter's answer to a refused packet back to the station
-// that sent it; only packets for the own address are answered.
-func (b *Bridge) refuse(pkt []byte, h ipv4Header, from ax25.Address) {
+// that sent it, the way it came; only packets for the own address are
+// answered.
+func (b *Bridge) refuse(pkt []byte, h ipv4Header, from ax25.Address, path []ax25.Address) {
 	r, ok := b.cfg.Filter.(Refuser)
 	if !ok || h.dst != b.cfg.Local.Addr() {
 		return
@@ -230,14 +240,14 @@ func (b *Bridge) refuse(pkt []byte, h ipv4Header, from ax25.Address) {
 		return
 	}
 	from.Bit7 = false
-	frame, err := ax25.NewUI(from, b.cfg.MyCall, nil, ax25.PIDIPv4, answer).Encode()
+	frame, err := ax25.NewUI(from, b.cfg.MyCall, path, ax25.PIDIPv4, answer).Encode()
 	if err == nil && b.send(frame, classify(answer)) {
 		b.refused.Add(1)
 		b.toRadio.Add(1)
 	}
 }
 
-func (b *Bridge) route(dst netip.Addr) (ax25.Address, bool) {
+func (b *Bridge) route(dst netip.Addr) (ax25.Address, []ax25.Address, bool) {
 	best := -1
 	var call ax25.Address
 	for _, r := range b.cfg.Routes {
@@ -246,11 +256,11 @@ func (b *Bridge) route(dst netip.Addr) (ax25.Address, bool) {
 		}
 	}
 	if best < 32 && b.cfg.Learned != nil {
-		if c, ok := b.cfg.Learned(dst); ok {
-			return c, true
+		if c, path, ok := b.cfg.Learned(dst); ok {
+			return c, path, true
 		}
 	}
-	return call, best >= 0
+	return call, nil, best >= 0
 }
 
 func (b *Bridge) isBroadcast(a netip.Addr) bool {

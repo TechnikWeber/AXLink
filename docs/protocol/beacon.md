@@ -15,7 +15,7 @@ configured route and can find gateways. A beacon is one AX.25 UI frame.
 |---|---|
 | Destination | `AXLINK`, SSID 0 |
 | Source | the station's callsign and SSID, the same as on its IP frames |
-| Digipeaters | none; a beacon that arrives through a digipeater is ignored, because the sender is not in direct reach |
+| Digipeaters | none, or the flood alias `AXHOP-2` while the sender hears a relay directly, so that relays pass the beacon on ([mesh.md](mesh.md)) |
 | Control | UI (`0x03`), command |
 | PID | `0xF0` (no layer 3) |
 | Information | ASCII text as below, at most 128 bytes |
@@ -75,6 +75,9 @@ Load at 1200 bit/s: a beacon of 30–50 bytes is about 0.6 s on the air. Every 1
 - Packets for an announced address go to the announcing station's callsign. A configured route
   for exactly that address comes first; a learned address comes before configured shorter
   prefixes.
+- A beacon that relays repeated gives the way to its sender: the relays that repeated it, last
+  first ([mesh.md](mesh.md)). Packets to that station name those relays. A beacon whose path
+  still names a relay that has not repeated it is ignored; the relay's copy follows.
 - When two stations announce the same address, the newer beacon wins and the receiver warns. A
   beacon with the receiver's own address, or a different one with its own callsign, also makes
   it warn.

@@ -5,7 +5,7 @@
 "use strict";
 
 const T = JSON.parse(document.getElementById("texts").textContent);
-const GROUPS = ["radio", "ip", "beacons", "internet", "gateway", "forward"];
+const GROUPS = ["radio", "ip", "beacons", "internet", "gateway", "forward", "mesh"];
 const SVG = "http://www.w3.org/2000/svg";
 const LANG = document.documentElement.lang;
 let settings = null; // the settings as last read or saved
@@ -162,6 +162,7 @@ function drawStation(s) {
   row(dl, "station.ip", el("span", { class: "mono", text: s.ip }));
   row(dl, "station.tags", s.tags && s.tags.length ? badges(s.tags) : el("span", { class: "muted", text: t("station.none") }));
   row(dl, "station.beacon", s.beacon_s ? t("station.every", { n: Math.round(s.beacon_s / 60) }) : t("station.beacon.off"));
+  row(dl, "station.relay", t(s.relay ? "station.relay.on" : "station.relay.off"));
   row(dl, "station.welcome", s.welcome
     ? el("a", { href: "/welcome/", target: "_blank", rel: "noopener", class: "mono", text: s.welcome })
     : el("span", { class: "muted", text: t("station.welcome.off") }));
@@ -215,7 +216,8 @@ function drawStations(s) {
         : el("button", { text: t("btn.use"), onclick: () => choose("station", st.call) }));
     }
     body.append(el("tr", { class: s.internet.using === st.call ? "chosen" : "" },
-      el("td", { class: "mono", text: st.call }),
+      el("td", {}, el("span", { class: "mono", text: st.call }),
+        st.via ? el("div", { class: "small muted", text: t("via", { path: st.via.join(", ") }) }) : null),
       el("td", { class: "mono", text: st.ip }),
       el("td", {}, badges(st.tags)),
       el("td", {}, where(st)),
@@ -338,6 +340,7 @@ function fillSettings(s) {
   $("wel-port").value = w.port;
   for (const k of ["name", "locator", "qth", "equipment", "text"]) $("wel-" + k).value = w[k] || "";
   $("wel-beacon").checked = !!w.locator_in_beacon;
+  $("relay-enabled").checked = !!s.relay;
   $("fw-mode").value = s.firewall.mode;
   $("fw-ping").checked = s.firewall.ping;
   $("fw-answer").checked = !s.firewall.silent;
@@ -400,6 +403,7 @@ function collect() {
   s.welcome = { enabled: $("wel-enabled").checked, port: Number($("wel-port").value) };
   for (const k of ["name", "locator", "qth", "equipment", "text"]) s.welcome[k] = $("wel-" + k).value;
   s.welcome.locator_in_beacon = $("wel-beacon").checked;
+  s.relay = $("relay-enabled").checked;
   s.firewall = { mode: $("fw-mode").value, ping: $("fw-ping").checked, silent: !$("fw-answer").checked, rules: [] };
   for (const tr of document.querySelectorAll("#fw-rules tbody tr")) {
     s.firewall.rules.push({ proto: tr.querySelector("select").value, port: Number(tr.querySelector(".port").value),
@@ -440,7 +444,7 @@ async function save(form) {
   }
 }
 
-for (const id of ["form-share", "form-welcome", "form-firewall", "form-forward"]) {
+for (const id of ["form-share", "form-welcome", "form-firewall", "form-forward", "form-relay"]) {
   $(id).addEventListener("submit", (ev) => { ev.preventDefault(); save(ev.target); });
 }
 $("fw-add").addEventListener("click", () => addRule({ proto: "tcp" }));

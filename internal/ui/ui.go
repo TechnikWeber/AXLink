@@ -48,6 +48,7 @@ type Status struct {
 	Welcome  string    `json:"welcome,omitempty"` // the own welcome page on the radio address
 	Settings string    `json:"settings_file"`     // where the settings are stored; "" for nowhere
 	Unread   int       `json:"unread"`            // chat messages not read yet
+	Relay    bool      `json:"relay"`             // this station repeats for others
 }
 
 // Monitor is the live view: one sample every Interval seconds.
@@ -90,6 +91,7 @@ type Station struct {
 	Tags     []string `json:"tags"`
 	Proxy    string   `json:"proxy,omitempty"` // its internet gateway, address:port
 	Locator  string   `json:"locator,omitempty"`
+	Via      []string `json:"via,omitempty"`     // the relays it is reached over
 	Km       *float64 `json:"km,omitempty"`      // distance from the own locator
 	Bearing  string   `json:"bearing,omitempty"` // N, NE, ... from the own locator
 	HeardAgo int64    `json:"heard_s"`

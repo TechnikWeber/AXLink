@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/mesh"
 )
 
 // Timing from the specification; variables so that tests can shorten them.
@@ -49,15 +50,36 @@ type Station struct {
 	Locator string // its locator, if it announces one
 	Every   time.Duration
 	Heard   time.Time // its last beacon
+	// Via are the relays to send to it over, in order; empty while its
+	// beacons arrive directly.
+	Via []ax25.Address
+
+	directAt, viaAt time.Time // the last beacon directly, and over Via
 }
 
 func (s *Station) expired(now time.Time) bool {
-	return now.After(s.Heard.Add(3*s.Every + time.Minute))
+	return now.After(s.Heard.Add(s.keep()))
+}
+
+func (s *Station) keep() time.Duration { return 3*s.Every + time.Minute }
+
+// direct reports whether its beacons still arrive without a relay.
+func (s *Station) direct(now time.Time) bool {
+	return !s.directAt.IsZero() && !now.After(s.directAt.Add(s.keep()))
+}
+
+// path is the way to the station: none while it is heard directly.
+func (s *Station) path(now time.Time) []ax25.Address {
+	if s.direct(now) {
+		return nil
+	}
+	return s.Via
 }
 
 // Stats counts beacons.
 type Stats struct {
-	Sent, Heard, Invalid, Relayed, Conflicts uint64
+	Sent, Heard, Invalid, Conflicts uint64
+	Relayed                         uint64 // beacons heard over relays
 }
 
 // Service sends this station's beacons and keeps the table of the others.
@@ -163,7 +185,7 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 
 func (s *Service) send(now time.Time, ask bool) {
 	s.mu.Lock()
-	frame, err := s.cfg.beacon(ask).Frame(s.cfg.Call)
+	frame, err := s.cfg.beacon(ask).FrameVia(s.cfg.Call, s.floodLocked(now))
 	s.lastSent = now
 	s.first = false
 	s.answerAt = time.Time{} // this beacon answers everything heard before
@@ -249,13 +271,13 @@ func (s *Service) Handle(frame []byte) bool {
 		return false
 	}
 	call.Bit7 = false // the same station as a command or a response
+	via := ax25.Reverse(f.Repeaters())
 	now := s.cfg.Now()
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	switch {
-	case errors.Is(err, errRelayed):
-		s.stats.Relayed++
-		return true
+	case errors.Is(err, errInTransit):
+		return true // the relay repeats it; we take it from there
 	case err != nil:
 		s.stats.Invalid++
 		s.warnOnce("invalid:"+call.String(), "invalid beacon ignored", "call", call.String(), "err", err)
@@ -269,6 +291,9 @@ func (s *Service) Handle(frame []byte) bool {
 		return true
 	}
 	s.stats.Heard++
+	if len(via) > 0 {
+		s.stats.Relayed++
+	}
 	if b.Addr.Addr() == s.cfg.Addr.Addr() {
 		s.warnOnce("addr:"+call.String(), "a station announces our own address", "call", call.String(), "ip", b.Addr.String())
 	}
@@ -276,10 +301,24 @@ func (s *Service) Handle(frame []byte) bool {
 	if known && old.expired(now) {
 		known = false
 	}
-	if !known || old.Addr != b.Addr || old.Proxy != b.Proxy || !slices.Equal(old.Tags, b.Tags) {
+	st := &Station{Call: call, Addr: b.Addr, Tags: b.Tags, Proxy: b.Proxy, Locator: b.Locator, Every: b.Every, Heard: now}
+	if known {
+		st.directAt, st.viaAt, st.Via = old.directAt, old.viaAt, old.Via
+	}
+	if len(via) == 0 {
+		st.directAt = now
+	} else if st.Via == nil || len(via) <= len(st.Via) || now.After(st.viaAt.Add(st.Every+time.Minute)) {
+		// a shorter way, the same again, or the only one while the shorter is silent
+		st.Via, st.viaAt = via, now
+	}
+	newWay := !known || !slices.Equal(old.path(now), st.path(now))
+	if !known || old.Addr != b.Addr || old.Proxy != b.Proxy || !slices.Equal(old.Tags, b.Tags) || newWay {
 		args := []any{"call", call.String(), "ip", b.Addr.String(), "tags", strings.Join(b.Tags, ",")}
 		if b.Proxy != 0 {
 			args = append(args, "proxy", netip.AddrPortFrom(b.Addr.Addr(), b.Proxy).String())
+		}
+		if p := st.path(now); len(p) > 0 {
+			args = append(args, "via", pathString(p))
 		}
 		s.cfg.Logger.Info("station heard", args...)
 	}
@@ -290,8 +329,7 @@ func (s *Service) Handle(frame []byte) bool {
 				"ip", b.Addr.Addr().String(), "newer", call.String(), "older", other.Call.String())
 		}
 	}
-	s.stations[call] = &Station{Call: call, Addr: b.Addr, Tags: b.Tags, Proxy: b.Proxy, Locator: b.Locator,
-		Every: b.Every, Heard: now}
+	s.stations[call] = st
 	if (b.Ask || !known) && s.cfg.Every > 0 {
 		if s.answerAt.IsZero() {
 			s.answerAt = now.Add(s.between(answerDelay))
@@ -313,6 +351,13 @@ func (s *Service) warnOnce(key, msg string, args ...any) {
 
 // Lookup returns the station that announced addr; of two, the newer one.
 func (s *Service) Lookup(addr netip.Addr) (ax25.Address, bool) {
+	call, _, ok := s.Route(addr)
+	return call, ok
+}
+
+// Route returns the station that announced addr and the relays to send to
+// it over (none when it is heard directly).
+func (s *Service) Route(addr netip.Addr) (ax25.Address, []ax25.Address, bool) {
 	now := s.cfg.Now()
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -323,9 +368,49 @@ func (s *Service) Lookup(addr netip.Addr) (ax25.Address, bool) {
 		}
 	}
 	if best == nil {
-		return ax25.Address{}, false
+		return ax25.Address{}, nil, false
 	}
-	return best.Call, true
+	return best.Call, slices.Clone(best.path(now)), true
+}
+
+// PathTo returns the relays to send to a station over; known is false for a
+// station not heard.
+func (s *Service) PathTo(call ax25.Address) (path []ax25.Address, known bool) {
+	call.Bit7 = false
+	now := s.cfg.Now()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	st, ok := s.stations[call]
+	if !ok || st.expired(now) {
+		return nil, false
+	}
+	return slices.Clone(st.path(now)), true
+}
+
+// Flood is the path for frames for every station (beacons, messages to CQ):
+// the flood alias while another relay is heard directly, else none.
+func (s *Service) Flood() []ax25.Address {
+	now := s.cfg.Now()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.floodLocked(now)
+}
+
+func (s *Service) floodLocked(now time.Time) []ax25.Address {
+	for _, st := range s.stations {
+		if st.direct(now) && slices.Contains(st.Tags, TagRelay) {
+			return []ax25.Address{mesh.Flood}
+		}
+	}
+	return nil
+}
+
+func pathString(p []ax25.Address) string {
+	parts := make([]string, len(p))
+	for i, a := range p {
+		parts[i] = a.String()
+	}
+	return strings.Join(parts, ",")
 }
 
 // Stations returns the stations heard and not yet forgotten, by callsign.
@@ -350,6 +435,9 @@ func (s *Service) Summary() string {
 	var parts []string
 	for _, st := range s.Stations() {
 		p := st.Call.String() + " " + st.Addr.String()
+		if len(st.Via) > 0 && !st.direct(s.cfg.Now()) {
+			p += " via " + pathString(st.Via)
+		}
 		if len(st.Tags) > 0 {
 			p += " " + strings.Join(st.Tags, ",")
 		}

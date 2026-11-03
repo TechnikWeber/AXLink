@@ -204,6 +204,24 @@ the browser accepts that; a typical page is under 1 KB. `/station.json` gives th
 programs. Through the local proxy a station's page is also reachable by its callsign:
 `http://testb-1.axl/`.
 
+## Mesh (relays)
+
+`internal/mesh` lets stations reach others beyond their range, on the same frequency. A station
+whose operator switches on "Relay" (`-relay`, tag `RELAY`) repeats frames as an AX.25
+digipeater: frames that name it as the next digipeater, and beacons and CQ messages with the
+flood alias `AXHOP-2`, into whose path it writes its callsign. Stations learn from the relayed
+beacons over which relays another station is reached (`discovery`), the bridge and the chat
+address their frames over that path, and acknowledgments and refusals go back the way their
+frame came. Everything stays on layer 2: a relay routes no IP and passes nothing it repeats to
+its own computer or network. The format: [protocol/mesh.md](protocol/mesh.md).
+
+The lab `scripts/lab-mesh.sh` puts three stations in a line (A hears B, B hears C, A and C do
+not hear each other) with B as the relay. In the F4HWN model with ACKMODE, A and C found each
+other over B within about 40 s; ping took about 5 s per round trip, a small HTTP file about
+55 s, and a chat message from A to C was delivered at the second try. The channel showed a
+dozen collisions at B: A and C cannot hear each other's carrier (hidden stations), which AX.25
+on one frequency cannot prevent; TCP and the chat repeat what was lost.
+
 ## Chat
 
 `internal/chat` carries text messages in the APRS message format (APRS 1.01, chapter 14),
@@ -273,12 +291,16 @@ seconds while the page is open.
   in virtual time.
 - `internal/sim/channel`: a frame-level radio channel in real time: half duplex, collisions, a
   JSON trace; in front of each station either an ideal TNC or the F4HWN model (optionally with
-  ACKMODE). The trace also records frames the model drops before the air.
+  ACKMODE). The trace also records frames the model drops before the air. With `-link A-B`
+  only the listed pairs hear each other (carrier sense and collisions too).
 - `scripts/lab-netns.sh`: two stations in their own network namespaces with real kernel IP
   stacks. They find each other by beacons; then ping, UDP, HTTP and the internet through B as a
-  gateway (a proxied request, a CONNECT tunnel, the own network refused). Optionally with
-  adapter MTU 576 as on Windows, which adds a fragmented ping and a 2 KB download. Also in CI.
-  The model draws its p-persistence from a seeded random source, as the app does.
+  gateway (a proxied request, a CONNECT tunnel, the own network refused), the web interface and
+  the local proxy, B's welcome page, a refused port, B's port forwarding and a chat (a message
+  each way, a CQ). Optionally with adapter MTU 576 as on Windows, which adds a fragmented ping
+  and a 2 KB download. Also in CI. The model draws its p-persistence from a seeded random
+  source, as the app does.
+- `scripts/lab-mesh.sh`: three stations in a line with a relay in the middle (see Mesh).
 
 Results from the model are not hardware results.
 

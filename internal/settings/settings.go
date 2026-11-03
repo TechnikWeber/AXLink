@@ -34,6 +34,8 @@ type Settings struct {
 	// Forwards publish services of the own network on ports of the radio
 	// address.
 	Forwards []forward.Rule `json:"forwards,omitempty"`
+	// Relay repeats frames for other stations (mesh, role RELAY).
+	Relay bool `json:"relay,omitempty"`
 }
 
 // Gateway is the choice of the internet gateway this station uses.

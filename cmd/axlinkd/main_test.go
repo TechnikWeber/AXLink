@@ -16,6 +16,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
+	"github.com/TechnikWeber/AXLink/internal/mesh"
 	"github.com/TechnikWeber/AXLink/internal/settings"
 	"github.com/TechnikWeber/AXLink/internal/tnc"
 	"github.com/TechnikWeber/AXLink/internal/ui"
@@ -162,7 +163,7 @@ func TestRunFlags(t *testing.T) {
 
 func TestEveryCounterHasATextInBothLanguages(t *testing.T) {
 	all := append(counters(tnc.Stats{}, ipbridge.Stats{}, discovery.Stats{}, &gateway.LocalStats{}, &gateway.Stats{}),
-		forwardCounters(forward.Stats{})...)
+		append(forwardCounters(forward.Stats{}), relayCounters(mesh.Stats{})...)...)
 	for _, c := range all {
 		if !ui.HasText("c."+c.Key) || !ui.HasText("group."+c.Group) {
 			t.Errorf("no text for counter %s/%s", c.Group, c.Key)

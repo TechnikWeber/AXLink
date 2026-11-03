@@ -292,3 +292,41 @@ func TestTheMailboxSurvivesARestart(t *testing.T) {
 		t.Fatal("DefaultPath")
 	}
 }
+
+func TestMessagesTakeTheWayOverRelays(t *testing.T) {
+	tc := newTestChat(t, "TESTA-1", "")
+	var paths [][]ax25.Address
+	send := tc.cfg.Send
+	tc.cfg.Send = func(frame []byte, key string) bool {
+		f, _ := ax25.Decode(frame)
+		paths = append(paths, f.Path)
+		return send(frame, key)
+	}
+	tc.cfg.Route = func(peer ax25.Address) []ax25.Address {
+		if peer.String() == "TESTC-1" {
+			return []ax25.Address{ax25.MustAddress("TESTB-1")}
+		}
+		return nil
+	}
+	tc.cfg.Flood = func() []ax25.Address { return []ax25.Address{{Call: "AXHOP", SSID: 2}} }
+	tc.Send("TESTC-1", "over B")
+	tc.Send("CQ", "to all")
+	tc.run(tc.after(time.Second))
+	if len(paths) != 2 || len(paths[0]) != 1 || paths[0][0].String() != "TESTB-1" || paths[1][0].String() != "AXHOP-2" {
+		t.Fatalf("%v", paths)
+	}
+	// A message from C over B: taken from B's copy, acknowledged the same way back.
+	b := ax25.MustAddress("TESTB-1")
+	msg, _ := Msg{To: "TESTA-1", Text: "from C", ID: "9"}.FrameVia(ax25.MustAddress("TESTC-1"), []ax25.Address{b})
+	tc.Handle(msg)
+	if len(tc.Messages("TESTC-1")) != 1 {
+		t.Fatal("taken before the relay repeated it")
+	}
+	b.Bit7 = true
+	msg, _ = Msg{To: "TESTA-1", Text: "from C", ID: "9"}.FrameVia(ax25.MustAddress("TESTC-1"), []ax25.Address{b})
+	tc.Handle(msg)
+	last := paths[len(paths)-1]
+	if len(tc.Messages("TESTC-1")) != 2 || len(last) != 1 || last[0].String() != "TESTB-1" || last[0].Bit7 {
+		t.Fatalf("%d messages, ack path %v", len(tc.Messages("TESTC-1")), last)
+	}
+}

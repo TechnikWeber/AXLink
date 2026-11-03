@@ -291,3 +291,56 @@ func CheckFCS(b []byte) bool {
 	c := FCS(b[:n])
 	return b[n] == byte(c) && b[n+1] == byte(c>>8)
 }
+
+// IsAlias reports whether a digipeater address is a generic alias that asks
+// any digipeater to repeat (WIDE1-1, WIDE2-2, AXHOP-2, ...) rather than a
+// station's callsign.
+func IsAlias(a Address) bool {
+	switch a.Call {
+	case "AXHOP", "RELAY", "TRACE", "ECHO", "GATE":
+		return true
+	}
+	for _, base := range []string{"WIDE", "TRACE"} {
+		if rest, ok := strings.CutPrefix(a.Call, base); ok && len(rest) == 1 && rest[0] >= '1' && rest[0] <= '7' {
+			return true
+		}
+	}
+	return false
+}
+
+// InTransit reports whether a frame still waits for a digipeater named by
+// its callsign: the station it is for takes it only from the last one. An
+// alias not yet used (WIDE1-1) does not count: it only asks for a repeat.
+func (f *Frame) InTransit() bool {
+	for _, d := range f.Path {
+		if !d.Bit7 && !IsAlias(d) {
+			return true
+		}
+	}
+	return false
+}
+
+// Repeaters returns the stations that have repeated the frame, in order,
+// without aliases and without the H bit.
+func (f *Frame) Repeaters() []Address {
+	var out []Address
+	for _, d := range f.Path {
+		if d.Bit7 && !IsAlias(d) {
+			d.Bit7 = false
+			out = append(out, d)
+		}
+	}
+	return out
+}
+
+// Reverse returns a path the other way round, for an answer: the stations
+// that repeated a frame, last first, without the H bit.
+func Reverse(path []Address) []Address {
+	out := make([]Address, 0, len(path))
+	for i := len(path) - 1; i >= 0; i-- {
+		a := path[i]
+		a.Bit7 = false
+		out = append(out, a)
+	}
+	return out
+}

@@ -65,11 +65,11 @@ func TestLearnedAddressesComeBetweenExactAndShorterRoutes(t *testing.T) {
 		{netip.MustParsePrefix("10.73.0.0/24"), ax25.MustAddress("TESTGW")},
 		{netip.MustParsePrefix("10.73.0.9/32"), ax25.MustAddress("TESTD-1")},
 	}
-	cfg.Learned = func(a netip.Addr) (ax25.Address, bool) {
+	cfg.Learned = func(a netip.Addr) (ax25.Address, []ax25.Address, bool) {
 		if a == netip.MustParseAddr("10.73.0.2") || a == netip.MustParseAddr("10.73.0.9") {
-			return ax25.MustAddress("TESTB-1"), true
+			return ax25.MustAddress("TESTB-1"), nil, true
 		}
-		return ax25.Address{}, false
+		return ax25.Address{}, nil, false
 	}
 	h := newHarness(t, cfg)
 	for dst, want := range map[string]string{
@@ -277,6 +277,36 @@ func TestBroadcastAddress(t *testing.T) {
 		if got := broadcastOf(netip.MustParsePrefix(in)); got.String() != want {
 			t.Errorf("broadcastOf(%s) = %s, want %s", in, got, want)
 		}
+	}
+}
+
+func TestOverARelay(t *testing.T) {
+	cfg := stationA()
+	cfg.Routes = nil
+	cfg.Learned = func(a netip.Addr) (ax25.Address, []ax25.Address, bool) {
+		return ax25.MustAddress("TESTC-1"), []ax25.Address{ax25.MustAddress("TESTB-1")}, a == netip.MustParseAddr("10.73.0.3")
+	}
+	h := newHarness(t, cfg)
+	h.b.FromAdapter(udpPacket("10.73.0.1", "10.73.0.3", "to C"))
+	f, err := ax25.Decode(h.sent[0])
+	if err != nil || f.Dest.String() != "TESTC-1" || len(f.Path) != 1 || f.Path[0].String() != "TESTB-1" || f.Path[0].Bit7 {
+		t.Fatalf("%v %+v", err, f)
+	}
+	// From C over B: taken only once B has repeated it.
+	in := udpPacket("10.73.0.3", "10.73.0.1", "from C")
+	frame := func(used bool) []byte {
+		b := ax25.MustAddress("TESTB-1")
+		b.Bit7 = used
+		raw, _ := ax25.NewUI(ax25.MustAddress("TESTA-1"), ax25.MustAddress("TESTC-1"), []ax25.Address{b}, ax25.PIDIPv4, in).Encode()
+		return raw
+	}
+	h.b.FromRadio(frame(false))
+	if len(h.delivered) != 0 || h.b.Stats().InTransit != 1 {
+		t.Fatalf("taken before the relay: %+v", h.b.Stats())
+	}
+	h.b.FromRadio(frame(true))
+	if len(h.delivered) != 1 {
+		t.Fatal("the relay's copy was not taken")
 	}
 }
 

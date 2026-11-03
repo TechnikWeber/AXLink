@@ -148,12 +148,16 @@ func (m Msg) Info() ([]byte, error) {
 }
 
 // Frame returns the message as a UI frame (without FCS) from call.
-func (m Msg) Frame(call ax25.Address) ([]byte, error) {
+func (m Msg) Frame(call ax25.Address) ([]byte, error) { return m.FrameVia(call, nil) }
+
+// FrameVia returns the message as a UI frame from call over the relays in
+// path.
+func (m Msg) FrameVia(call ax25.Address, path []ax25.Address) ([]byte, error) {
 	info, err := m.Info()
 	if err != nil {
 		return nil, err
 	}
-	return ax25.NewUI(Tocall, call, nil, ax25.PIDNoL3, info).Encode()
+	return ax25.NewUI(Tocall, call, path, ax25.PIDNoL3, info).Encode()
 }
 
 // IsLobby reports whether an addressee means every station.

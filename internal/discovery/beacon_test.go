@@ -132,10 +132,22 @@ func TestFromFrame(t *testing.T) {
 		}
 	}
 
-	relayed, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), []ax25.Address{ax25.MustAddress("WIDE1-1")}, ax25.PIDNoL3, []byte("AXL1 ip=10.73.0.2/24")).Encode()
-	f, _ = ax25.Decode(relayed)
-	if _, _, ok, err := FromFrame(f); !ok || !errors.Is(err, errRelayed) {
-		t.Fatalf("relayed: %v %v", ok, err)
+	message, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), nil, ax25.PIDNoL3, []byte(":CQ       :hello")).Encode()
+	f, _ = ax25.Decode(message)
+	if _, _, ok, _ := FromFrame(f); ok {
+		t.Fatal("an APRS message to AXLINK taken for a beacon")
+	}
+	// A path with an alias not yet used is fine; one that names a relay still
+	// to repeat it means the beacon is on its way.
+	alias, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), []ax25.Address{ax25.MustAddress("AXHOP-2")}, ax25.PIDNoL3, []byte("AXL1 ip=10.73.0.2/24")).Encode()
+	f, _ = ax25.Decode(alias)
+	if _, _, ok, err := FromFrame(f); !ok || err != nil {
+		t.Fatalf("with AXHOP-2: %v %v", ok, err)
+	}
+	transit, _ := ax25.NewUI(Dest, ax25.MustAddress("TESTB-1"), []ax25.Address{ax25.MustAddress("TESTD-1")}, ax25.PIDNoL3, []byte("AXL1 ip=10.73.0.2/24")).Encode()
+	f, _ = ax25.Decode(transit)
+	if _, _, ok, err := FromFrame(f); !ok || !errors.Is(err, errInTransit) {
+		t.Fatalf("on its way: %v %v", ok, err)
 	}
 }
 

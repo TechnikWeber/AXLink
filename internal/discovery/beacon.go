@@ -43,8 +43,8 @@ const (
 )
 
 var (
-	errInvalid = errors.New("discovery: invalid beacon")
-	errRelayed = errors.New("discovery: beacon came through a digipeater")
+	errInvalid   = errors.New("discovery: invalid beacon")
+	errInTransit = errors.New("discovery: beacon on its way to a relay named in its path")
 )
 
 // Beacon is what one beacon says.
@@ -213,23 +213,28 @@ func validValue(v string) bool {
 }
 
 // Frame returns the beacon as an AX.25 UI frame (without FCS) from call.
-func (b Beacon) Frame(call ax25.Address) ([]byte, error) {
+func (b Beacon) Frame(call ax25.Address) ([]byte, error) { return b.FrameVia(call, nil) }
+
+// FrameVia returns the beacon as a UI frame from call with a digipeater
+// path, e.g. the flood alias AXHOP-2 for relays to pass it on.
+func (b Beacon) FrameVia(call ax25.Address, path []ax25.Address) ([]byte, error) {
 	info, err := b.Marshal()
 	if err != nil {
 		return nil, err
 	}
-	return ax25.NewUI(Dest, call, nil, ax25.PIDNoL3, info).Encode()
+	return ax25.NewUI(Dest, call, path, ax25.PIDNoL3, info).Encode()
 }
 
 // FromFrame reports whether f is a beacon (a UI frame to AXLINK with PID
-// 0xF0) and returns its sender and content. err is set for a beacon that is
-// invalid or came through a digipeater.
+// 0xF0 whose text starts with AXL) and returns its sender and content. err
+// is set for a beacon that is invalid or still on its way to a relay its
+// path names.
 func FromFrame(f *ax25.Frame) (call ax25.Address, b Beacon, ok bool, err error) {
-	if !f.IsUI() || f.PID != ax25.PIDNoL3 || !f.Dest.SameStation(Dest) {
+	if !f.IsUI() || f.PID != ax25.PIDNoL3 || !f.Dest.SameStation(Dest) || !strings.HasPrefix(string(f.Info), "AXL") {
 		return ax25.Address{}, Beacon{}, false, nil
 	}
-	if len(f.Path) > 0 {
-		return f.Src, Beacon{}, true, errRelayed
+	if f.InTransit() {
+		return f.Src, Beacon{}, true, errInTransit
 	}
 	b, err = Parse(f.Info)
 	return f.Src, b, true, err

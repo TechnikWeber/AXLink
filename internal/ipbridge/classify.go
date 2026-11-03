@@ -19,6 +19,10 @@ const (
 	tcpRST = 0x04
 )
 
+// Classify tells the transmit queue what a packet is, for a packet another
+// station sent that a relay passes on.
+func Classify(pkt []byte) txqueue.Meta { return classify(pkt) }
+
 // classify tells the transmit queue what a packet is (see package txqueue):
 // small packets are urgent; packets of one flow keep their order; a TCP
 // retransmission replaces its waiting original and is dropped if the

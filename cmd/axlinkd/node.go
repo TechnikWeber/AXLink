@@ -25,6 +25,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/forward"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
+	"github.com/TechnikWeber/AXLink/internal/mesh"
 	"github.com/TechnikWeber/AXLink/internal/monitor"
 	"github.com/TechnikWeber/AXLink/internal/pacing"
 	"github.com/TechnikWeber/AXLink/internal/settings"
@@ -67,7 +68,7 @@ type nodeConfig struct {
 	linkMTU        int
 	routes         []ipbridge.Route
 	allowBroadcast bool
-	tags           []string // given with -tags; INET is added while sharing
+	tags           []string // given with -tags; INET is added while sharing, RELAY while relaying
 	beacon         time.Duration
 	ui             string // address of the web interface; "" for none
 	localProxy     string // address of the local proxy to the chosen gateway; "" for none
@@ -132,6 +133,7 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	var open ruleFlags
 	fs.Var(&open, "open", "PORT/tcp or PORT/udp, optionally =CALL,CALL: let radio stations reach this port of this computer (repeatable; stored)")
 	fwMode := fs.String("firewall", "", "what radio stations may send to this computer: protect (the default) or open; stored")
+	relay := fs.Bool("relay", false, "repeat frames for other stations, so that they reach stations beyond their range (mesh); adds the tag RELAY; stored")
 	var forwards forwardFlags
 	fs.Var(&forwards, "forward", "PORT=HOST:PORT, optionally =CALL,CALL: publish a TCP service of the own network on this port of the radio address (repeatable; stored)")
 	if err := fs.Parse(args); err != nil {
@@ -251,6 +253,10 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 			}
 		})
 	}
+	if given["relay"] {
+		on := *relay
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) { s.Relay = on })
+	}
 	if len(forwards) > 0 {
 		rules := []forward.Rule(forwards)
 		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) {
@@ -272,6 +278,17 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 
 func (cfg nodeConfig) discovery() discovery.Config {
 	return discovery.Config{Call: cfg.call, Addr: cfg.tun.Address, Tags: cfg.tags, Every: cfg.beacon}
+}
+
+// relayMeta tells the transmit queue about a frame this station repeats for
+// others: an IP packet as if it were its own, anything else urgent (beacons,
+// messages, acknowledgments).
+func relayMeta(frame []byte) txqueue.Meta {
+	f, err := ax25.Decode(frame)
+	if err == nil && f.PID == ax25.PIDIPv4 {
+		return ipbridge.Classify(f.Info)
+	}
+	return txqueue.Meta{Urgent: true}
 }
 
 func btoi(b bool) int {
@@ -329,8 +346,13 @@ func runNode(args []string, stderr io.Writer) int {
 	var bridge *ipbridge.Bridge
 	var disc *discovery.Service
 	var msgs *chat.Service
-	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
+	n.relay = mesh.NewRelay(cfg.call, nil)
+	var port *tnc.Port
+	port = tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
 		func(frame []byte) {
+			if out := n.relay.Handle(frame); out != nil {
+				port.SendMeta(out, relayMeta(out))
+			}
 			if src, ok := ax25.Source(frame); ok {
 				msgs.Heard(src) // its waiting messages go out again
 			}
@@ -339,6 +361,8 @@ func runNode(args []string, stderr io.Writer) int {
 			}
 		})
 	msgs, err = chat.New(chat.Config{Call: cfg.call, Path: chat.DefaultPath(store.Path()), Logger: log,
+		Route: func(peer ax25.Address) []ax25.Address { p, _ := disc.PathTo(peer); return p },
+		Flood: func() []ax25.Address { return disc.Flood() },
 		Send: func(frame []byte, replace string) bool {
 			return port.SendMeta(frame, txqueue.Meta{Urgent: true, Replace: replace})
 		}})
@@ -358,7 +382,7 @@ func runNode(args []string, stderr io.Writer) int {
 	}
 	disc = discovery.New(dcfg)
 	bridge, err = ipbridge.New(ipbridge.Config{MyCall: cfg.call, Local: cfg.tun.Address,
-		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU, Learned: disc.Lookup,
+		Routes: cfg.routes, AllowBroadcast: cfg.allowBroadcast, LinkMTU: cfg.linkMTU, Learned: disc.Route,
 		Filter: n.fw}, port.SendMeta, dev.WritePacket)
 	if err != nil {
 		dev.Close()
@@ -370,7 +394,8 @@ func runNode(args []string, stderr io.Writer) int {
 	n.choice = gateway.NewChoice(n.candidates)
 	_ = n.choice.Set(gateway.Mode(st.Gateway.Mode), st.Gateway.Call) // checked when the settings were read
 	n.fwd = forward.New(forward.Config{Addr: cfg.tun.Address.Addr(), Who: disc.Lookup, Logger: log})
-	n.applyShare(st.Share)
+	n.relay.SetOn(st.Relay || slices.Contains(cfg.tags, discovery.TagRelay))
+	n.applyShare(st.Share) // announces the tags, RELAY too
 	n.applyWelcome(st.Welcome)
 	n.applyForwards(st.Forwards)
 	log.Info("firewall", "mode", st.Firewall.Mode, "ping", st.Firewall.Ping, "rules", len(st.Firewall.Rules))
@@ -400,7 +425,7 @@ func runNode(args []string, stderr io.Writer) int {
 		args := []any{"port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
 			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary(),
 			"firewall", fmt.Sprintf("%+v", n.fw.Stats()), "chat", fmt.Sprintf("%+v", msgs.Stats()),
-			"forward", fmt.Sprintf("%+v", n.fwd.Stats())}
+			"forward", fmt.Sprintf("%+v", n.fwd.Stats()), "relay", fmt.Sprintf("on=%v %+v", n.relay.On(), n.relay.Stats())}
 		n.mu.Lock()
 		sharing := n.gwAddr != ""
 		n.mu.Unlock()

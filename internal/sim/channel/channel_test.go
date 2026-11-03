@@ -106,3 +106,29 @@ func TestF4HWNChannelNeedsPacing(t *testing.T) {
 		t.Fatal("paced frame changed")
 	}
 }
+
+func TestLinks(t *testing.T) {
+	c := New(Config{Links: [][2]string{{"a", "b"}, {"b", "c"}}})
+	a, b, cc := &station{name: "a"}, &station{name: "b"}, &station{name: "c"}
+	if !c.hears(a, b) || !c.hears(b, a) || !c.hears(cc, b) || c.hears(a, cc) || c.hears(cc, a) {
+		t.Fatal("links")
+	}
+	// A and C transmit at the same time: they collide at B, which hears both,
+	// and neither sees the other's carrier.
+	fa := &airFrame{from: a, start: 0, end: time.Second}
+	fc := &airFrame{from: cc, start: 500 * time.Millisecond, end: 1500 * time.Millisecond}
+	c.air = []*airFrame{fa, fc}
+	if c.lostAt(b, fa) != "collision" || c.lostAt(b, fc) != "collision" {
+		t.Fatal("no collision at the station in the middle")
+	}
+	if c.othersOnAir(a, 700*time.Millisecond) {
+		t.Fatal("A sees C's carrier")
+	}
+	if !c.othersOnAir(b, 700*time.Millisecond) {
+		t.Fatal("B does not see the channel busy")
+	}
+	all := New(Config{})
+	if !all.hears(a, cc) {
+		t.Fatal("without links everyone hears everyone")
+	}
+}

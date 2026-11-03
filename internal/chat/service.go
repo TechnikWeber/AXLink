@@ -77,6 +77,10 @@ type Config struct {
 	// Send hands a frame to the radio; replace names the frame, so that a
 	// repetition still in the transmit queue replaces the older copy.
 	Send func(frame []byte, replace string) bool
+	// Route gives the relays to send to a station over (station discovery);
+	// Flood the path for messages to CQ. Both may be nil: no relays.
+	Route func(peer ax25.Address) []ax25.Address
+	Flood func() []ax25.Address
 	// Path is the mailbox file; "" keeps the messages in memory only.
 	Path   string
 	Logger *slog.Logger
@@ -242,7 +246,15 @@ func earliest(a, b time.Time) time.Time {
 // transmit sends one copy of m; the caller holds mu.
 func (s *Service) transmit(m *Message, now time.Time) {
 	msg := Msg{To: m.Peer, Text: m.Text, ID: m.ID}
-	frame, err := msg.Frame(s.cfg.Call)
+	var path []ax25.Address
+	if m.Peer == Room {
+		if s.cfg.Flood != nil {
+			path = s.cfg.Flood()
+		}
+	} else if a, err := ax25.ParseAddress(m.Peer); err == nil && s.cfg.Route != nil {
+		path = s.cfg.Route(a)
+	}
+	frame, err := msg.FrameVia(s.cfg.Call, path)
 	if err != nil {
 		s.cfg.Logger.Error("message not built", "err", err)
 		m.State = StateFailed
@@ -380,9 +392,10 @@ func (s *Service) Handle(frame []byte) bool {
 	}
 	from := f.Src
 	from.Bit7 = false
-	if from.SameStation(s.cfg.Call) {
-		return true // our own, repeated
+	if from.SameStation(s.cfg.Call) || f.InTransit() {
+		return true // our own, repeated; or a relay has still to repeat it
 	}
+	back := ax25.Reverse(f.Repeaters()) // the way back, for the acknowledgment
 	switch {
 	case m.Kind != KindText:
 		if s.isMe(m.To) {
@@ -391,7 +404,7 @@ func (s *Service) Handle(frame []byte) bool {
 	case IsLobby(m.To):
 		s.room(from, m.Text)
 	case s.isMe(m.To):
-		s.received(from, m)
+		s.received(from, m, back)
 	}
 	return true
 }
@@ -429,8 +442,9 @@ func (s *Service) acknowledged(from ax25.Address, id string, rej bool) {
 	}
 }
 
-// received stores a message for this station and acknowledges it.
-func (s *Service) received(from ax25.Address, m Msg) {
+// received stores a message for this station and acknowledges it, over
+// path.
+func (s *Service) received(from ax25.Address, m Msg, path []ax25.Address) {
 	now := s.cfg.Now()
 	peer := from.String()
 	if m.ReplyAck != "" {
@@ -453,7 +467,7 @@ func (s *Service) received(from ax25.Address, m Msg) {
 		return
 	}
 	// Our acknowledgment may have been lost: a repeat is acknowledged again.
-	frame, err := Msg{To: peer, Kind: KindAck, ID: m.ID}.Frame(s.cfg.Call)
+	frame, err := Msg{To: peer, Kind: KindAck, ID: m.ID}.FrameVia(s.cfg.Call, path)
 	if err == nil {
 		s.cfg.Send(frame, "ack:"+peer+":"+m.ID)
 	}

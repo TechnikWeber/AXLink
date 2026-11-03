@@ -159,6 +159,14 @@
       <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
     </form>
   </section>
+  <section class="card">
+    <h2>{{index .T "relay.title"}}</h2>
+    <form id="form-relay" class="form">
+      <label class="check"><input type="checkbox" id="relay-enabled"> {{index .T "relay.enabled"}}</label>
+      <p class="small muted">{{index .T "relay.hint"}}</p>
+      <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
+    </form>
+  </section>
   <section class="card wide">
     <h2>{{index .T "fwd.title"}}</h2>
     <form id="form-forward" class="form">

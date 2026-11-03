@@ -59,6 +59,20 @@ func (s *stationFlags) Set(v string) error {
 	return nil
 }
 
+// linkFlags collects -link A-B.
+type linkFlags [][2]string
+
+func (l *linkFlags) String() string { return fmt.Sprint(*l) }
+
+func (l *linkFlags) Set(v string) error {
+	a, b, ok := strings.Cut(v, "-")
+	if !ok || a == "" || b == "" || a == b {
+		return errors.New("want A-B, two station names")
+	}
+	*l = append(*l, [2]string{a, b})
+	return nil
+}
+
 func simChannel(args []string, stderr io.Writer) int {
 	fs := flag.NewFlagSet("sim-channel", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -67,6 +81,8 @@ func simChannel(args []string, stderr io.Writer) int {
 	mode := fs.String("mode", "f4hwn", "TNC in front of each station: f4hwn (model of the F4HWN KISS app) or ideal")
 	ackMode := fs.Bool("ackmode", false, "f4hwn mode: model the proposed ACKMODE extension")
 	tracePath := fs.String("trace", "", "write transmissions and receptions as JSON lines to this file")
+	var links linkFlags
+	fs.Var(&links, "link", "A-B: stations A and B hear each other (repeatable); without -link every station hears every other")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -74,7 +90,7 @@ func simChannel(args []string, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "sim-channel: at least two -station flags are needed")
 		return 2
 	}
-	cfg := channel.Config{AckMode: *ackMode, Logger: slog.New(slog.NewTextHandler(stderr, nil))}
+	cfg := channel.Config{AckMode: *ackMode, Logger: slog.New(slog.NewTextHandler(stderr, nil)), Links: links}
 	switch *mode {
 	case "f4hwn":
 		cfg.Mode = channel.F4HWN

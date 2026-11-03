@@ -3,7 +3,10 @@
 // Package channel is a frame-level radio channel for the AXLink lab. Each
 // station connects over a KISS stream (a Unix socket); what one station sends
 // the others hear after its airtime. The channel is half duplex: a station
-// that transmits hears nothing, and overlapping transmissions are lost.
+// that transmits hears nothing, and overlapping transmissions are lost. With
+// Links, only the stations of a link hear each other: a station out of range
+// neither hears a frame nor sees the channel busy, and two stations that do
+// not hear each other collide at a third that hears both (hidden stations).
 //
 // In F4HWN mode every station's KISS stream first goes through the model of
 // the F4HWN KISS TNC app (package f4hwnkiss), so the host must pace exactly
@@ -41,6 +44,9 @@ type Config struct {
 	AckMode bool      // F4HWN mode: the model with the proposed ACKMODE extension
 	Trace   io.Writer // JSON lines of transmissions and receptions; may be nil
 	Logger  *slog.Logger
+	// Links are the pairs of stations (by name) that hear each other; none
+	// means every station hears every other.
+	Links [][2]string
 }
 
 const tick = 5 * time.Millisecond
@@ -279,7 +285,20 @@ func (c *Channel) busy(now time.Duration) bool {
 
 func (c *Channel) othersOnAir(st *station, t time.Duration) bool {
 	for _, af := range c.air {
-		if af.from != st && af.start <= t && t < af.end {
+		if af.from != st && af.start <= t && t < af.end && c.hears(st, af.from) {
+			return true
+		}
+	}
+	return false
+}
+
+// hears reports whether rx is in range of tx.
+func (c *Channel) hears(rx, tx *station) bool {
+	if len(c.cfg.Links) == 0 {
+		return true
+	}
+	for _, l := range c.cfg.Links {
+		if l[0] == rx.name && l[1] == tx.name || l[1] == rx.name && l[0] == tx.name {
 			return true
 		}
 	}
@@ -295,7 +314,7 @@ func (c *Channel) deliver(now time.Duration) {
 				af.from.toHost(kiss.Frame{Command: kiss.CmdAckMode, Payload: []byte{byte(af.tag >> 8), byte(af.tag)}})
 			}
 			for _, rx := range c.stations {
-				if rx == af.from {
+				if rx == af.from || !c.hears(rx, af.from) {
 					continue
 				}
 				if why := c.lostAt(rx, af); why != "" {
@@ -324,7 +343,9 @@ func (c *Channel) lostAt(rx *station, af *airFrame) string {
 		if other.from == rx {
 			return "half duplex"
 		}
-		return "collision"
+		if c.hears(rx, other.from) {
+			return "collision"
+		}
 	}
 	return ""
 }
