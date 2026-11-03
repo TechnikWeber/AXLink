@@ -27,7 +27,9 @@ git am --directory=App/apps/kisstnc /tmp/p/*.patch
 
 I tried exactly that on v6.3.0: the patches apply and `test/test_tnc.py` passes. Size:
 3,812 B of the 4 KiB overlay (ARM GNU Toolchain 13.3.rel1). **Not yet run on a radio**; a
-bench test with two UV-K1 is next, and I will report it here.
+bench test with two UV-K1 is next, and I will report it here. A build to try:
+[AXLink TNC v0.2.0-alpha.1](https://github.com/TechnikWeber/AXLink-TNC/releases/tag/v0.2.0-alpha.1)
+(unzip, then UV Studio → Apps → Community → Install a .app).
 
 AXLink uses ACKMODE with this app, and keeps pacing its writes with the original app. USB flow
 control in the resident firmware is still the part only you can do.
