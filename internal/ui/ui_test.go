@@ -15,6 +15,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/TechnikWeber/AXLink/internal/capture"
 	"github.com/TechnikWeber/AXLink/internal/chat"
 )
 
@@ -256,5 +257,18 @@ func TestChatEndpoints(t *testing.T) {
 	}
 	if len(fc.read) != 1 || len(fc.deleted) != 1 {
 		t.Fatalf("%+v", fc)
+	}
+}
+
+func TestFramesEndpoint(t *testing.T) {
+	s, _ := testServer()
+	var asked uint64
+	s.cfg.Frames = func(after uint64) []capture.Entry {
+		asked = after
+		return []capture.Entry{{N: after + 1, From: "TESTB-1", To: "AXLINK", Kind: capture.KindBeacon, Text: "AXL1 <x>"}}
+	}
+	w := do(s, "GET", "/api/frames?after=41", "", nil)
+	if w.Code != 200 || asked != 41 || !strings.Contains(w.Body.String(), `"n":42`) || strings.Contains(w.Body.String(), "<x>") {
+		t.Fatalf("%d %d %s", w.Code, asked, w.Body)
 	}
 }

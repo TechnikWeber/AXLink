@@ -17,9 +17,11 @@ import (
 	"net"
 	"net/http"
 	"net/netip"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/TechnikWeber/AXLink/internal/capture"
 	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/monitor"
@@ -134,7 +136,10 @@ type Config struct {
 	// Welcome serves the own welcome page for the preview under /welcome/.
 	Welcome http.Handler
 	// Chat is the station's mailbox; nil without one.
-	Chat   Chat
+	Chat Chat
+	// Frames returns the frames heard and sent after number n (the packet
+	// monitor); nil without one.
+	Frames func(after uint64) []capture.Entry
 	Logger *slog.Logger
 }
 
@@ -224,6 +229,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, s.cfg.Settings())
 	case r.URL.Path == "/api/settings" && r.Method == http.MethodPost && s.cfg.Save != nil:
 		s.save(w, r)
+	case r.URL.Path == "/api/frames" && r.Method == http.MethodGet && s.cfg.Frames != nil:
+		h.Set("Cache-Control", "no-store")
+		after, _ := strconv.ParseUint(r.URL.Query().Get("after"), 10, 64)
+		writeJSON(w, http.StatusOK, s.cfg.Frames(after))
 	case strings.HasPrefix(r.URL.Path, "/api/chat") && s.cfg.Chat != nil:
 		h.Set("Cache-Control", "no-store")
 		s.chat(w, r)

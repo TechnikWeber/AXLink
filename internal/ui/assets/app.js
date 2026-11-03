@@ -627,16 +627,58 @@ $("form-new").addEventListener("submit", (ev) => {
   $("new-peer").value = "";
 });
 
+// ---- packet monitor ----
+
+let framesAfter = 0; // the newest frame fetched
+let frameRows = []; // newest first
+
+async function refreshFrames() {
+  if ($("view-frames").hidden || $("frames-pause").checked) return;
+  try {
+    const list = await (await fetch("/api/frames?after=" + framesAfter, { cache: "no-store" })).json();
+    if (!list.length) return;
+    framesAfter = list[list.length - 1].n;
+    frameRows = list.reverse().concat(frameRows).slice(0, 500);
+    drawFrames();
+  } catch (e) {
+    $("offline").hidden = false;
+  }
+}
+
+function drawFrames() {
+  const filter = $("frames-filter").value;
+  const rows = frameRows.filter((f) => filter === "all" || (filter === "mine") === f.mine);
+  const body = document.querySelector("#frames tbody");
+  body.replaceChildren();
+  $("frames").hidden = rows.length === 0;
+  $("frames-empty").hidden = rows.length !== 0;
+  for (const f of rows.slice(0, 300)) {
+    body.append(el("tr", { class: f.mine ? "" : "other" },
+      el("td", { class: "mono", text: new Date(f.at).toLocaleTimeString(LANG) }),
+      el("td", { text: f.out ? "↑" : "↓", title: t(f.out ? "frames.out" : "frames.in") }),
+      el("td", { class: "mono", text: f.from }),
+      el("td", { class: "mono" }, f.to, f.via ? el("div", { class: "muted", text: t("via", { path: f.via.join(", ") }) }) : null),
+      el("td", {}, el("span", { class: "badge kind-" + f.kind, text: t("kind." + f.kind) })),
+      el("td", { class: "frame-text", text: f.text }),
+      el("td", { class: "muted", text: f.len })));
+  }
+}
+
+$("frames-filter").addEventListener("change", drawFrames);
+$("frames-clear").addEventListener("click", () => { frameRows = []; drawFrames(); });
+$("frames-pause").addEventListener("change", refreshFrames);
+
 // ---- views ----
 
 function show() {
   const h = location.hash;
-  const view = h === "#settings" ? "settings" : h.startsWith("#chat") ? "chat" : "overview";
-  for (const v of ["overview", "chat", "settings"]) {
+  const view = h === "#settings" ? "settings" : h.startsWith("#chat") ? "chat" : h === "#frames" ? "frames" : "overview";
+  for (const v of ["overview", "chat", "frames", "settings"]) {
     $("view-" + v).hidden = view !== v;
     $("tab-" + v).className = view === v ? "on" : "";
   }
   if (view === "settings") loadSettings();
+  if (view === "frames") refreshFrames();
   if (view === "chat") {
     peer = decodeURIComponent(h.slice("#chat/".length)).toUpperCase() || "CQ";
     if (!h.startsWith("#chat/")) peer = "CQ";
@@ -650,4 +692,4 @@ function show() {
 
 window.addEventListener("hashchange", show);
 show();
-setInterval(() => { refresh(); refreshChat(); }, 2000);
+setInterval(() => { refresh(); refreshChat(); refreshFrames(); }, 2000);

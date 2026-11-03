@@ -6,8 +6,9 @@ any project may implement it. Status: draft, implemented in axlinkd 0.2.0-dev, t
 
 ## Purpose
 
-Stations on one frequency that do not all hear each other. A station whose operator makes it a
-**relay** (beacon tag `RELAY`) repeats frames as an AX.25 digipeater, so that A reaches C over B.
+Stations on one frequency that do not all hear each other. A **relay** (beacon tag `RELAY`)
+repeats frames as an AX.25 digipeater, so that A reaches C over B. In axlinkd every station is a
+relay unless its operator switches that off.
 Everything stays on layer 2: a relay does not route IP, needs no routing table and never passes
 what it repeats to its own computer.
 
@@ -31,12 +32,23 @@ TESTC-1>AXLINK,TESTB-1,TESTD-1*,AXHOP*  repeated by D: no hops left
 
 Senders use `AXHOP-2` (at most two relays), and only while they hear a station with the tag
 `RELAY` directly; without a relay around, frames go without a path. IP frames are never flooded.
+
+**Only where it helps.** A relay passes a flooded frame on only while one of the stations it hears
+directly (by their beacons) may not have it yet: one that is neither the frame's sender nor one of
+the stations that repeated it. It waits a random 0.5-2.5 s first; copies of the same frame from
+other relays heard during the wait count as well. When every neighbour is covered, it stays
+silent. At the end of a line (A hears only B) a station never repeats what B passed on; where
+everyone hears everyone, at most one station repeats. A relay that knows no neighbour at all (it
+has just started, or their beacons collided at it) repeats.
 A sender hears its own flooded beacon come back from the relay; without that copy it sends the
 beacon again (see the beacon's timing): stations that do not hear each other may have collided
 at the relay.
 
 **Duplicates.** A relay does not repeat the same frame (source, destination, PID and information
-field; the path changes on the way) twice within 30 s when flooding and 5 s when named.
+field; the path changes on the way) twice within 30 s when flooding and 5 s when named. A copy
+straight from its sender counts as a duplicate for 5 s only: when no relay's copy reaches the
+sender, the sender sends the beacon again 10–20 s later, and the relay weighs it anew. A frame
+the relay chose not to repeat is not noted as repeated.
 
 ## Receiving
 

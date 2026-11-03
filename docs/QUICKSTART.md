@@ -104,8 +104,11 @@ browser prefers). Stop AXLink with `Ctrl+C` in its window.
 - **Chat:** the room `CQ` for everyone and one conversation per station. Messages go as APRS
   messages, so APRS messenger radios can join; a message waits in the mailbox until its station
   is heard again.
+- **Monitor:** every frame on the channel, those for other stations too, with a short
+  description; for debugging.
 - **Settings:** the welcome page (who you are, locator), sharing your internet connection, the
-  firewall, port forwarding and the relay. They are stored and take effect at once.
+  firewall, port forwarding and the relay (on by default). They are stored and take effect at
+  once.
 
 Then try, from another station's computer: `ping 10.73.0.1`, or open `http://10.73.0.1/`, the
 welcome page. At 1200 bit/s a ping takes about two seconds there and back.
@@ -119,7 +122,8 @@ welcome page. At 1200 bit/s a ping takes about two seconds there and back.
 | open a service on this computer | Settings → Firewall → Add a port | `-open 8080/tcp` |
 | … only for some stations | the same, "Only for" | `-open 22/tcp=<CALL>,<CALL>` |
 | publish a service of your network | Settings → Port forwarding | `-forward 2222=192.168.1.10:22=<CALL>` |
-| relay for stations out of range | Settings → Relay | `-relay` |
+| relay for stations out of range | on by default; Settings → Relay | `-relay=false` turns it off |
+| see every frame on the channel | the view Monitor | `-pcap FILE` (Wireshark), `-debug` (log) |
 | announce your locator | Settings → Welcome page | — |
 | our TNC app with ACKMODE | — | `-profile f4hwn-kisstnc-ackmode` |
 | a station that runs unattended | — | `-tags AUTO` |

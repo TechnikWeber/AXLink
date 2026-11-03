@@ -206,25 +206,39 @@ programs. Through the local proxy a station's page is also reachable by its call
 
 ## Mesh (relays)
 
-`internal/mesh` lets stations reach others beyond their range, on the same frequency. A station
-whose operator switches on "Relay" (`-relay`, tag `RELAY`) repeats frames as an AX.25
-digipeater: frames that name it as the next digipeater, and beacons and CQ messages with the
-flood alias `AXHOP-2`, into whose path it writes its callsign. Stations learn from the relayed
+`internal/mesh` lets stations reach others beyond their range, on the same frequency. Every
+station is a relay by default (tag `RELAY`; "Relay" in the settings, `-relay=false` turns it off)
+and repeats frames as an AX.25 digipeater: frames that name it as the next digipeater at once,
+and beacons and CQ messages with the flood alias `AXHOP-2`, into whose path it writes its
+callsign, after a random wait and only while a station it hears directly may not have them yet
+(not their sender, not one of the relays that repeated them). Stations learn from the relayed
 beacons over which relays another station is reached (`discovery`), the bridge and the chat
 address their frames over that path, and acknowledgments and refusals go back the way their
 frame came. Everything stays on layer 2: a relay routes no IP and passes nothing it repeats to
 its own computer or network. The format: [protocol/mesh.md](protocol/mesh.md).
 
 The lab `scripts/lab-mesh.sh` puts three stations in a line (A hears B, B hears C, A and C do
-not hear each other) with B as the relay. In the F4HWN model with ACKMODE, in six runs on
-2026-11-03 (four of them at the same time), A and C found each other over B in 35-74 s; ping took
-about 5 s per round trip, a small HTTP file 21-45 s, and a chat message from A to C was delivered
-at the first try in 7-9 s. The channel shows collisions at B: A and C cannot hear each other's
-carrier (hidden stations), which AX.25 on one frequency cannot prevent; TCP and the chat repeat
-what was lost. Earlier runs showed what the beacon timing must cover: the first beacons of A and
+not hear each other) with B as the relay. In the F4HWN model with ACKMODE, in eleven runs on
+2026-11-03 (up to five at the same time, all stations relaying in the last five), A and C found
+each other over B in 35-74 s; ping took about 5 s per round trip, a small HTTP file 21-59 s, and
+a chat message from A to C was delivered in all runs, mostly at the first try. The channel shows
+collisions at B: A and C cannot hear each other's carrier (hidden stations), which AX.25 on one
+frequency cannot prevent; TCP and the chat repeat what was lost. In one of the eleven runs an
+HTTP download failed: A's and C's TCP repetitions kept colliding at B, in step, until C gave the
+half-open connection up. Earlier runs showed what the beacon timing must cover: the first beacons of A and
 C collided at B, and their answers, postponed by exactly 30 s, collided again; nobody would have
 sent another beacon for ten minutes. Hence the random postponement, the relay's echo and asking
 again (see the beacon timing).
+
+## Packet monitor
+
+`internal/capture` keeps the last 500 frames heard and sent, all of them, those for other
+stations too, as with an open squelch, each with a short description: an IP packet with
+addresses, ports and TCP flags, a beacon, an APRS message or acknowledgment, other APRS data.
+The web interface shows them in the view "Monitor" ("Mithören"), filtered by all, this
+station's, or other stations' frames. `-pcap FILE` writes every frame into a pcap file with the
+link type AX.25, which Wireshark opens and decodes down to the IP packets; `-debug` writes every
+frame into the log. Frames with a bad checksum never reach the host: the TNC drops them.
 
 ## Chat
 

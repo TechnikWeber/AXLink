@@ -440,6 +440,20 @@ func (s *Service) PathTo(call ax25.Address) (path []ax25.Address, known bool) {
 	return slices.Clone(st.path(now)), true
 }
 
+// Neighbors lists the stations whose beacons arrive directly.
+func (s *Service) Neighbors() []ax25.Address {
+	now := s.cfg.Now()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out []ax25.Address
+	for _, st := range s.stations {
+		if st.direct(now) {
+			out = append(out, st.Call)
+		}
+	}
+	return out
+}
+
 // Flood is the path for frames for every station (beacons, messages to CQ):
 // the flood alias while another relay is heard directly, else none.
 func (s *Service) Flood() []ax25.Address {

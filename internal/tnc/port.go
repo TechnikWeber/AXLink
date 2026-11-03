@@ -27,6 +27,9 @@ type Config struct {
 	QueueLen int           // outgoing frames that may wait; 0 means 32
 	MaxAge   time.Duration // a frame waiting longer is dropped; 0 means 60 s
 	Logger   *slog.Logger
+	// OnSent is called with each frame the TNC has taken completely; nil for
+	// none.
+	OnSent func(frame []byte)
 }
 
 // Stats counts what happened on the port.
@@ -244,6 +247,9 @@ func (p *Port) session(ctx context.Context, conn io.ReadWriteCloser) error {
 				p.retry = &q // the TNC never got all of it: send it once more after reconnecting
 			}
 			return finish(err)
+		}
+		if p.cfg.OnSent != nil {
+			p.cfg.OnSent(q.frame)
 		}
 		p.bytesOut.Add(uint64(len(q.frame)))
 		p.airOut.Add(int64(airtimeOf(p.cfg.Profile, q.frame)))

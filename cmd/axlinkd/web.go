@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/capture"
 	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
@@ -46,6 +47,7 @@ type node struct {
 	chat      *chat.Service
 	fwd       *forward.Forwarder
 	relay     *mesh.Relay
+	capture   *capture.Capture
 	mon       *monitor.Monitor
 	store     *settings.Store
 	choice    *gateway.Choice
@@ -451,7 +453,8 @@ func counters(p tnc.Stats, b ipbridge.Stats, d discovery.Stats, l *gateway.Local
 // relayCounters are the numbers of the relay.
 func relayCounters(rs mesh.Stats) []ui.Counter {
 	c := func(key string, v uint64) ui.Counter { return ui.Counter{Group: "mesh", Key: key, Value: v} }
-	return []ui.Counter{c("relay_repeated", rs.Repeated), c("relay_flooded", rs.Flooded), c("relay_duplicates", rs.Duplicates)}
+	return []ui.Counter{c("relay_repeated", rs.Repeated), c("relay_flooded", rs.Flooded), c("relay_covered", rs.Covered),
+		c("relay_duplicates", rs.Duplicates)}
 }
 
 // forwardCounters are the numbers of the port forwarding.
@@ -495,7 +498,7 @@ func startUI(n *node) {
 		return
 	}
 	srv := ui.New(ui.Config{Status: n.status, SetGateway: n.setGateway, Settings: n.store.Get, Save: n.save,
-		Welcome: welcome.Handler(n.welcomePage), Chat: n.chat, Logger: n.log})
+		Welcome: welcome.Handler(n.welcomePage), Chat: n.chat, Frames: n.capture.Since, Logger: n.log})
 	go srv.Serve(n.ctx, ln)
 	n.log.Info("web interface", "url", "http://"+ln.Addr().String()+"/")
 }

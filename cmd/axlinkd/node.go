@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/capture"
 	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
@@ -73,6 +74,8 @@ type nodeConfig struct {
 	ui             string // address of the web interface; "" for none
 	localProxy     string // address of the local proxy to the chosen gateway; "" for none
 	configPath     string // the settings file; "" keeps the settings in memory
+	pcap           string // a file for every frame, for Wireshark; "" for none
+	debug          bool   // every frame into the log
 	// overrides are the options that change stored settings (-proxy,
 	// -proxy-lan, -gateway, -open, -firewall); they are applied and stored at
 	// the start, like a change in the web interface.
@@ -133,7 +136,9 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	var open ruleFlags
 	fs.Var(&open, "open", "PORT/tcp or PORT/udp, optionally =CALL,CALL: let radio stations reach this port of this computer (repeatable; stored)")
 	fwMode := fs.String("firewall", "", "what radio stations may send to this computer: protect (the default) or open; stored")
-	relay := fs.Bool("relay", false, "repeat frames for other stations, so that they reach stations beyond their range (mesh); adds the tag RELAY; stored")
+	relay := fs.Bool("relay", true, "repeat frames for other stations, so that they reach stations beyond their range (mesh; on by default, -relay=false turns it off); announces the tag RELAY; stored")
+	pcapPath := fs.String("pcap", "", "write every frame heard and sent into this file (pcap, link type AX.25: Wireshark opens it)")
+	debug := fs.Bool("debug", false, "log every frame heard and sent, those for other stations too")
 	var forwards forwardFlags
 	fs.Var(&forwards, "forward", "PORT=HOST:PORT, optionally =CALL,CALL: publish a TCP service of the own network on this port of the radio address (repeatable; stored)")
 	if err := fs.Parse(args); err != nil {
@@ -253,6 +258,7 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 			}
 		})
 	}
+	cfg.pcap, cfg.debug = *pcapPath, *debug
 	if given["relay"] {
 		on := *relay
 		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) { s.Relay = on })
@@ -346,19 +352,41 @@ func runNode(args []string, stderr io.Writer) int {
 	var bridge *ipbridge.Bridge
 	var disc *discovery.Service
 	var msgs *chat.Service
-	n.relay = mesh.NewRelay(cfg.call, nil)
+	ccfg := capture.Config{Call: cfg.call}
+	if cfg.debug {
+		ccfg.Logger = log
+	}
+	if cfg.pcap != "" {
+		f, err := capture.OpenPcap(cfg.pcap)
+		if err != nil {
+			dev.Close()
+			fmt.Fprintln(stderr, "run:", err)
+			return 1
+		}
+		defer f.Close()
+		ccfg.Pcap = f
+		log.Info("writing every frame into a pcap file", "file", cfg.pcap)
+	}
+	if n.capture, err = capture.New(ccfg); err != nil {
+		dev.Close()
+		fmt.Fprintln(stderr, "run:", err)
+		return 1
+	}
 	var port *tnc.Port
-	port = tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
+	n.relay = mesh.NewRelay(mesh.Config{Call: cfg.call,
+		Send:      func(frame []byte) { port.SendMeta(frame, relayMeta(frame)) },
+		Neighbors: func() []ax25.Address { return disc.Neighbors() }})
+	port = tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log,
+		OnSent: func(frame []byte) { n.capture.Add(frame, true) }},
 		func(frame []byte) {
-			if out := n.relay.Handle(frame); out != nil {
-				port.SendMeta(out, relayMeta(out))
-			}
+			n.capture.Add(frame, false)
 			if src, ok := ax25.Source(frame); ok {
 				msgs.Heard(src) // its waiting messages go out again
 			}
 			if !disc.Handle(frame) && !msgs.Handle(frame) {
 				bridge.FromRadio(frame)
 			}
+			n.relay.Handle(frame) // after discovery: the neighbours are up to date
 		})
 	msgs, err = chat.New(chat.Config{Call: cfg.call, Path: chat.DefaultPath(store.Path()), Logger: log,
 		Route: func(peer ax25.Address) []ax25.Address { p, _ := disc.PathTo(peer); return p },

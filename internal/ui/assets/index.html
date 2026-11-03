@@ -15,6 +15,7 @@
   <nav class="tabs">
     <a href="#overview" id="tab-overview">{{index .T "nav.overview"}}</a>
     <a href="#chat" id="tab-chat">{{index .T "nav.chat"}}<span id="unread" class="count" hidden></span></a>
+    <a href="#frames" id="tab-frames">{{index .T "nav.frames"}}</a>
     <a href="#settings" id="tab-settings">{{index .T "nav.settings"}}</a>
   </nav>
   <span class="spacer"></span>
@@ -101,6 +102,34 @@
       <textarea id="send-text" rows="2" maxlength="335" aria-label="{{index .T "chat.send"}}"></textarea>
       <div class="send-row"><span id="send-count" class="small muted"></span><span class="msg"></span><button type="submit" class="on">{{index .T "chat.send"}}</button></div>
     </form>
+  </section>
+</main>
+
+<main id="view-frames" hidden>
+  <section class="card wide">
+    <div class="frames-head">
+      <h2>{{index .T "frames.title"}}</h2>
+      <label>{{index .T "frames.show"}}
+        <select id="frames-filter">
+          <option value="all">{{index .T "frames.all"}}</option>
+          <option value="mine">{{index .T "frames.mine"}}</option>
+          <option value="others">{{index .T "frames.others"}}</option>
+        </select>
+      </label>
+      <label class="check"><input type="checkbox" id="frames-pause"> {{index .T "frames.pause"}}</label>
+      <button type="button" id="frames-clear">{{index .T "frames.clear"}}</button>
+    </div>
+    <p class="small muted">{{index .T "frames.note"}}</p>
+    <div class="scroll">
+      <table id="frames" hidden>
+        <thead><tr>
+          <th>{{index .T "frames.time"}}</th><th></th><th>{{index .T "frames.from"}}</th><th>{{index .T "frames.to"}}</th>
+          <th>{{index .T "frames.kind"}}</th><th>{{index .T "frames.content"}}</th><th>{{index .T "frames.len"}}</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="frames-empty" class="muted small">{{index .T "frames.empty"}}</p>
   </section>
 </main>
 

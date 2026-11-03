@@ -4,11 +4,10 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-03.
 
 ## AXLink (PC)
 
-- [ ] Hardware test with two UV-K1 once they arrive: set up Multiboot
-      ([MULTIBOOT_V6.md](MULTIBOOT_V6.md)), run `axlinkd run` with the original KISS app,
-      measure the limits (frame size, USB ring, pacing, USB reset), a throughput table; check
-      the transmit queue's limits (128 bytes urgent, repeat window) and whether the app passes
-      received frames on quickly enough for the longer wait after heard frames.
+- [ ] Hardware test with two UV-K1 once they arrive: [BENCH.md](BENCH.md) (twelve tests, from
+      finding the radio to the chat with the messenger); also the transmit queue's limits (128
+      bytes urgent, repeat window) and whether the app passes received frames on quickly enough
+      for the longer wait after heard frames.
 - [ ] Windows: test the adapter on a real PC with a radio (so far only CI pings through it),
       the firewall rules for incoming connections, running as a service. (The release package
       with `wintun.dll` and its licence exists since 0.2.0-alpha.1.)
@@ -33,8 +32,10 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-03.
       after a heard frame.
 - [ ] Chat on the air with the APRS messenger firmware (bench test: a message each way, CQ).
 - [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
-- [ ] Mesh, next steps: fewer collisions of hidden stations at a relay (e.g. a short random
-      wait after hearing a relay, or the relay announcing the channel as busy); choosing the way
+- [ ] Mesh, next steps: fewer collisions of hidden stations at a relay. In the lab A's and C's
+      TCP repetitions met at B in step until C gave a connection up; a random wait for frames
+      that go over a relay (the same for all frames of a flow, to keep their order) would break
+      the step. Choosing the way
       by link quality (needs RSSI); an airtime budget per relay; static routes over a relay
       (`-route ...` with a path).
 - [ ] Segmentation (PID 0x08) per AX.25 2.2 and ARP (PID 0xCD), tested against Packet.NET.

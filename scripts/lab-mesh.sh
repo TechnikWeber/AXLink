@@ -126,6 +126,8 @@ echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/chat.ms"
 chat send '{"to":"CQ","text":"CQ from A: who hears me over the relay?"}' > /dev/null 2>&1 || status=1
 sleep 8
 curl -s --max-time 10 "$ui/api/status" > "$WORK/a-status.json" 2> /dev/null || true
+curl -s --max-time 10 "$ui/api/frames?after=0" > "$WORK/a-frames.json" 2> /dev/null || true
+shoot mesh-frames "#frames" 1000
 shoot mesh-overview / 1450
 shoot mesh-chat "#chat/TESTC-1" 820
 for n in b c; do touch "$WORK/$n.dump"; done
@@ -147,7 +149,7 @@ unshare -Urn sh "$WORK/node.sh" "$WORK" c TESTC-1 10.73.0.3 "$PROFILE" "$SOCK" "
 PIDS+=($!)
 started=$(date +%s)
 status=0
-NONCE_ENV="$NONCE" unshare -Urn sh "$WORK/node.sh" "$WORK" a TESTA-1 10.73.0.1 "$PROFILE" "$SOCK" "" || status=1
+NONCE_ENV="$NONCE" unshare -Urn sh "$WORK/node.sh" "$WORK" a TESTA-1 10.73.0.1 "$PROFILE" "$SOCK" "-pcap $WORK/a.pcap" || status=1
 
 secs() { echo "$(( $(cat "$1") / 1000 )).$(( $(cat "$1") % 1000 / 100 )) s"; }
 echo
@@ -181,9 +183,18 @@ room = [m for m in cq if m.get("from") == "TESTA-1"]
 astat, bstat = load("a-status.json", {}), load("b-status.json", {})
 listed = [s for s in astat.get("stations") or [] if s["call"] == "TESTC-1"]
 relay = {c["key"]: c["value"] for c in bstat.get("counters") or [] if c["group"] == "mesh"}
+frames = load("a-frames.json", [])
+over_b = [f for f in frames if f["from"] == "TESTC-1" and f.get("via") == ["TESTB-1*"]]
+foreign = [f for f in frames if not f["mine"]]
+with open(os.path.join(work, "a.pcap"), "rb") as fh:
+    pcap = fh.read()
+pcap_ok = pcap[:4] == bytes.fromhex("d4c3b2a1") and len(pcap) > 24 + 16 * len([f for f in frames])
 ok = (sent and sent[0]["state"] == "delivered" and len(got) == 1 and len(room) == 1
       and listed and listed[0].get("via") == ["TESTB-1"] and bstat.get("relay")
-      and relay.get("relay_repeated", 0) > 0 and relay.get("relay_flooded", 0) > 0)
+      and relay.get("relay_repeated", 0) > 0 and relay.get("relay_flooded", 0) > 0
+      and over_b and foreign and pcap_ok)
+print(f"monitor: A saw {len(frames)} frames, {len(over_b)} from C over B, {len(foreign)} for other stations;"
+      f" pcap {len(pcap)} bytes")
 print(f"chat:  A → C {sent[0]['state'] if sent else 'not sent'} after {sent[0]['tries'] if sent else 0} tries,"
       f" C got it {len(got)}x, A's CQ in C's room {len(room)}x")
 print(f"relay: B repeated {relay.get('relay_repeated', 0)}, passed on {relay.get('relay_flooded', 0)}"

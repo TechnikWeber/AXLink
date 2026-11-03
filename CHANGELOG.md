@@ -1,5 +1,15 @@
 # Changes
 
+## Unreleased
+
+- Every station relays by default (switchable). A relay passes a flooded beacon or CQ message on
+  only while a station it hears directly may not have it yet, after a random wait in which
+  copies from other relays count too: no relay storm where everyone hears everyone, no repeats
+  at the end of a line.
+- Packet monitor: the view "Monitor" ("Mithören") shows the last 500 frames heard and sent, also
+  those for other stations, with a short description; `-pcap FILE` writes every frame for
+  Wireshark, `-debug` into the log.
+
 ## 0.2.0-alpha.1 — 2026-11-03
 
 A new start after the review of 2026-11-02 ([REVIEW](docs/REVIEW_2026-11-02.md),

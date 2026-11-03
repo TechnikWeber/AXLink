@@ -34,8 +34,9 @@ type Settings struct {
 	// Forwards publish services of the own network on ports of the radio
 	// address.
 	Forwards []forward.Rule `json:"forwards,omitempty"`
-	// Relay repeats frames for other stations (mesh, role RELAY).
-	Relay bool `json:"relay,omitempty"`
+	// Relay repeats frames for other stations (mesh, role RELAY); on by
+	// default.
+	Relay bool `json:"relay"`
 }
 
 // Gateway is the choice of the internet gateway this station uses.
@@ -77,6 +78,7 @@ func Defaults() Settings {
 		Share:    Share{Port: 8080},
 		Welcome:  Welcome{Enabled: true, Port: 80},
 		Firewall: firewall.Config{Mode: firewall.ModeProtect, Ping: true},
+		Relay:    true,
 	}
 }
 

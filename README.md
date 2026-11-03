@@ -54,9 +54,13 @@ a welcome page over the radio ([English](docs/images/welcome-en.png), [German](d
   room. Neither the firewall nor the internet sharing stands in the way. Radios with the
   [APRS messenger firmware](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware) speak the
   same format.
-- **Mesh:** a station switched to "Relay" repeats frames as a digipeater; beacons and CQ travel
-  over up to two relays, and stations learn over which relays the others are reached
+- **Mesh:** every station repeats frames for others as a digipeater (on by default,
+  switchable), beacons and CQ only where a neighbour may not have them yet; they travel over up
+  to two relays, and stations learn over which relays the others are reached
   ([protocol](docs/protocol/mesh.md)).
+- **Monitor:** every frame on the channel in the web interface, those for other stations too,
+  as with an open squelch ([picture](docs/images/mesh-frames-en.png)); `-pcap` writes them for
+  Wireshark.
 - **Internet gateway:** a station with internet access shares it as an HTTP proxy (HTTPS through
   CONNECT, names resolved on the gateway), open to everyone or to listed callsigns. A client
   chooses the gateway in its web interface or asks for access in the chat; browser and programs
@@ -123,6 +127,7 @@ responsible for what is allowed on their frequency; AXLink does not restrict tra
 | Document | Content |
 |---|---|
 | [QUICKSTART.md](docs/QUICKSTART.md) | install and start on Linux, Windows, macOS |
+| [BENCH.md](docs/BENCH.md) | the test plan for the first two radios |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | how AXLink is built |
 | [protocol/](docs/protocol/) | the beacon and the relays (CC BY 4.0) |
 | [DECISIONS.md](docs/DECISIONS.md) | the decisions; they take precedence |

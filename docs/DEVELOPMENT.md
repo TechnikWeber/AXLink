@@ -73,6 +73,10 @@ sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
   again. A frame that did not get through completely is sent once more.
 - Without a callsign, or with a placeholder (`N0CALL`), `run` does not start.
 - Broadcast and multicast are kept off the air; `-allow-broadcast` switches the filter off.
+- Every station relays for others by default (`-relay=false` or the settings turn it off).
+- Debugging: the web interface's view "Monitor" shows every frame heard and sent; `-pcap FILE`
+  writes them into a file for Wireshark (link type AX.25, decoded down to IP), `-debug` into the
+  log.
 - macOS: the network adapter is a utun (macOS names it, e.g. `utun5`) and needs root. Native
   builds use cgo for the USB IDs of serial ports (`-port auto`); a build without cgo lists the
   port names only. Tested in CI (adapter and ping), not yet with a radio.

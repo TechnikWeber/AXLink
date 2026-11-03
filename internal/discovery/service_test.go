@@ -308,8 +308,14 @@ func TestARelayedBeaconGivesTheWay(t *testing.T) {
 	if p, _ := ts.PathTo(ax25.MustAddress("TESTC-1")); pathString(p) != "TESTB-1" {
 		t.Fatalf("%v", p)
 	}
+	if len(ts.Neighbors()) != 0 {
+		t.Fatalf("heard only over relays, but neighbours %v", ts.Neighbors())
+	}
 	// Heard directly: no relay needed, as long as that lasts.
 	ts.Handle(beaconFrom(t, "TESTC-1", c))
+	if nb := ts.Neighbors(); len(nb) != 1 || nb[0].String() != "TESTC-1" {
+		t.Fatalf("neighbours %v", nb)
+	}
 	if _, p, _ := ts.Route(netip.MustParseAddr("10.73.0.3")); len(p) != 0 {
 		t.Fatalf("direct, but %v", p)
 	}
