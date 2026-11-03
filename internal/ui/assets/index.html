@@ -159,6 +159,22 @@
       <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
     </form>
   </section>
+  <section class="card wide">
+    <h2>{{index .T "fwd.title"}}</h2>
+    <form id="form-forward" class="form">
+      <p class="small muted">{{index .T "fwd.intro"}}</p>
+      <div class="scroll">
+        <table id="fwd-rules">
+          <thead><tr><th>{{index .T "fwd.port"}}</th><th>{{index .T "fwd.target"}}</th><th>{{index .T "fws.calls"}}</th><th>{{index .T "fws.note"}}</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p id="fwd-none" class="muted small" hidden>{{index .T "fwd.none"}}</p>
+      <p><button type="button" id="fwd-add">{{index .T "fwd.add"}}</button></p>
+      <p class="small muted">{{index .T "fwd.hint"}}</p>
+      <div class="actions"><button type="submit" class="on">{{index .T "set.save"}}</button><span class="msg"></span></div>
+    </form>
+  </section>
 </main>
 
 <footer>AXLink {{.Version}} · {{index .T "footer.operator"}}</footer>

@@ -5,7 +5,7 @@
 "use strict";
 
 const T = JSON.parse(document.getElementById("texts").textContent);
-const GROUPS = ["radio", "ip", "beacons", "internet", "gateway"];
+const GROUPS = ["radio", "ip", "beacons", "internet", "gateway", "forward"];
 const SVG = "http://www.w3.org/2000/svg";
 const LANG = document.documentElement.lang;
 let settings = null; // the settings as last read or saved
@@ -344,6 +344,10 @@ function fillSettings(s) {
   const body = document.querySelector("#fw-rules tbody");
   body.replaceChildren();
   for (const r of s.firewall.rules || []) addRule(r);
+  const fbody = document.querySelector("#fwd-rules tbody");
+  fbody.replaceChildren();
+  for (const f of s.forwards || []) addForward(f);
+  showNoForwards();
   if (pendingRule) {
     addRule(pendingRule);
     pendingRule = null;
@@ -366,6 +370,23 @@ function addRule(r) {
   showNoRules();
 }
 
+function addForward(f) {
+  const tr = el("tr", {},
+    el("td", {}, el("input", { type: "number", min: "1", max: "65535", value: f.port || "", class: "port" })),
+    el("td", {}, el("input", { type: "text", value: f.target || "", class: "target mono", spellcheck: "false", placeholder: "192.168.1.10:22" })),
+    el("td", {}, el("input", { type: "text", value: (f.calls || []).join(", "), class: "calls mono", spellcheck: "false" })),
+    el("td", {}, el("input", { type: "text", value: f.note || "", class: "rule-note", maxlength: "80" })),
+    el("td", {}, el("button", { type: "button", text: t("fws.remove"), onclick: () => { tr.remove(); showNoForwards(); } })));
+  document.querySelector("#fwd-rules tbody").append(tr);
+  showNoForwards();
+}
+
+function showNoForwards() {
+  const n = document.querySelectorAll("#fwd-rules tbody tr").length;
+  $("fwd-rules").hidden = n === 0;
+  $("fwd-none").hidden = n !== 0;
+}
+
 function showNoRules() {
   const n = document.querySelectorAll("#fw-rules tbody tr").length;
   $("fw-rules").hidden = n === 0;
@@ -382,6 +403,11 @@ function collect() {
   s.firewall = { mode: $("fw-mode").value, ping: $("fw-ping").checked, silent: !$("fw-answer").checked, rules: [] };
   for (const tr of document.querySelectorAll("#fw-rules tbody tr")) {
     s.firewall.rules.push({ proto: tr.querySelector("select").value, port: Number(tr.querySelector(".port").value),
+      calls: calls(tr.querySelector(".calls").value), note: tr.querySelector(".rule-note").value });
+  }
+  s.forwards = [];
+  for (const tr of document.querySelectorAll("#fwd-rules tbody tr")) {
+    s.forwards.push({ port: Number(tr.querySelector(".port").value), target: tr.querySelector(".target").value.trim(),
       calls: calls(tr.querySelector(".calls").value), note: tr.querySelector(".rule-note").value });
   }
   return s;
@@ -414,10 +440,11 @@ async function save(form) {
   }
 }
 
-for (const id of ["form-share", "form-welcome", "form-firewall"]) {
+for (const id of ["form-share", "form-welcome", "form-firewall", "form-forward"]) {
   $(id).addEventListener("submit", (ev) => { ev.preventDefault(); save(ev.target); });
 }
 $("fw-add").addEventListener("click", () => addRule({ proto: "tcp" }));
+$("fwd-add").addEventListener("click", () => addForward({}));
 
 // ---- chat ----
 

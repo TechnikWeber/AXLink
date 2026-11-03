@@ -17,6 +17,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
+	"github.com/TechnikWeber/AXLink/internal/forward"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/locator"
@@ -41,6 +42,7 @@ type node struct {
 	disc      *discovery.Service
 	fw        *firewall.Firewall
 	chat      *chat.Service
+	fwd       *forward.Forwarder
 	mon       *monitor.Monitor
 	store     *settings.Store
 	choice    *gateway.Choice
@@ -55,9 +57,12 @@ type node struct {
 	gwStop  context.CancelFunc
 	welAddr string // "" while the welcome page is off
 	welStop context.CancelFunc
+	// forwards are the forwarding rules in effect
+	forwards []forward.Rule
 }
 
-// systemRules opens the ports of the welcome page and the gateway.
+// systemRules opens the ports of the welcome page, the gateway and the port
+// forwarding.
 func (n *node) systemRules() []firewall.Rule {
 	if r := n.system.Load(); r != nil {
 		return *r
@@ -72,7 +77,21 @@ func (n *node) updateSystemRules() {
 			rules = append(rules, firewall.Rule{Proto: "tcp", Port: ap.Port()})
 		}
 	}
+	for _, f := range n.forwards {
+		rules = append(rules, firewall.Rule{Proto: "tcp", Port: f.Port, Calls: f.Calls})
+	}
 	n.system.Store(&rules)
+}
+
+// applyForwards opens the ports of the forwarding rules and closes the others.
+func (n *node) applyForwards(rules []forward.Rule) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	if err := n.fwd.Set(n.ctx, rules); err != nil {
+		n.log.Warn("port forwarding", "err", err)
+	}
+	n.forwards = slices.Clone(rules)
+	n.updateSystemRules()
 }
 
 // serve runs handler on a new listener at addr until the returned stop is called.
@@ -182,6 +201,9 @@ func (n *node) welcomePage() welcome.Page {
 	for _, r := range fw.Rules {
 		p.Services = append(p.Services, welcome.Service{Proto: r.Proto, Port: r.Port, Note: r.Note, Some: len(r.Calls) > 0})
 	}
+	for _, f := range n.store.Get().Forwards {
+		p.Services = append(p.Services, welcome.Service{Proto: "tcp", Port: f.Port, Note: f.Note, Some: len(f.Calls) > 0})
+	}
 	return p
 }
 
@@ -205,6 +227,11 @@ func (n *node) apply(old, s settings.Settings) {
 		if err := n.disc.SetLocator(loc); err != nil {
 			n.log.Warn("locator not announced", "err", err)
 		}
+	}
+	if !slices.EqualFunc(s.Forwards, old.Forwards, func(a, b forward.Rule) bool {
+		return a.Port == b.Port && a.Target == b.Target && slices.Equal(a.Calls, b.Calls) && a.Note == b.Note
+	}) {
+		n.applyForwards(s.Forwards)
 	}
 	if s.Share.Enabled != old.Share.Enabled || s.Share.Port != old.Share.Port || s.Share.LAN != old.Share.LAN ||
 		!slices.Equal(s.Share.Only, old.Share.Only) {
@@ -324,6 +351,9 @@ func (n *node) status() ui.Status {
 		st.Welcome = "http://" + strings.TrimSuffix(welAddr, ":80") + "/"
 	}
 	st.Counters = counters(n.port.Stats(), n.bridge.Stats(), n.disc.Stats(), ls, gs)
+	if fs := n.fwd.Stats(); len(n.store.Get().Forwards) > 0 || fs.Connections+fs.Refused+fs.Failed > 0 {
+		st.Counters = append(st.Counters, forwardCounters(fs)...)
+	}
 	st.Unread = n.chat.Unread()
 	fwc, fws := n.fw.Config(), n.fw.Stats()
 	st.Firewall = ui.Firewall{Mode: fwc.Mode, Ping: fwc.Ping, Passed: fws.Passed, Blocked: fws.Blocked,
@@ -369,6 +399,15 @@ func counters(p tnc.Stats, b ipbridge.Stats, d discovery.Stats, l *gateway.Local
 			c("gateway", "refused", g.Refused), c("gateway", "failed", g.Failed))
 	}
 	return out
+}
+
+// forwardCounters are the numbers of the port forwarding.
+func forwardCounters(fs forward.Stats) []ui.Counter {
+	c := func(key string, v uint64, bytes bool) ui.Counter {
+		return ui.Counter{Group: "forward", Key: key, Value: v, Bytes: bytes}
+	}
+	return []ui.Counter{c("fwd_connections", fs.Connections, false), c("fwd_refused", fs.Refused, false),
+		c("fwd_failed", fs.Failed, false), c("fwd_bytes_in", fs.BytesIn, true), c("fwd_bytes_out", fs.BytesOut, true)}
 }
 
 // startLocal opens the local proxy to the chosen gateway; a failure is

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/TechnikWeber/AXLink/internal/firewall"
+	"github.com/TechnikWeber/AXLink/internal/forward"
 )
 
 func TestDefaultsAreValidAndSafe(t *testing.T) {
@@ -93,6 +94,32 @@ func TestTheLocatorIsCheckedAndWrittenAsUsual(t *testing.T) {
 	}
 	if s, err := st.Update(func(s *Settings) { s.Welcome.LocatorInBeacon = true }); err != nil || !s.Welcome.LocatorInBeacon {
 		t.Fatal(err)
+	}
+}
+
+func TestForwardsAreCheckedAgainstTheOtherPorts(t *testing.T) {
+	st, _ := Open("")
+	s, err := st.Update(func(s *Settings) {
+		s.Forwards = []forward.Rule{{Port: 2222, Target: " 192.168.1.10:22 ", Calls: []string{"testb"}, Note: " NAS "}}
+	})
+	if err != nil || s.Forwards[0].Target != "192.168.1.10:22" || s.Forwards[0].Calls[0] != "TESTB" || s.Forwards[0].Note != "NAS" {
+		t.Fatalf("%+v %v", s.Forwards, err)
+	}
+	for name, f := range map[string][]forward.Rule{
+		"the welcome page's port": {{Port: 80, Target: "192.168.1.10:80"}},
+		"twice the same port":     {{Port: 2222, Target: "a:22"}, {Port: 2222, Target: "b:22"}},
+		"no target port":          {{Port: 2222, Target: "192.168.1.10"}},
+	} {
+		if _, err := st.Update(func(s *Settings) { s.Forwards = f }); err == nil {
+			t.Errorf("%s: accepted", name)
+		}
+	}
+	// The gateway's port only while it shares.
+	if _, err := st.Update(func(s *Settings) { s.Forwards = []forward.Rule{{Port: 8080, Target: "a:80"}} }); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.Update(func(s *Settings) { s.Share.Enabled = true }); err == nil {
+		t.Fatal("sharing on a forwarded port was accepted")
 	}
 }
 

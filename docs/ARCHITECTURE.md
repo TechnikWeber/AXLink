@@ -182,6 +182,18 @@ use out, not a determined attacker. The own network (home network) cannot be rea
 the radio at all: the bridge passes only packets for the own address, and the gateway refuses
 private addresses unless `-proxy-lan` or the setting allows them.
 
+## Port forwarding
+
+`internal/forward` publishes a TCP service of the own network on a port of the radio address:
+`-forward 2222=192.168.1.10:22=N0CALL-1` (or a row in the settings) lets the station N0CALL-1
+reach the SSH server of 192.168.1.10 at `10.73.0.2:2222`. axlinkd accepts the connection itself
+and opens one to the target, so the operating system needs neither forwarding nor NAT, and
+nothing else of the own network becomes reachable. The firewall opens the port for the same
+callsigns; the forwarding checks them again by the client's address (station discovery), so a
+rule with callsigns holds in the firewall mode "open" too. A target `127.0.0.1:PORT` publishes a
+service of this computer that listens locally only. At most eight connections per rule at the
+same time; TCP only for now. The welcome page lists forwarded ports like opened ones.
+
 ## Welcome page
 
 Every station offers a small page on its radio address (`http://10.73.0.2/`, port 80 by

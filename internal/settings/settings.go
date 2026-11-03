@@ -2,7 +2,7 @@
 
 // Package settings keeps what the web interface changes across restarts: the
 // choice of an internet gateway, sharing the own internet connection, the
-// station's welcome page and the firewall. They live in a JSON file,
+// station's welcome page, the firewall and the port forwarding. They live in a JSON file,
 // settings.json in the user's configuration folder by default, written
 // atomically and readable by the owner only.
 package settings
@@ -21,6 +21,7 @@ import (
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
+	"github.com/TechnikWeber/AXLink/internal/forward"
 	"github.com/TechnikWeber/AXLink/internal/locator"
 )
 
@@ -30,6 +31,9 @@ type Settings struct {
 	Share    Share           `json:"share"`
 	Welcome  Welcome         `json:"welcome"`
 	Firewall firewall.Config `json:"firewall"`
+	// Forwards publish services of the own network on ports of the radio
+	// address.
+	Forwards []forward.Rule `json:"forwards,omitempty"`
 }
 
 // Gateway is the choice of the internet gateway this station uses.
@@ -119,7 +123,29 @@ func (s Settings) Check() error {
 			return fmt.Errorf("welcome %s: %w", f.name, err)
 		}
 	}
-	return s.Firewall.Check()
+	if err := s.Firewall.Check(); err != nil {
+		return err
+	}
+	if len(s.Forwards) > 32 {
+		return errors.New("forward: more than 32 rules")
+	}
+	used := map[uint16]string{}
+	if s.Welcome.Enabled {
+		used[s.Welcome.Port] = "the welcome page"
+	}
+	if s.Share.Enabled {
+		used[s.Share.Port] = "the gateway"
+	}
+	for _, f := range s.Forwards {
+		if err := f.Check(); err != nil {
+			return err
+		}
+		if what, ok := used[f.Port]; ok {
+			return fmt.Errorf("forward: port %d is already used by %s", f.Port, what)
+		}
+		used[f.Port] = "another forwarding"
+	}
+	return nil
 }
 
 func checkText(s string, max int, lines bool) error {
@@ -260,6 +286,10 @@ func normalise(s *Settings) {
 		s.Firewall.Rules[i].Proto = strings.ToLower(strings.TrimSpace(s.Firewall.Rules[i].Proto))
 		s.Firewall.Rules[i].Calls = up(s.Firewall.Rules[i].Calls)
 		s.Firewall.Rules[i].Note = strings.TrimSpace(s.Firewall.Rules[i].Note)
+	}
+	for i := range s.Forwards {
+		f := &s.Forwards[i]
+		f.Target, f.Note, f.Calls = strings.TrimSpace(f.Target), strings.TrimSpace(f.Note), up(f.Calls)
 	}
 	w := &s.Welcome
 	w.Name, w.Locator, w.QTH = strings.TrimSpace(w.Name), strings.TrimSpace(w.Locator), strings.TrimSpace(w.QTH)

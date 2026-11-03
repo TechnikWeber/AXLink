@@ -60,9 +60,10 @@ trap cleanup EXIT
 echo "lab: $WORK (mode $MODE${ADAPTER_MTU:+, adapter MTU $ADAPTER_MTU})"
 (cd "$ROOT" && "$GO" build -o "$WORK/axlinkd" ./cmd/axlinkd)
 NONCE="$(python3 -I -c 'import secrets; print(secrets.token_hex(8))')"
-mkdir -p "$WORK/www" "$WORK/inet"
+mkdir -p "$WORK/www" "$WORK/inet" "$WORK/lan"
 echo "AXLink $NONCE" > "$WORK/www/hello.txt"
 echo "from the internet $NONCE" > "$WORK/inet/inet.txt"
+echo "from B's own network $NONCE" > "$WORK/lan/lan.txt"
 # Each station keeps its settings in the lab's short socket folder (it shows in
 # the screenshots), never in the user's own settings.
 cat > "$SOCK/settings-a.json" <<'JSON'
@@ -134,8 +135,10 @@ shoot() {
 started=$(date +%s%N)
 GATEWAY=
 if [ "$NAME" = b ]; then
-    # B shares its "internet" and opens the ports of the lab's test services.
-    GATEWAY="-proxy 3128 -open 8080/tcp -open 7070/udp"
+    # B shares its "internet", opens the ports of the lab's test services and
+    # forwards 8022 (for TESTA only) and 8023 (for TESTC only) to a server of
+    # its own network that listens on 127.0.0.1 only.
+    GATEWAY="-proxy 3128 -open 8080/tcp -open 7070/udp -forward 8022=127.0.0.1:8090=TESTA -forward 8023=127.0.0.1:8090=TESTC"
     ip addr add 192.0.2.80/32 dev lo            # TEST-NET-1: the internet stand-in
 fi
 "$WORK/axlinkd" run -call "$CALL" -kiss-unix "$SOCK/$NAME.sock" -profile "$PROFILE" \
@@ -148,6 +151,7 @@ if [ "$NAME" = b ]; then
     python3 -I "$WORK/udp_echo.py" "$IP" &
     python3 -I -m http.server 8080 --bind "$IP" --directory "$WORK/www" > /dev/null 2>&1 &
     python3 -I -m http.server 8081 --bind 192.0.2.80 --directory "$WORK/inet" > /dev/null 2>&1 &
+    python3 -I -m http.server 8090 --bind 127.0.0.1 --directory "$WORK/lan" > /dev/null 2>&1 &
     sleep 1
     touch "$WORK/b.ready"
     while [ ! -e "$WORK/stop" ]; do
@@ -240,6 +244,13 @@ case $code in
     7) echo refused > "$WORK/fw.result" ;;   # could not connect: the reset came back
     *) echo "blocked, curl $code" > "$WORK/fw.result" ;;
 esac
+# B's port forwarding: 8022 reaches B's local server, 8023 is for TESTC only.
+start=$(date +%s%N)
+curl -sS --max-time 120 "http://$PEER_IP:8022/lan.txt" > "$WORK/fwd.out" 2> "$WORK/fwd.err" || status=1
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/fwd.ms"
+code=0
+curl -s --max-time 60 -o /dev/null "http://$PEER_IP:8023/lan.txt" 2> /dev/null || code=$?
+echo $code > "$WORK/fwd-other.code"
 # Chat: a message to B, acknowledged; B answers; a message to CQ. No IP.
 chat() { curl -s --max-time 10 -X POST -H 'Content-Type: application/json' -d "$2" "$ui/api/chat/$1"; }
 start=$(date +%s%N)
@@ -357,6 +368,12 @@ then
 else
     echo "welcome/firewall: FAILED (page $(wc -c < "$WORK/welcome.out" 2>/dev/null) bytes, by name" \
         "$(wc -c < "$WORK/welcome-name.out" 2>/dev/null) bytes, port 9999: $(cat "$WORK/fw.result" 2>/dev/null))"
+    status=1
+fi
+if grep -qx "from B's own network $NONCE" "$WORK/fwd.out" 2>/dev/null && [[ "$(cat "$WORK/fwd-other.code")" == 7 ]]; then
+    echo "forward: ok (B's port 8022 → its local server in $(secs "$WORK/fwd.ms"); 8023, for TESTC only, refused)"
+else
+    echo "forward: FAILED ($(cat "$WORK/fwd.err" 2>/dev/null); 8023: curl $(cat "$WORK/fwd-other.code" 2>/dev/null))"
     status=1
 fi
 if python3 -I - "$WORK" "$NONCE" <<'PY'

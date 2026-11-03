@@ -22,6 +22,7 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
+	"github.com/TechnikWeber/AXLink/internal/forward"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/monitor"
@@ -77,6 +78,20 @@ type nodeConfig struct {
 	overrides []func(*settings.Settings)
 }
 
+// forwardFlags collects -forward PORT=HOST:PORT[=CALL,CALL].
+type forwardFlags []forward.Rule
+
+func (r *forwardFlags) String() string { return fmt.Sprint(*r) }
+
+func (r *forwardFlags) Set(v string) error {
+	rule, err := forward.ParseRule(v)
+	if err != nil {
+		return err
+	}
+	*r = append(*r, rule)
+	return nil
+}
+
 // ruleFlags collects -open PORT/PROTO[=CALL,CALL].
 type ruleFlags []firewall.Rule
 
@@ -117,6 +132,8 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	var open ruleFlags
 	fs.Var(&open, "open", "PORT/tcp or PORT/udp, optionally =CALL,CALL: let radio stations reach this port of this computer (repeatable; stored)")
 	fwMode := fs.String("firewall", "", "what radio stations may send to this computer: protect (the default) or open; stored")
+	var forwards forwardFlags
+	fs.Var(&forwards, "forward", "PORT=HOST:PORT, optionally =CALL,CALL: publish a TCP service of the own network on this port of the radio address (repeatable; stored)")
 	if err := fs.Parse(args); err != nil {
 		return nodeConfig{}, err
 	}
@@ -234,6 +251,15 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 			}
 		})
 	}
+	if len(forwards) > 0 {
+		rules := []forward.Rule(forwards)
+		cfg.overrides = append(cfg.overrides, func(s *settings.Settings) {
+			for _, r := range rules {
+				s.Forwards = slices.DeleteFunc(s.Forwards, func(x forward.Rule) bool { return x.Port == r.Port })
+				s.Forwards = append(s.Forwards, r)
+			}
+		})
+	}
 	if given["firewall"] {
 		mode := strings.ToLower(*fwMode)
 		if mode != firewall.ModeProtect && mode != firewall.ModeOpen {
@@ -343,8 +369,10 @@ func runNode(args []string, stderr io.Writer) int {
 	n.gw = gateway.New(gateway.Config{AllowLAN: st.Share.LAN, Only: st.Share.Only, Who: disc.Lookup, Logger: log})
 	n.choice = gateway.NewChoice(n.candidates)
 	_ = n.choice.Set(gateway.Mode(st.Gateway.Mode), st.Gateway.Call) // checked when the settings were read
+	n.fwd = forward.New(forward.Config{Addr: cfg.tun.Address.Addr(), Who: disc.Lookup, Logger: log})
 	n.applyShare(st.Share)
 	n.applyWelcome(st.Welcome)
+	n.applyForwards(st.Forwards)
 	log.Info("firewall", "mode", st.Firewall.Mode, "ping", st.Firewall.Ping, "rules", len(st.Firewall.Rules))
 	n.mon = monitor.New(2*time.Second, 300, n.totals)
 	go n.mon.Run(ctx)
@@ -371,7 +399,8 @@ func runNode(args []string, stderr io.Writer) int {
 	logStats := func() {
 		args := []any{"port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
 			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary(),
-			"firewall", fmt.Sprintf("%+v", n.fw.Stats()), "chat", fmt.Sprintf("%+v", msgs.Stats())}
+			"firewall", fmt.Sprintf("%+v", n.fw.Stats()), "chat", fmt.Sprintf("%+v", msgs.Stats()),
+			"forward", fmt.Sprintf("%+v", n.fwd.Stats())}
 		n.mu.Lock()
 		sharing := n.gwAddr != ""
 		n.mu.Unlock()

@@ -12,6 +12,7 @@ import (
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
+	"github.com/TechnikWeber/AXLink/internal/forward"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
 	"github.com/TechnikWeber/AXLink/internal/ipbridge"
 	"github.com/TechnikWeber/AXLink/internal/kiss"
@@ -100,7 +101,8 @@ func TestRunFlags(t *testing.T) {
 	}
 	// Options that change stored settings become overrides of those settings.
 	opts, err := parseNodeFlags([]string{"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "3128", "-proxy-lan",
-		"-gateway", "testb-1", "-open", "8080/tcp", "-open", "22/tcp=TESTB", "-firewall", "open", "-config", "", "-ui", ""}, &errs)
+		"-gateway", "testb-1", "-open", "8080/tcp", "-open", "22/tcp=TESTB", "-firewall", "open", "-config", "", "-ui", "",
+		"-forward", "2222=192.168.1.10:22=TESTB"}, &errs)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,6 +112,7 @@ func TestRunFlags(t *testing.T) {
 	}
 	if !s.Share.Enabled || s.Share.Port != 3128 || !s.Share.LAN || s.Gateway.Mode != "station" || s.Gateway.Call != "TESTB-1" ||
 		len(s.Firewall.Rules) != 2 || s.Firewall.Rules[1].Calls[0] != "TESTB" || s.Firewall.Mode != "open" ||
+		len(s.Forwards) != 1 || s.Forwards[0].Target != "192.168.1.10:22" || s.Forwards[0].Calls[0] != "TESTB" ||
 		opts.configPath != "" || opts.ui != "" {
 		t.Fatalf("overrides gave %+v", s)
 	}
@@ -147,6 +150,7 @@ func TestRunFlags(t *testing.T) {
 		"no port":          {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-proxy", "70000"},
 		"bad gateway":      {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-gateway", "not a call"},
 		"bad open":         {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-open", "22"},
+		"bad forward":      {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-forward", "2222=192.168.1.10"},
 		"bad firewall":     {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-firewall", "sometimes"},
 		"bad ui address":   {"-call", "TESTA-1", "-ip", "10.73.0.1/24", "-ui", "7373"},
 	} {
@@ -157,7 +161,9 @@ func TestRunFlags(t *testing.T) {
 }
 
 func TestEveryCounterHasATextInBothLanguages(t *testing.T) {
-	for _, c := range counters(tnc.Stats{}, ipbridge.Stats{}, discovery.Stats{}, &gateway.LocalStats{}, &gateway.Stats{}) {
+	all := append(counters(tnc.Stats{}, ipbridge.Stats{}, discovery.Stats{}, &gateway.LocalStats{}, &gateway.Stats{}),
+		forwardCounters(forward.Stats{})...)
+	for _, c := range all {
 		if !ui.HasText("c."+c.Key) || !ui.HasText("group."+c.Group) {
 			t.Errorf("no text for counter %s/%s", c.Group, c.Key)
 		}

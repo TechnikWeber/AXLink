@@ -146,8 +146,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #b9d5fb; border-c
 .actions { display: flex; align-items: center; gap: 12px; }
 .msg.ok { color: var(--ok); }
 .msg.err { color: var(--bad); }
-#fw-rules td { padding: 4px 6px; }
-#fw-rules input, #fw-rules select { width: 100%; min-width: 70px; }
+#fw-rules td, #fwd-rules td { padding: 4px 6px; }
+#fw-rules input, #fw-rules select, #fwd-rules input { width: 100%; min-width: 70px; }
+#fwd-rules input.target { min-width: 170px; }
 
 /* Chat */
 .tabs a .count {
