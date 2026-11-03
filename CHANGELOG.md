@@ -24,7 +24,7 @@ the air with a real radio.
   (`-relay`, tag `RELAY`) repeats frames as an AX.25 digipeater; beacons and CQ messages travel
   with the flood alias `AXHOP-2` over up to two relays, and stations learn from them over which
   relays another station is reached. `scripts/lab-mesh.sh`: three stations in a line; A and C
-  found each other over B in 35-42 s, ping, HTTP and chat over B. Stations that do not hear each
+  found each other over B in 35-74 s (six runs), ping, HTTP and chat over B. Stations that do not hear each
   other collide at the relay (hidden stations); TCP and the chat repeat what is lost. Because the
   beacons of two hidden stations can collide at the relay too, a station sends a flooded beacon
   again when the relay's copy does not come back, asks again when its ask stays unanswered among

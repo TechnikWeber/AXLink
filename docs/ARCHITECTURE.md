@@ -216,13 +216,15 @@ frame came. Everything stays on layer 2: a relay routes no IP and passes nothing
 its own computer or network. The format: [protocol/mesh.md](protocol/mesh.md).
 
 The lab `scripts/lab-mesh.sh` puts three stations in a line (A hears B, B hears C, A and C do
-not hear each other) with B as the relay. In the F4HWN model with ACKMODE, A and C found each
-other over B in 35-42 s; ping took about 5 s per round trip, a small HTTP file 25-55 s, and a
-chat message from A to C was delivered at the first or second try. The channel showed 7-12
-collisions at B: A and C cannot hear each other's carrier (hidden stations), which AX.25 on one
-frequency cannot prevent; TCP and the chat repeat what was lost. One run showed why a station
-must ask again: the first beacons of A and C collided at B, and without an answer nobody would
-have sent another beacon for ten minutes (see the beacon timing).
+not hear each other) with B as the relay. In the F4HWN model with ACKMODE, in six runs on
+2026-11-03 (four of them at the same time), A and C found each other over B in 35-74 s; ping took
+about 5 s per round trip, a small HTTP file 21-45 s, and a chat message from A to C was delivered
+at the first try in 7-9 s. The channel shows collisions at B: A and C cannot hear each other's
+carrier (hidden stations), which AX.25 on one frequency cannot prevent; TCP and the chat repeat
+what was lost. Earlier runs showed what the beacon timing must cover: the first beacons of A and
+C collided at B, and their answers, postponed by exactly 30 s, collided again; nobody would have
+sent another beacon for ten minutes. Hence the random postponement, the relay's echo and asking
+again (see the beacon timing).
 
 ## Chat
 
