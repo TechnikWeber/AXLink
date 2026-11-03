@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/monitor"
 	"github.com/TechnikWeber/AXLink/internal/settings"
@@ -46,6 +47,7 @@ type Status struct {
 	Firewall Firewall  `json:"firewall"`
 	Welcome  string    `json:"welcome,omitempty"` // the own welcome page on the radio address
 	Settings string    `json:"settings_file"`     // where the settings are stored; "" for nowhere
+	Unread   int       `json:"unread"`            // chat messages not read yet
 }
 
 // Monitor is the live view: one sample every Interval seconds.
@@ -129,7 +131,20 @@ type Config struct {
 	Save     func(settings.Settings) (settings.Settings, error)
 	// Welcome serves the own welcome page for the preview under /welcome/.
 	Welcome http.Handler
-	Logger  *slog.Logger
+	// Chat is the station's mailbox; nil without one.
+	Chat   Chat
+	Logger *slog.Logger
+}
+
+// Chat is what the web interface needs of the mailbox (chat.Service).
+type Chat interface {
+	Conversations() []chat.Conversation
+	Messages(peer string) []chat.Message
+	Send(to, text string) ([]chat.Message, error)
+	MarkRead(peer string)
+	Retry(n uint64) error
+	Delete(peer string)
+	Path() string
 }
 
 // Server is the web interface.
@@ -207,6 +222,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, s.cfg.Settings())
 	case r.URL.Path == "/api/settings" && r.Method == http.MethodPost && s.cfg.Save != nil:
 		s.save(w, r)
+	case strings.HasPrefix(r.URL.Path, "/api/chat") && s.cfg.Chat != nil:
+		h.Set("Cache-Control", "no-store")
+		s.chat(w, r)
 	case strings.HasPrefix(r.URL.Path, "/welcome/") && r.Method == http.MethodGet && s.cfg.Welcome != nil:
 		http.StripPrefix("/welcome", s.cfg.Welcome).ServeHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/static/") && r.Method == http.MethodGet:
@@ -267,6 +285,64 @@ func (s *Server) save(w http.ResponseWriter, r *http.Request) {
 	}
 	s.cfg.Logger.Info("ui: settings saved")
 	writeJSON(w, http.StatusOK, saved)
+}
+
+// chat answers /api/chat (the conversations), /api/chat/messages?peer= and
+// the POSTs send, read, retry and delete.
+func (s *Server) chat(w http.ResponseWriter, r *http.Request) {
+	c := s.cfg.Chat
+	if r.Method == http.MethodGet {
+		switch r.URL.Path {
+		case "/api/chat":
+			writeJSON(w, http.StatusOK, map[string]any{"conversations": c.Conversations(), "file": c.Path()})
+		case "/api/chat/messages":
+			msgs := c.Messages(r.URL.Query().Get("peer"))
+			if msgs == nil {
+				msgs = []chat.Message{}
+			}
+			writeJSON(w, http.StatusOK, msgs)
+		default:
+			http.NotFound(w, r)
+		}
+		return
+	}
+	if r.Method != http.MethodPost {
+		http.Error(w, "GET or POST", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		To   string `json:"to"`
+		Text string `json:"text"`
+		Peer string `json:"peer"`
+		N    uint64 `json:"n"`
+	}
+	if err := json.NewDecoder(io.LimitReader(r.Body, 8192)).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "bad request"})
+		return
+	}
+	var err error
+	switch r.URL.Path {
+	case "/api/chat/send":
+		var out []chat.Message
+		if out, err = c.Send(req.To, req.Text); err == nil {
+			writeJSON(w, http.StatusOK, out)
+			return
+		}
+	case "/api/chat/read":
+		c.MarkRead(req.Peer)
+	case "/api/chat/retry":
+		err = c.Retry(req.N)
+	case "/api/chat/delete":
+		c.Delete(req.Peer)
+	default:
+		http.NotFound(w, r)
+		return
+	}
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func writeJSON(w http.ResponseWriter, code int, v any) {

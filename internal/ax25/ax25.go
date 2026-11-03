@@ -205,6 +205,20 @@ func (f *Frame) Append(dst []byte) ([]byte, error) {
 // Encode returns f encoded without FCS.
 func (f *Frame) Encode() ([]byte, error) { return f.Append(nil) }
 
+// Source returns the source address of an encoded frame, Bit7 clear,
+// without decoding the rest.
+func Source(b []byte) (Address, bool) {
+	if len(b) < 2*addressLen {
+		return Address{}, false
+	}
+	a, _, err := decodeAddress(b[addressLen : 2*addressLen])
+	if err != nil {
+		return Address{}, false
+	}
+	a.Bit7 = false
+	return a, true
+}
+
 // Decode parses a frame without FCS, as delivered by a KISS TNC.
 // Info aliases b.
 func Decode(b []byte) (*Frame, error) {

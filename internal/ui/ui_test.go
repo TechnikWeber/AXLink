@@ -14,6 +14,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/TechnikWeber/AXLink/internal/chat"
 )
 
 func testServer() (*Server, *[]string) {
@@ -184,5 +186,75 @@ func TestOtherSitesCannotUseTheInterface(t *testing.T) {
 		if w := do(s, "GET", "/api/status", "", map[string]string{"Host": host}); w.Code != 200 {
 			t.Errorf("%s: %d", host, w.Code)
 		}
+	}
+}
+
+type fakeChat struct {
+	sent, read, deleted []string
+}
+
+func (f *fakeChat) Conversations() []chat.Conversation { return []chat.Conversation{{Peer: "CQ"}} }
+func (f *fakeChat) Messages(peer string) []chat.Message {
+	if peer == "TESTB-1" {
+		return []chat.Message{{N: 1, Peer: "TESTB-1", Text: "<b>hi</b>"}}
+	}
+	return nil
+}
+func (f *fakeChat) Send(to, text string) ([]chat.Message, error) {
+	if to == "" {
+		return nil, errors.New("chat: recipient")
+	}
+	f.sent = append(f.sent, to+":"+text)
+	return []chat.Message{{N: 2, Out: true, Peer: to, Text: text}}, nil
+}
+func (f *fakeChat) MarkRead(peer string) { f.read = append(f.read, peer) }
+func (f *fakeChat) Retry(n uint64) error {
+	if n != 2 {
+		return errors.New("chat: no such message")
+	}
+	return nil
+}
+func (f *fakeChat) Delete(peer string) { f.deleted = append(f.deleted, peer) }
+func (f *fakeChat) Path() string       { return "" }
+
+func TestChatEndpoints(t *testing.T) {
+	s, _ := testServer()
+	fc := &fakeChat{}
+	s.cfg.Chat = fc
+	js := map[string]string{"Content-Type": "application/json"}
+	if w := do(s, "GET", "/api/chat", "", nil); w.Code != 200 || !strings.Contains(w.Body.String(), `"peer":"CQ"`) {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	if w := do(s, "GET", "/api/chat/messages?peer=TESTB-1", "", nil); w.Code != 200 || !strings.Contains(w.Body.String(), "hi") || strings.Contains(w.Body.String(), "<b>") {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	if w := do(s, "GET", "/api/chat/messages?peer=TESTX", "", nil); strings.TrimSpace(w.Body.String()) != "[]" {
+		t.Fatalf("no messages must be an empty list: %s", w.Body)
+	}
+	if w := do(s, "POST", "/api/chat/send", `{"to":"TESTB-1","text":"hello"}`, js); w.Code != 200 || len(fc.sent) != 1 {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	if w := do(s, "POST", "/api/chat/send", `{"to":"","text":"hello"}`, js); w.Code != 400 || !strings.Contains(w.Body.String(), "recipient") {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	for path, body := range map[string]string{"/api/chat/read": `{"peer":"TESTB-1"}`, "/api/chat/retry": `{"n":2}`,
+		"/api/chat/delete": `{"peer":"TESTB-1"}`} {
+		if w := do(s, "POST", path, body, js); w.Code != 204 {
+			t.Fatalf("%s: %d %s", path, w.Code, w.Body)
+		}
+	}
+	if w := do(s, "POST", "/api/chat/retry", `{"n":9}`, js); w.Code != 400 {
+		t.Fatalf("%d", w.Code)
+	}
+	// The same protection as the other POSTs: JSON only, same origin.
+	if w := do(s, "POST", "/api/chat/send", `{"to":"TESTB-1","text":"x"}`, map[string]string{"Content-Type": "text/plain"}); w.Code != 415 {
+		t.Fatalf("%d", w.Code)
+	}
+	if w := do(s, "POST", "/api/chat/send", `{"to":"TESTB-1","text":"x"}`,
+		map[string]string{"Content-Type": "application/json", "Origin": "http://evil.example"}); w.Code != 403 || len(fc.sent) != 1 {
+		t.Fatalf("%d", w.Code)
+	}
+	if len(fc.read) != 1 || len(fc.deleted) != 1 {
+		t.Fatalf("%+v", fc)
 	}
 }

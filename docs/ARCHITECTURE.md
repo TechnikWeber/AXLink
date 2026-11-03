@@ -192,6 +192,35 @@ the browser accepts that; a typical page is under 1 KB. `/station.json` gives th
 programs. Through the local proxy a station's page is also reachable by its callsign:
 `http://testb-1.axl/`.
 
+## Chat
+
+`internal/chat` carries text messages in the APRS message format (APRS 1.01, chapter 14),
+directly in AX.25 UI frames to `APZAXL` with PID `0xF0`: no IP, no TCP, no HTTP. A message is one
+frame of about 100 bytes, its acknowledgment another; at 1200 bit/s that is under a second each.
+Radios with APRS messaging take part as they are, for example the APRS messenger firmware for the
+UV-K1/UV-K5 V3: its private messages, acknowledgments and lobby (CQ) messages are the same format.
+
+- **To a station:** `:TESTB-1  :text{12`. The station answers `ack12`. Until then the message is
+  sent again after 30, 60, 120 and 240 s (as the messenger does), one message per station at a
+  time and in order. Without an answer it waits in the **mailbox** and goes out twice more each
+  time a frame from that station is heard (beacon, IP, anything), for up to a week. A repeat
+  that arrives twice is stored once and acknowledged again.
+- **To everyone:** `:CQ       :text`, sent twice a minute apart, not acknowledged; QST and ALL
+  arrive in the same room.
+- **Text:** at most 67 characters per message, as APRS allows; a longer text goes out in up to
+  five parts. Umlauts and other Latin letters are written in ASCII (ä: ae), as APRS radios show
+  them; `|`, `~` and `{` become `-`.
+- **Always reachable:** messages are not IP traffic, so neither the firewall nor the internet
+  sharing affects them. Everyone on the frequency can read them: amateur radio is open.
+- **Mailbox file:** `messages.json` next to `settings.json`, written atomically, readable by the
+  owner only; at most 2000 messages are kept.
+
+The web interface has a chat view: the room and one conversation per station, the state of
+each message sent (sending, in the mailbox, delivered, not delivered), unread counts in the
+tab. In a conversation with a gateway there is "Ask for internet access", which prepares a
+message; the gateway's operator finds "Allow my gateway" (adds the callsign to the stations
+allowed) and "Open a port…" in the conversation.
+
 ## Settings
 
 What the web interface changes is stored in `settings.json` in the user's configuration folder

@@ -9,6 +9,8 @@ const GROUPS = ["radio", "ip", "beacons", "internet", "gateway"];
 const SVG = "http://www.w3.org/2000/svg";
 const LANG = document.documentElement.lang;
 let settings = null; // the settings as last read or saved
+let last = null; // the last status
+let pendingRule = null; // a firewall rule to add once the settings are shown
 
 function t(key, vars) {
   let s = T[key] || key;
@@ -206,10 +208,11 @@ function drawStations(s) {
   $("stations-empty").hidden = list.length !== 0;
   for (const st of list) {
     const chosen = s.internet.mode === "station" && s.internet.call === st.call;
-    let action = null;
+    const action = el("span", { class: "row-actions" },
+      el("button", { text: t("btn.chat"), onclick: () => { location.hash = "#chat/" + st.call; } }));
     if (st.proxy && !s.gateway) {
-      action = chosen ? el("span", { class: "muted small", text: t("in.use") })
-        : el("button", { text: t("btn.use"), onclick: () => choose("station", st.call) });
+      action.append(chosen ? el("span", { class: "muted small", text: t("in.use") })
+        : el("button", { text: t("btn.use"), onclick: () => choose("station", st.call) }));
     }
     body.append(el("tr", { class: s.internet.using === st.call ? "chosen" : "" },
       el("td", { class: "mono", text: st.call }),
@@ -300,7 +303,10 @@ async function refresh() {
     const r = await fetch("/api/status", { cache: "no-store" });
     if (!r.ok) throw new Error(String(r.status));
     const s = await r.json();
+    last = s;
     $("offline").hidden = true;
+    $("unread").hidden = !s.unread;
+    $("unread").textContent = s.unread || "";
     drawStation(s); // also the header
     $("settings-file").textContent = s.settings_file ? t("set.file", { path: s.settings_file }) : t("set.memory");
     if ($("view-overview").hidden) return;
@@ -338,6 +344,12 @@ function fillSettings(s) {
   const body = document.querySelector("#fw-rules tbody");
   body.replaceChildren();
   for (const r of s.firewall.rules || []) addRule(r);
+  if (pendingRule) {
+    addRule(pendingRule);
+    pendingRule = null;
+    const ports = document.querySelectorAll("#fw-rules .port");
+    ports[ports.length - 1].focus();
+  }
   showNoRules();
 }
 
@@ -407,18 +419,189 @@ for (const id of ["form-share", "form-welcome", "form-firewall"]) {
 }
 $("fw-add").addEventListener("click", () => addRule({ proto: "tcp" }));
 
+// ---- chat ----
+
+let peer = "CQ"; // the conversation shown
+let drawn = ""; // what the thread shows, to redraw only on a change
+
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) {
+    let msg = String(r.status);
+    try { msg = (await r.json()).error || msg; } catch (e) { /* no body */ }
+    throw new Error(msg);
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+function peerName(p) {
+  return p === "CQ" ? t("chat.room") : p;
+}
+
+async function refreshChat() {
+  if ($("view-chat").hidden) return;
+  try {
+    const c = await (await fetch("/api/chat", { cache: "no-store" })).json();
+    drawConversations(c.conversations);
+    $("chat-file").textContent = c.file ? t("chat.file", { path: c.file }) : t("chat.memory");
+    const msgs = await (await fetch("/api/chat/messages?peer=" + encodeURIComponent(peer), { cache: "no-store" })).json();
+    drawThread(msgs);
+    if (msgs.some((m) => !m.out && !m.read)) await post("/api/chat/read", { peer });
+  } catch (e) {
+    $("offline").hidden = false;
+  }
+}
+
+function drawConversations(list) {
+  const ul = $("conv-list");
+  ul.replaceChildren();
+  if (!list.some((c) => c.peer === peer)) list.push({ peer, last: "", unread: 0 });
+  for (const c of list) {
+    const head = el("span", { class: "peer" }, el("span", { class: c.peer === "CQ" ? "" : "mono", text: peerName(c.peer) }));
+    if (c.unread && c.peer !== peer) head.append(el("span", { class: "count", text: c.unread }));
+    ul.append(el("li", {}, el("a", { href: "#chat/" + c.peer, class: c.peer === peer ? "on" : "" },
+      head, el("div", { class: "last", text: c.last || "\u00a0" }))));
+  }
+}
+
+function stateText(m) {
+  switch (m.state) {
+    case "sending": return el("span", { text: t("chat.state.sending", { n: Math.max(1, m.tries) }) });
+    case "waiting": return el("span", { text: t("chat.state.waiting", { peer: m.peer }) });
+    case "delivered": return el("span", { class: "ok", text: "✓ " + t("chat.state.delivered") });
+    case "sent": return el("span", { text: t("chat.state.sent") });
+    case "failed": return el("span", { class: "bad", text: "✗ " + t("chat.state.failed") });
+  }
+  return null;
+}
+
+function drawThread(msgs) {
+  const sig = JSON.stringify([peer, msgs.map((m) => [m.n, m.state, m.tries])]);
+  if (sig === drawn) return;
+  drawn = sig;
+  const box = $("thread");
+  const atEnd = box.scrollTop + box.clientHeight >= box.scrollHeight - 30;
+  box.replaceChildren();
+  if (!msgs.length) box.append(el("p", { class: "muted small", text: t("chat.empty") }));
+  for (const m of msgs) {
+    const meta = el("div", { class: "meta" }, el("span", { text: new Date(m.at).toLocaleString(LANG, { dateStyle: "short", timeStyle: "short" }) }));
+    if (m.out) {
+      meta.append(stateText(m));
+      if (m.state === "waiting" || m.state === "failed") {
+        meta.append(el("button", { type: "button", text: t("chat.retry"), onclick: () => post("/api/chat/retry", { n: m.n }).then(refreshChat) }));
+      }
+    }
+    const b = el("div", { class: "bubble" + (m.out ? " out" : "") });
+    if (m.from) b.append(el("div", { class: "from mono", text: m.from }));
+    b.append(el("div", { text: m.text }), meta);
+    box.append(b);
+  }
+  if (atEnd || msgs.length < 8) box.scrollTop = box.scrollHeight;
+}
+
+function drawThreadHead() {
+  $("thread-title").textContent = peerName(peer);
+  $("thread-title").className = peer === "CQ" ? "" : "mono";
+  const sub = $("thread-sub"), actions = $("thread-actions");
+  actions.replaceChildren();
+  if (peer === "CQ") {
+    sub.textContent = t("chat.room.sub");
+    return;
+  }
+  const st = (last && last.stations || []).find((x) => x.call === peer);
+  const parts = [st ? t("chat.heard", { t: ago(st.heard_s) }) : t("chat.notheard")];
+  if (st && st.locator) parts.push(st.locator + (st.km !== undefined ? " · " + Math.round(st.km) + "\u00a0km" : ""));
+  sub.textContent = parts.join(" · ");
+  if (st) actions.append(el("a", { href: st.page, target: "_blank", rel: "noopener", text: t("chat.page") }));
+  if (st && st.proxy && !(last && last.gateway)) {
+    actions.append(el("button", { type: "button", text: t("chat.ask"), onclick: () => { $("send-text").value = t("chat.ask.text"); count(); $("send-text").focus(); } }));
+  }
+  const gw = last && last.gateway;
+  if (gw && gw.only && gw.only.length) {
+    const base = peer.split("-")[0];
+    if (gw.only.includes(peer) || gw.only.includes(base)) {
+      actions.append(el("span", { class: "small muted", text: t("chat.allowed", { peer }) }));
+    } else {
+      actions.append(el("button", { type: "button", text: t("chat.allow"), onclick: () => allowGateway(peer) }));
+    }
+  }
+  actions.append(el("button", { type: "button", text: t("chat.port"), onclick: () => {
+    pendingRule = { proto: "tcp", calls: [peer] };
+    location.hash = "#settings";
+  } }));
+  const del = el("button", { type: "button", text: t("chat.delete") });
+  del.addEventListener("click", async () => {
+    if (del.dataset.sure !== "1") {
+      del.dataset.sure = "1";
+      del.textContent = t("chat.delete.sure");
+      return;
+    }
+    await post("/api/chat/delete", { peer });
+    location.hash = "#chat";
+  });
+  actions.append(del);
+}
+
+async function allowGateway(call) {
+  const s = await (await fetch("/api/settings", { cache: "no-store" })).json();
+  s.share.only = [...(s.share.only || []), call];
+  await post("/api/settings", s);
+  await refresh();
+  drawThreadHead();
+}
+
+function count() {
+  const n = $("send-text").value.trim().length;
+  $("send-count").textContent = n ? t("chat.count", { n, p: Math.ceil(n / 67) }) : "";
+}
+
+$("send-text").addEventListener("input", count);
+$("send-text").addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); $("form-send").requestSubmit(); }
+});
+$("form-send").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const text = $("send-text").value, msg = $("form-send").querySelector(".msg");
+  if (!text.trim()) return;
+  msg.className = "msg";
+  msg.textContent = "";
+  try {
+    await post("/api/chat/send", { to: peer, text });
+    $("send-text").value = "";
+    count();
+    refreshChat();
+  } catch (e) {
+    msg.className = "msg err";
+    msg.textContent = t("chat.failed", { e: e.message });
+  }
+});
+$("form-new").addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  const call = $("new-peer").value.trim().toUpperCase();
+  if (call) location.hash = "#chat/" + call;
+  $("new-peer").value = "";
+});
+
 // ---- views ----
 
 function show() {
-  const view = location.hash === "#settings" ? "settings" : "overview";
-  $("view-overview").hidden = view !== "overview";
-  $("view-settings").hidden = view !== "settings";
-  $("tab-overview").className = view === "overview" ? "on" : "";
-  $("tab-settings").className = view === "settings" ? "on" : "";
+  const h = location.hash;
+  const view = h === "#settings" ? "settings" : h.startsWith("#chat") ? "chat" : "overview";
+  for (const v of ["overview", "chat", "settings"]) {
+    $("view-" + v).hidden = view !== v;
+    $("tab-" + v).className = view === v ? "on" : "";
+  }
   if (view === "settings") loadSettings();
+  if (view === "chat") {
+    peer = decodeURIComponent(h.slice("#chat/".length)).toUpperCase() || "CQ";
+    if (!h.startsWith("#chat/")) peer = "CQ";
+    drawn = "";
+    drawThreadHead();
+    refreshChat();
+  }
   refresh();
 }
 
 window.addEventListener("hashchange", show);
 show();
-setInterval(refresh, 2000);
+setInterval(() => { refresh(); refreshChat(); }, 2000);

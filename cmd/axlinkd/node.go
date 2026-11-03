@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/TechnikWeber/AXLink/internal/ax25"
+	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
@@ -301,12 +302,26 @@ func runNode(args []string, stderr io.Writer) int {
 	n.fw = firewall.New(st.Firewall, n.systemRules)
 	var bridge *ipbridge.Bridge
 	var disc *discovery.Service
+	var msgs *chat.Service
 	port := tnc.NewPort(tnc.Config{Dialer: cfg.dialer, Profile: cfg.profile, Logger: log},
 		func(frame []byte) {
-			if !disc.Handle(frame) {
+			if src, ok := ax25.Source(frame); ok {
+				msgs.Heard(src) // its waiting messages go out again
+			}
+			if !disc.Handle(frame) && !msgs.Handle(frame) {
 				bridge.FromRadio(frame)
 			}
 		})
+	msgs, err = chat.New(chat.Config{Call: cfg.call, Path: chat.DefaultPath(store.Path()), Logger: log,
+		Send: func(frame []byte, replace string) bool {
+			return port.SendMeta(frame, txqueue.Meta{Urgent: true, Replace: replace})
+		}})
+	if err != nil {
+		dev.Close()
+		fmt.Fprintln(stderr, "run:", err)
+		return 1
+	}
+	n.chat = msgs
 	dcfg := cfg.discovery()
 	if w := st.Welcome; w.LocatorInBeacon {
 		dcfg.Locator = w.Locator
@@ -339,6 +354,7 @@ func runNode(args []string, stderr io.Writer) int {
 	portDone := make(chan error, 1)
 	go func() { portDone <- port.Run(ctx) }()
 	go disc.Run(ctx)
+	go msgs.Run(ctx)
 	adapterDone := make(chan error, 1)
 	go func() {
 		buf := make([]byte, 65535)
@@ -355,7 +371,7 @@ func runNode(args []string, stderr io.Writer) int {
 	logStats := func() {
 		args := []any{"port", fmt.Sprintf("%+v", port.Stats()), "ip", fmt.Sprintf("%+v", bridge.Stats()),
 			"beacons", fmt.Sprintf("%+v", disc.Stats()), "stations", disc.Summary(),
-			"firewall", fmt.Sprintf("%+v", n.fw.Stats())}
+			"firewall", fmt.Sprintf("%+v", n.fw.Stats()), "chat", fmt.Sprintf("%+v", msgs.Stats())}
 		n.mu.Lock()
 		sharing := n.gwAddr != ""
 		n.mu.Unlock()

@@ -151,11 +151,20 @@ if [ "$NAME" = b ]; then
     sleep 1
     touch "$WORK/b.ready"
     while [ ! -e "$WORK/stop" ]; do
+        if [ -e "$WORK/a.chat" ]; then          # A has written: answer it
+            rm -f "$WORK/a.chat"
+            curl -s --max-time 10 -X POST -H 'Content-Type: application/json' \
+                -d "{\"to\":\"$PEER_CALL\",\"text\":\"Hi, welcome to the lab. 73\"}" \
+                http://127.0.0.1:7373/api/chat/send > /dev/null 2>&1 || true
+        fi
         if [ -e "$WORK/b.shoot" ]; then         # A has finished: B's status and screenshots
             rm -f "$WORK/b.shoot"
             curl -s --max-time 10 http://127.0.0.1:7373/api/status > "$WORK/b-status.json" 2> /dev/null || true
+            curl -s --max-time 10 "http://127.0.0.1:7373/api/chat/messages?peer=$PEER_CALL" > "$WORK/b-chat.json" 2> /dev/null || true
+            curl -s --max-time 10 "http://127.0.0.1:7373/api/chat/messages?peer=CQ" > "$WORK/b-cq.json" 2> /dev/null || true
             shoot gateway-overview / 1700
             shoot gateway-settings "#settings" 1250
+            shoot gateway-chat "#chat/$PEER_CALL" 860
             touch "$WORK/b.shot"
         fi
         sleep 0.2
@@ -221,15 +230,38 @@ curl -s --max-time 10 "$ui/api/status" > "$WORK/ui-after.json" 2> /dev/null || s
 # B's welcome page over the radio: directly, and by name through the local proxy.
 curl -s --compressed --max-time 120 "http://$PEER_IP/" > "$WORK/welcome.out" 2> /dev/null || status=1
 curl -s --compressed --max-time 120 -x http://127.0.0.1:7374 "http://testb-1.axl/" > "$WORK/welcome-name.out" 2> /dev/null || status=1
-# B's firewall: a port B has not opened gets no answer.
-if curl -s --max-time 8 -o /dev/null "http://$PEER_IP:9999/" 2> /dev/null; then
-    echo open > "$WORK/fw.result"
-else
-    echo blocked > "$WORK/fw.result"
-fi
+# B's firewall: a port B has not opened is refused at once (a TCP reset).
+start=$(date +%s%N)
+code=0
+curl -s --max-time 60 -o /dev/null "http://$PEER_IP:9999/" 2> /dev/null || code=$?
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/fw.ms"
+case $code in
+    0) echo open > "$WORK/fw.result" ;;
+    7) echo refused > "$WORK/fw.result" ;;   # could not connect: the reset came back
+    *) echo "blocked, curl $code" > "$WORK/fw.result" ;;
+esac
+# Chat: a message to B, acknowledged; B answers; a message to CQ. No IP.
+chat() { curl -s --max-time 10 -X POST -H 'Content-Type: application/json' -d "$2" "$ui/api/chat/$1"; }
+start=$(date +%s%N)
+chat send "{\"to\":\"$PEER_CALL\",\"text\":\"Hello from A, $NONCE_ENV\"}" > /dev/null 2>&1 || status=1
+for _ in $(seq 600); do
+    curl -s --max-time 5 "$ui/api/chat/messages?peer=$PEER_CALL" > "$WORK/a-chat.json" 2> /dev/null || true
+    grep -q '"state":"delivered"' "$WORK/a-chat.json" && break
+    sleep 0.1
+done
+echo $(( ($(date +%s%N) - start) / 1000000 )) > "$WORK/chat.ms"
+touch "$WORK/a.chat"
+for _ in $(seq 600); do
+    curl -s --max-time 5 "$ui/api/chat/messages?peer=$PEER_CALL" > "$WORK/a-chat.json" 2> /dev/null || true
+    grep -q 'welcome to the lab' "$WORK/a-chat.json" && break
+    sleep 0.1
+done
+chat send '{"to":"CQ","text":"CQ from the lab: anyone around?"}' > /dev/null 2>&1 || status=1
+sleep 6
 shoot client-overview / 1560
 shoot client-settings "#settings" 1250
 shoot welcome "http://$PEER_IP/" 640
+shoot client-chat "#chat/$PEER_CALL" 860
 touch "$WORK/b.shoot"
 for _ in $(seq 1200); do [ -e "$WORK/b.shot" ] && break; sleep 0.1; done
 kill $NODE 2>/dev/null || true
@@ -314,15 +346,44 @@ pages = read("welcome.out"), read("welcome-name.out")
 b = json.loads(read("b-status.json") or "{}")
 fw = b.get("firewall", {})
 blocked = [r for r in fw.get("recent") or [] if r.get("call") == "TESTA-1" and r.get("port") == 9999]
-ok = (all("TESTB-1" in p and "Lab station B" in p for p in pages) and read("fw.result").strip() == "blocked"
-      and fw.get("mode") == "protect" and blocked)
+ok = (all("TESTB-1" in p and "Lab station B" in p and "8080/tcp" in p for p in pages)
+      and read("fw.result").strip() == "refused" and fw.get("mode") == "protect" and blocked
+      and fw.get("answered", 0) >= 1)
 raise SystemExit(0 if ok else 1)
 PY
 then
-    echo "welcome: ok (B's page over the radio, also as testb-1.axl); firewall: ok (TESTA-1 → tcp 9999 blocked)"
+    echo "welcome: ok (B's page over the radio with its open ports, also as testb-1.axl);" \
+        "firewall: ok (TESTA-1 → tcp 9999 refused after $(secs "$WORK/fw.ms"))"
 else
     echo "welcome/firewall: FAILED (page $(wc -c < "$WORK/welcome.out" 2>/dev/null) bytes, by name" \
         "$(wc -c < "$WORK/welcome-name.out" 2>/dev/null) bytes, port 9999: $(cat "$WORK/fw.result" 2>/dev/null))"
+    status=1
+fi
+if python3 -I - "$WORK" "$NONCE" <<'PY'
+import json, os, sys
+work, nonce = sys.argv[1], sys.argv[2]
+def load(name):
+    try:
+        with open(os.path.join(work, name)) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return []
+a, b, cq = load("a-chat.json"), load("b-chat.json"), load("b-cq.json")
+mine = [m for m in a if m.get("out") and nonce in m["text"]]
+answer = [m for m in a if not m.get("out") and "welcome to the lab" in m["text"]]
+got = [m for m in b if not m.get("out") and nonce in m["text"]]
+room = [m for m in cq if m.get("from") == "TESTA-1"]
+ok = (mine and mine[0]["state"] == "delivered" and mine[0]["tries"] == 1 and len(got) == 1 and answer
+      and len(room) == 1)
+if not ok:
+    print(f"A: {a}\nB: {b}\nCQ at B: {cq}")
+raise SystemExit(0 if ok else 1)
+PY
+then
+    echo "chat:  ok (A → B delivered and acknowledged in $(secs "$WORK/chat.ms") at the first try; B's answer arrived;" \
+        "A's CQ in B's room once)"
+else
+    echo "chat:  FAILED"
     status=1
 fi
 if [[ -n "$ADAPTER_MTU" ]]; then

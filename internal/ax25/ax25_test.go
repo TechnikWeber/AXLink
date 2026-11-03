@@ -228,3 +228,13 @@ func FuzzDecode(f *testing.F) {
 		}
 	})
 }
+
+func TestSource(t *testing.T) {
+	b, _ := NewUI(MustAddress("APZAXL"), MustAddress("TESTB-7"), nil, PIDNoL3, []byte("x")).Encode()
+	if a, ok := Source(b); !ok || a.String() != "TESTB-7" || a.Bit7 {
+		t.Fatalf("%+v %v", a, ok)
+	}
+	if _, ok := Source(b[:13]); ok {
+		t.Fatal("a short frame gave a source")
+	}
+}

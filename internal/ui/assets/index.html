@@ -14,6 +14,7 @@
   <span class="tnc"><span id="tnc-dot" class="dot"></span><span id="tnc-text"></span></span>
   <nav class="tabs">
     <a href="#overview" id="tab-overview">{{index .T "nav.overview"}}</a>
+    <a href="#chat" id="tab-chat">{{index .T "nav.chat"}}<span id="unread" class="count" hidden></span></a>
     <a href="#settings" id="tab-settings">{{index .T "nav.settings"}}</a>
   </nav>
   <span class="spacer"></span>
@@ -75,6 +76,31 @@
   <section class="card wide">
     <h2>{{index .T "traffic.title"}}</h2>
     <div id="counters"></div>
+  </section>
+</main>
+
+<main id="view-chat" class="chat" hidden>
+  <section class="card convs">
+    <h2>{{index .T "chat.title"}}</h2>
+    <ul id="conv-list" class="conv-list"></ul>
+    <form id="form-new" class="new-conv">
+      <input type="text" id="new-peer" class="mono" placeholder="{{index .T "chat.new.ph"}}" spellcheck="false" maxlength="9" aria-label="{{index .T "chat.new.ph"}}">
+      <button type="submit">{{index .T "chat.new"}}</button>
+    </form>
+    <p class="small muted">{{index .T "chat.note"}}</p>
+    <p id="chat-file" class="small muted"></p>
+  </section>
+  <section class="card thread">
+    <div class="thread-head">
+      <h2 id="thread-title"></h2>
+      <span id="thread-actions" class="thread-actions"></span>
+    </div>
+    <p id="thread-sub" class="small muted"></p>
+    <div id="thread" class="msgs" aria-live="polite"></div>
+    <form id="form-send" class="send">
+      <textarea id="send-text" rows="2" maxlength="335" aria-label="{{index .T "chat.send"}}"></textarea>
+      <div class="send-row"><span id="send-count" class="small muted"></span><span class="msg"></span><button type="submit" class="on">{{index .T "chat.send"}}</button></div>
+    </form>
   </section>
 </main>
 

@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/TechnikWeber/AXLink/internal/chat"
 	"github.com/TechnikWeber/AXLink/internal/discovery"
 	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/gateway"
@@ -39,6 +40,7 @@ type node struct {
 	bridge    *ipbridge.Bridge
 	disc      *discovery.Service
 	fw        *firewall.Firewall
+	chat      *chat.Service
 	mon       *monitor.Monitor
 	store     *settings.Store
 	choice    *gateway.Choice
@@ -322,6 +324,7 @@ func (n *node) status() ui.Status {
 		st.Welcome = "http://" + strings.TrimSuffix(welAddr, ":80") + "/"
 	}
 	st.Counters = counters(n.port.Stats(), n.bridge.Stats(), n.disc.Stats(), ls, gs)
+	st.Unread = n.chat.Unread()
 	fwc, fws := n.fw.Config(), n.fw.Stats()
 	st.Firewall = ui.Firewall{Mode: fwc.Mode, Ping: fwc.Ping, Passed: fws.Passed, Blocked: fws.Blocked,
 		Answered: fws.Refused, Silent: fwc.Silent, Recent: n.fw.Recent()}
@@ -400,7 +403,7 @@ func startUI(n *node) {
 		return
 	}
 	srv := ui.New(ui.Config{Status: n.status, SetGateway: n.setGateway, Settings: n.store.Get, Save: n.save,
-		Welcome: welcome.Handler(n.welcomePage), Logger: n.log})
+		Welcome: welcome.Handler(n.welcomePage), Chat: n.chat, Logger: n.log})
 	go srv.Serve(n.ctx, ln)
 	n.log.Info("web interface", "url", "http://"+ln.Addr().String()+"/")
 }
