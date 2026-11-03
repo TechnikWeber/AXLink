@@ -65,6 +65,10 @@ chooses that, e.g. by setting the announced proxy as its HTTP proxy.
 - Answer: after a beacon with `ask=1`, or one from a station that is not in the table, a station
   sends its own beacon after a random 2–8 s, unless it has sent one since it heard that beacon.
   It answers at most once in 30 s and postpones a later answer instead of dropping it.
+- Asking again: a station that knows other stations and hears no beacon at all within a random
+  10–20 s after its beacon with `ask=1` sends it again, three times in all. Two stations that do
+  not hear each other may have asked at the same moment and collided at a relay; a station alone
+  asks once.
 - A station is forgotten 3 × its `every` + 60 s after its last beacon.
 
 Load at 1200 bit/s: a beacon of 30–50 bytes is about 0.6 s on the air. Every 10 minutes that is

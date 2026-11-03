@@ -5,6 +5,9 @@ README. The text is the lab's own output, unchanged; long lines are wrapped.
 
     bash scripts/lab-netns.sh | tee lab.txt
     python3 scripts/lab-svg.py < lab.txt > docs/images/lab.svg
+
+Optional arguments: the command line shown, and the title, e.g.
+    python3 scripts/lab-svg.py "bash scripts/lab-mesh.sh" "AXLink lab: three stations, a relay" < mesh.txt
 """
 import html
 import re
@@ -53,7 +56,9 @@ def spans(row):
 
 
 def main():
-    rows = ["$ bash scripts/lab-netns.sh", "..."]
+    command = sys.argv[1] if len(sys.argv) > 1 else "bash scripts/lab-netns.sh"
+    title = sys.argv[2] if len(sys.argv) > 2 else "AXLink lab: two stations, simulated channel"
+    rows = ["$ " + command, "..."]
     for line in result_block(sys.stdin.read()):
         rows += wrap(line)
     width = int(2 * 18 + CHAR * WRAP)
@@ -66,7 +71,7 @@ def main():
         '<circle cx="16" cy="14" r="5" fill="#ff5f56"/><circle cx="32" cy="14" r="5" fill="#ffbd2e"/>'
         '<circle cx="48" cy="14" r="5" fill="#27c93f"/>',
         '<text x="%d" y="18" fill="#8b949e" font-family="ui-sans-serif, Helvetica, Arial, sans-serif" '
-        'font-size="12" text-anchor="middle">AXLink lab: two stations, simulated channel</text>' % (width // 2),
+        'font-size="12" text-anchor="middle">%s</text>' % (width // 2, html.escape(title)),
         '<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, \'DejaVu Sans Mono\', monospace" '
         'font-size="%d" fill="#c9d1d9" xml:space="preserve">' % FONT,
     ]

@@ -22,6 +22,11 @@ var (
 	firstDelay  = [2]time.Duration{1 * time.Second, 5 * time.Second}
 	answerDelay = [2]time.Duration{2 * time.Second, 8 * time.Second}
 	answerGap   = 30 * time.Second
+	// An ask nobody answered, while other stations are known, goes out again
+	// after askAgain, maxAsks times in all: two stations that do not hear each
+	// other may have asked at the same moment and collided at a relay.
+	askAgain = [2]time.Duration{10 * time.Second, 20 * time.Second}
+	maxAsks  = 3
 )
 
 // Config sets up a Service.
@@ -97,6 +102,8 @@ type Service struct {
 	first    bool      // no beacon has gone out yet: send ask=1
 	answerAt time.Time // a pending answer; zero for none
 	lastSent time.Time
+	askAt    time.Time // ask again then, if nothing was heard since the last ask; zero for not
+	asks     int       // beacons with ask=1 sent
 }
 
 // New returns a service; start Run to send beacons.
@@ -176,9 +183,15 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 	if !now.Before(s.next) {
 		return true, s.first, time.Time{}
 	}
+	if !s.askAt.IsZero() && !now.Before(s.askAt) {
+		return true, true, time.Time{}
+	}
 	wake = s.next
 	if !s.answerAt.IsZero() && s.answerAt.Before(wake) {
 		wake = s.answerAt
+	}
+	if !s.askAt.IsZero() && s.askAt.Before(wake) {
+		wake = s.askAt
 	}
 	return false, false, wake
 }
@@ -189,6 +202,13 @@ func (s *Service) send(now time.Time, ask bool) {
 	s.lastSent = now
 	s.first = false
 	s.answerAt = time.Time{} // this beacon answers everything heard before
+	s.askAt = time.Time{}
+	if ask {
+		s.asks++
+		if s.asks < maxAsks && s.knownLocked(now) {
+			s.askAt = now.Add(s.between(askAgain))
+		}
+	}
 	// The next periodic beacon, varied by ±10 %.
 	s.next = now.Add(s.cfg.Every*9/10 + time.Duration(s.cfg.Rand.Int64N(int64(s.cfg.Every/5)+1)))
 	if err == nil {
@@ -291,6 +311,7 @@ func (s *Service) Handle(frame []byte) bool {
 		return true
 	}
 	s.stats.Heard++
+	s.askAt = time.Time{} // our ask, if any, has an answer, or at least the channel works
 	if len(via) > 0 {
 		s.stats.Relayed++
 	}
@@ -394,6 +415,16 @@ func (s *Service) Flood() []ax25.Address {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.floodLocked(now)
+}
+
+// knownLocked reports whether another station is known.
+func (s *Service) knownLocked(now time.Time) bool {
+	for _, st := range s.stations {
+		if !st.expired(now) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Service) floodLocked(now time.Time) []ax25.Address {

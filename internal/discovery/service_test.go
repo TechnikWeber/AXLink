@@ -339,6 +339,48 @@ func TestBeaconsAreFloodedOnlyNearARelay(t *testing.T) {
 	}
 }
 
+func asks(sent []Beacon) int {
+	n := 0
+	for _, b := range sent {
+		if b.Ask {
+			n++
+		}
+	}
+	return n
+}
+
+func TestAnUnansweredAskIsRepeated(t *testing.T) {
+	// B is heard before our first beacon; our ask then collides at a relay
+	// (nothing comes back): it goes out again, three times in all.
+	ts := newTestService(t, DefaultEvery)
+	start := ts.now
+	ts.Handle(beaconFrom(t, "TESTB-1", Beacon{Addr: addr("10.73.0.2/24"), Tags: []string{"RELAY"}}))
+	ts.step(start.Add(5 * time.Second))
+	if len(ts.sent) != 1 || !ts.sent[0].Ask {
+		t.Fatalf("%+v", ts.sent)
+	}
+	ts.step(start.Add(5 * time.Minute))
+	if n := asks(ts.sent); n != 3 || len(ts.sent) != 3 {
+		t.Fatalf("%d asks in %d beacons, want 3", n, len(ts.sent))
+	}
+	// An answer stops the asking.
+	ts = newTestService(t, DefaultEvery)
+	start = ts.now
+	ts.Handle(beaconFrom(t, "TESTB-1", Beacon{Addr: addr("10.73.0.2/24")}))
+	ts.step(start.Add(5 * time.Second))
+	ts.Handle(beaconFrom(t, "TESTB-1", Beacon{Addr: addr("10.73.0.2/24")}))
+	ts.step(start.Add(5 * time.Minute))
+	if n := asks(ts.sent); n != 1 {
+		t.Fatalf("%d asks although B answered", n)
+	}
+	// A station alone asks once: nobody is there to answer.
+	ts = newTestService(t, DefaultEvery)
+	ts.step(ts.after(5 * time.Minute))
+	if n := asks(ts.sent); n != 1 {
+		t.Fatalf("%d asks from a station alone", n)
+	}
+}
+
 func TestTheLocatorIsAnnouncedAndLearned(t *testing.T) {
 	ts := newTestService(t, DefaultEvery)
 	ts.step(ts.after(time.Minute))
