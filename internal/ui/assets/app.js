@@ -310,6 +310,10 @@ async function refresh() {
     $("unread").hidden = !s.unread;
     $("unread").textContent = s.unread || "";
     drawStation(s); // also the header
+    if (!$("view-chat").hidden) {
+      if (headWait) drawThreadHead(); else drawThreadSub();
+      headWait = false;
+    }
     $("settings-file").textContent = s.settings_file ? t("set.file", { path: s.settings_file }) : t("set.memory");
     if ($("view-overview").hidden) return;
     drawMonitor(s);
@@ -454,6 +458,7 @@ $("fwd-add").addEventListener("click", () => addForward({}));
 
 let peer = "CQ"; // the conversation shown
 let drawn = ""; // what the thread shows, to redraw only on a change
+let headWait = false; // the conversation head waits for the first status
 
 async function post(path, body) {
   const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -530,19 +535,28 @@ function drawThread(msgs) {
   if (atEnd || msgs.length < 8) box.scrollTop = box.scrollHeight;
 }
 
-function drawThreadHead() {
-  $("thread-title").textContent = peerName(peer);
-  $("thread-title").className = peer === "CQ" ? "" : "mono";
-  const sub = $("thread-sub"), actions = $("thread-actions");
-  actions.replaceChildren();
+// drawThreadSub writes what is known about the peer; it follows every status.
+function drawThreadSub() {
+  const sub = $("thread-sub");
   if (peer === "CQ") {
     sub.textContent = t("chat.room.sub");
     return;
   }
   const st = (last && last.stations || []).find((x) => x.call === peer);
   const parts = [st ? t("chat.heard", { t: ago(st.heard_s) }) : t("chat.notheard")];
+  if (st && st.via) parts.push(t("via", { path: st.via.join(", ") }));
   if (st && st.locator) parts.push(st.locator + (st.km !== undefined ? " · " + Math.round(st.km) + "\u00a0km" : ""));
   sub.textContent = parts.join(" · ");
+}
+
+function drawThreadHead() {
+  $("thread-title").textContent = peerName(peer);
+  $("thread-title").className = peer === "CQ" ? "" : "mono";
+  drawThreadSub();
+  const actions = $("thread-actions");
+  actions.replaceChildren();
+  if (peer === "CQ") return;
+  const st = (last && last.stations || []).find((x) => x.call === peer);
   if (st) actions.append(el("a", { href: st.page, target: "_blank", rel: "noopener", text: t("chat.page") }));
   if (st && st.proxy && !(last && last.gateway)) {
     actions.append(el("button", { type: "button", text: t("chat.ask"), onclick: () => { $("send-text").value = t("chat.ask.text"); count(); $("send-text").focus(); } }));
@@ -628,6 +642,7 @@ function show() {
     if (!h.startsWith("#chat/")) peer = "CQ";
     drawn = "";
     drawThreadHead();
+    headWait = !last;
     refreshChat();
   }
   refresh();

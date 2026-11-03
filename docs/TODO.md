@@ -10,28 +10,33 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-03.
       the transmit queue's limits (128 bytes urgent, repeat window) and whether the app passes
       received frames on quickly enough for the longer wait after heard frames.
 - [ ] Windows: test the adapter on a real PC with a radio (so far only CI pings through it),
-      the firewall rules for incoming connections, a release package with `axlinkd.exe`,
-      `wintun.dll` and its licence (allowed by D8), running as a service.
-- [ ] Network adapter for macOS (utun).
+      the firewall rules for incoming connections, running as a service. (The release package
+      with `wintun.dll` and its licence exists since 0.2.0-alpha.1.)
+- [ ] macOS: test with a radio (the utun adapter passes its ping test in CI); a signed package.
 - [ ] ICMP "fragmentation needed" for packets with DF that are larger than the radio MTU
       (path-MTU discovery); today they are dropped.
 - [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
 - [ ] Gateway, next steps: its rules in the beacon (services, rate, contact); a fair share per
       callsign; pages shrunk for 1200 bit/s; a transparent gateway in userspace (netstack) for
       other protocols.
-- [ ] Web interface, next steps: the chat; a page that explains the proxy setting per browser;
-      beacon interval and tags in the settings.
-- [ ] Forwarding to the home network on purpose: publish a service of a LAN host (e.g. a web
-      server on 192.168.1.10:80) on a port of the own radio address, with the same callsign
-      rules as the firewall (port forwarding in userspace).
+- [ ] Web interface, next steps: a page that explains the proxy setting per browser; beacon
+      interval and tags in the settings; a notification for new chat messages.
+- [ ] Port forwarding for UDP (TCP is done).
+- [ ] Chat: a mailbox on an unattended station (tag `AUTO`) that keeps messages for stations
+      that are away and delivers them when they are heard, so that sender and recipient need
+      not be on the air at the same time; groups (`#NAME` as the messenger's channels); APRS
+      bulletins.
 - [ ] Choosing among several gateways by link quality and load (needs RSSI from the TNC and
       load in the beacon); give up a gateway that stops answering before its beacon expires.
 - [ ] Channel access without ACKMODE with three or more stations: two stations waiting for the
       same busy channel both send in the first clear slot (PERSIST 255); a random host backoff
       after a heard frame.
-- [ ] Chat in the APRS message format, so that messenger radios can take part.
+- [ ] Chat on the air with the APRS messenger firmware (bench test: a message each way, CQ).
 - [ ] Link gateway (AXUDP) and internet gateway (userspace, netstack).
-- [ ] Mesh: forwarding A↔B↔C, routing with an airtime budget.
+- [ ] Mesh, next steps: fewer collisions of hidden stations at a relay (e.g. a short random
+      wait after hearing a relay, or the relay announcing the channel as busy); choosing the way
+      by link quality (needs RSSI); an airtime budget per relay; static routes over a relay
+      (`-route ...` with a path).
 - [ ] Segmentation (PID 0x08) per AX.25 2.2 and ARP (PID 0xCD), tested against Packet.NET.
 - [ ] Report the v0.1 findings F1 and F4 to pdn-net ([HISTORY.md](HISTORY.md)).
 

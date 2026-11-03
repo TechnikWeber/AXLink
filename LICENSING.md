@@ -57,7 +57,8 @@ together with software that uses the DLL through the API in `wintun.h`, as AXLin
 The Wintun sources are under GPL-2.0, which cannot be combined with GPL-3.0 either; the
 prebuilt DLL is what Windows can load, because it carries a signed driver.
 
-Until there is a Windows package, `scripts/fetch-wintun.ps1` fetches the DLL: it downloads
+The Windows packages of the releases contain it. For builds from source,
+`scripts/fetch-wintun.ps1` fetches the DLL: it downloads
 Wintun 0.14.1 from `https://www.wintun.net/builds/`, checks SHA-256
 `07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51` (checked on 2026-11-02) and
 puts the licence next to the DLL as `wintun-LICENSE.txt`. A Windows package may contain

@@ -73,7 +73,9 @@ sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
   again. A frame that did not get through completely is sent once more.
 - Without a callsign, or with a placeholder (`N0CALL`), `run` does not start.
 - Broadcast and multicast are kept off the air; `-allow-broadcast` switches the filter off.
-- macOS: serial ports work, the network adapter (utun) follows.
+- macOS: the network adapter is a utun (macOS names it, e.g. `utun5`) and needs root. Native
+  builds use cgo for the USB IDs of serial ports (`-port auto`); a build without cgo lists the
+  port names only. Tested in CI (adapter and ping), not yet with a radio.
 
 Windows, in a PowerShell started as administrator (the adapter needs it):
 
@@ -84,10 +86,10 @@ C:\AXLink\axlinkd.exe ports
 C:\AXLink\axlinkd.exe run -call <CALL>-1 -port auto -ip 10.73.0.1/24
 ```
 
-- There is no Windows package with `wintun.dll` yet (allowed by D8). Until then the script
-  downloads Wintun 0.14.1 from wintun.net, checks its SHA-256 checksum and puts the DLL for this
-  Windows's architecture (or `-Arch amd64|arm64`, matching `axlinkd.exe`) and its licence into
-  the folder.
+- The Windows packages of the releases contain `wintun.dll` and its licence (allowed by D8).
+  For a build from source the script downloads Wintun 0.14.1 from wintun.net, checks its
+  SHA-256 checksum and puts the DLL for this Windows's architecture (or `-Arch amd64|arm64`,
+  matching `axlinkd.exe`) and its licence into the folder.
 - The adapter keeps a fixed GUID per name, so Windows recognises the network again.
 - Windows normally treats a new network like this one as public: its firewall then blocks
   incoming connections there (pings to this station, servers on it). Outgoing connections and

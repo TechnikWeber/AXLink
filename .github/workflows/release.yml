@@ -1,0 +1,128 @@
+name: Release
+
+# A tag v* builds the packages and publishes them as a GitHub release; a tag
+# with a hyphen (v0.2.0-alpha.1) becomes a prerelease. The notes come from
+# docs/release-notes/<tag>.md.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: an existing tag to (re)build, e.g. v0.2.0-alpha.1
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  linux-windows:
+    name: Linux and Windows packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Build and pack
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -eu
+          V=${TAG#v}
+          # Wintun for the Windows packages, checked as scripts/fetch-wintun.ps1 checks it (D8).
+          curl -fsSLo wintun.zip https://www.wintun.net/builds/wintun-0.14.1.zip
+          echo "07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51  wintun.zip" | sha256sum -c
+          unzip -q wintun.zip -d wintun-src
+          mkdir -p dist
+          for target in linux/amd64 linux/arm64 linux/armv6 windows/amd64 windows/arm64; do
+            os=${target%/*} arch=${target#*/} goarch=$arch
+            [ "$arch" = armv6 ] && goarch=arm
+            name=axlinkd-$V-$os-$arch
+            mkdir -p "pkg/$name"
+            exe=axlinkd
+            [ "$os" = windows ] && exe=axlinkd.exe
+            GOOS=$os GOARCH=$goarch GOARM=6 CGO_ENABLED=0 go build -trimpath \
+              -ldflags "-s -w -X main.version=$V" -o "pkg/$name/$exe" ./cmd/axlinkd
+            cp README.md docs/QUICKSTART.md LICENSE LICENSING.md CHANGELOG.md "pkg/$name/"
+            if [ "$os" = windows ]; then
+              cp "wintun-src/wintun/bin/$arch/wintun.dll" "pkg/$name/"
+              cp wintun-src/wintun/LICENSE.txt "pkg/$name/wintun-LICENSE.txt"
+              (cd pkg && zip -qr "../dist/$name.zip" "$name")
+            else
+              tar -C pkg -czf "dist/$name.tar.gz" "$name"
+            fi
+          done
+          ls -l dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-windows
+          path: dist/
+
+  macos:
+    name: macOS packages
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Build and pack
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -eu
+          V=${TAG#v}
+          mkdir -p dist
+          # With cgo, as the USB IDs of serial ports need IOKit ("-port auto").
+          for arch in arm64 amd64; do
+            name=axlinkd-$V-macos-$arch
+            mkdir -p "pkg/$name"
+            cc="clang -arch arm64"
+            [ "$arch" = amd64 ] && cc="clang -arch x86_64"
+            CC="$cc" GOOS=darwin GOARCH=$arch CGO_ENABLED=1 go build -trimpath \
+              -ldflags "-s -w -X main.version=$V" -o "pkg/$name/axlinkd" ./cmd/axlinkd
+            cp README.md docs/QUICKSTART.md LICENSE LICENSING.md CHANGELOG.md "pkg/$name/"
+            tar -C pkg -czf "dist/$name.tar.gz" "$name"
+          done
+          "pkg/axlinkd-$V-macos-arm64/axlinkd" version
+          ls -l dist
+      - uses: actions/upload-artifact@v7
+        with:
+          name: macos
+          path: dist/
+
+  release:
+    name: Publish
+    needs: [linux-windows, macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -eu
+          (cd dist && sha256sum * > SHA256SUMS && cat SHA256SUMS)
+          notes=docs/release-notes/$TAG.md
+          [ -f "$notes" ] || { echo "missing $notes" >&2; exit 1; }
+          pre=""
+          case "$TAG" in *-*) pre=--prerelease ;; esac
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+            gh release edit "$TAG" --notes-file "$notes" $pre
+          else
+            gh release create "$TAG" dist/* --title "AXLink $TAG" --notes-file "$notes" --verify-tag $pre
+          fi

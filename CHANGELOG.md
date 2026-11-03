@@ -1,10 +1,40 @@
 # Changes
 
-## Unreleased (0.2.0-dev)
+## 0.2.0-alpha.1 — 2026-11-03
 
 A new start after the review of 2026-11-02 ([REVIEW](docs/REVIEW_2026-11-02.md),
 [DECISIONS](docs/DECISIONS.md)): the core in Go, licence GPL-3.0-or-later (protocol texts
-CC BY 4.0), the repository in English.
+CC BY 4.0), the repository in English. A prerelease: tested in the lab and in CI, not yet on
+the air with a real radio.
+
+- Packages for Linux (amd64, arm64, armv6), Windows (amd64, arm64; with `wintun.dll` 0.14.1
+  and its licence, as D8 allows) and macOS (arm64, amd64), built by `.github/workflows/release.yml`
+  from a tag. [QUICKSTART.md](docs/QUICKSTART.md): from the box to the first ping on each
+  system.
+- macOS: the network adapter as utun (wireguard-go), address, MTU and the subnet route set as
+  wg-quick does. CI creates one on the macOS runner and pings through it.
+- Chat (`internal/chat`): APRS messages directly in AX.25 UI frames, no IP, so the firewall and
+  the sharing do not affect them. A message to a station is acknowledged and repeated after 30,
+  60, 120 and 240 s, as the APRS messenger firmware does; unanswered it waits in the mailbox
+  (`messages.json`) and goes out again when the station is heard, for up to a week. Messages
+  to CQ (QST, ALL) reach every station, sent twice. A chat view in the web interface with
+  "Ask for internet access" and, for the gateway's operator, "Allow my gateway" and "Open a
+  port…". Lab: a message from A to B acknowledged at the first try in 3-5 s.
+- Mesh (`internal/mesh`, [protocol/mesh.md](docs/protocol/mesh.md)): a station with "Relay"
+  (`-relay`, tag `RELAY`) repeats frames as an AX.25 digipeater; beacons and CQ messages travel
+  with the flood alias `AXHOP-2` over up to two relays, and stations learn from them over which
+  relays another station is reached. `scripts/lab-mesh.sh`: three stations in a line; A and C
+  found each other over B, ping, HTTP and chat over B. Stations that do not hear each other
+  collide at the relay (hidden stations); TCP and the chat repeat what is lost.
+- Port forwarding (`internal/forward`): `-forward 2222=192.168.1.10:22=<CALL>` or the settings
+  publish a TCP service of the own network on a port of the radio address; nothing else of the
+  network becomes reachable. Lab: B's local server through B's port 8022.
+- Firewall: refused packets get an answer at once (TCP reset, ICMP "administratively
+  prohibited"), rate-limited; "silent" turns it off. In the lab a refused port fails in 2-4 s
+  instead of a timeout. The welcome page lists the open ports.
+- Locator: the welcome page's Maidenhead locator can be announced in the beacon (`loc=`,
+  opt-in); the station list shows locator, distance and direction from the own locator.
+- `sim-channel -link A-B`: who hears whom, carrier sense and collisions included.
 
 - Licence: an additional permission (GPL-3.0 section 7) allows passing AXLink on together
   with `wintun.dll` (D8).
@@ -74,8 +104,8 @@ CC BY 4.0), the repository in English.
   download (39 s instead of 110 s).
 - `internal/tun`: the network adapter on Linux (wireguard-go without GSO offloads), IPv6 off on
   the adapter; on Windows through Wintun with a fixed GUID per name, address, routes and MTU
-  through the IP Helper API. `scripts/fetch-wintun.ps1` fetches `wintun.dll` (not shipped) with a
-  checksum check. macOS follows.
+  through the IP Helper API. `scripts/fetch-wintun.ps1` fetches `wintun.dll` with a checksum
+  check, for builds from source.
 - `internal/ipbridge`: IPv4 ↔ AX.25 UI/PID 0xCC with a destination filter, length and checksum
   checks, longest-prefix routes and a switchable broadcast filter. When the adapter MTU is larger
   than the radio's (Windows: at least 576), it lowers the TCP MSS in both directions and
