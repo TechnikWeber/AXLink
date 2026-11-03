@@ -1,6 +1,9 @@
 # Changes
 
-## Unreleased
+## 0.2.0-alpha.2 — 2026-11-03
+
+A prerelease for the first test with radios: relaying on by default, the packet monitor and a
+pcap capture for Wireshark, a test plan ([BENCH.md](docs/BENCH.md)). Still not on the air.
 
 - Every station relays by default (switchable). A relay passes a flooded beacon or CQ message on
   only while a station it hears directly may not have it yet, after a random wait in which
