@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -276,7 +277,7 @@ func TestTheMailboxSurvivesARestart(t *testing.T) {
 	tc.Send("TESTB-1", "an answer")
 	tc.run(tc.after(time.Hour)) // into the mailbox
 	info, err := os.Stat(path)
-	if err != nil || info.Mode().Perm() != 0o600 {
+	if err != nil || (runtime.GOOS != "windows" && info.Mode().Perm() != 0o600) { // Windows has no such modes
 		t.Fatalf("%v %v", info, err)
 	}
 	again := newTestChat(t, "TESTA-1", path)
