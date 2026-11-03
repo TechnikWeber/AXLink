@@ -27,6 +27,11 @@ var (
 	// other may have asked at the same moment and collided at a relay.
 	askAgain = [2]time.Duration{10 * time.Second, 20 * time.Second}
 	maxAsks  = 3
+	// A beacon sent with the flood alias comes back repeated by the relay;
+	// without that echo after echoWait it goes out again, maxSends times in
+	// all: it collided at the relay with a station we cannot hear.
+	echoWait = [2]time.Duration{10 * time.Second, 20 * time.Second}
+	maxSends = 3
 )
 
 // Config sets up a Service.
@@ -104,6 +109,9 @@ type Service struct {
 	lastSent time.Time
 	askAt    time.Time // ask again then, if nothing was heard since the last ask; zero for not
 	asks     int       // beacons with ask=1 sent
+	echoAt   time.Time // send again then, if no relay has repeated the last beacon; zero for not
+	echoAsk  bool      // that beacon asked
+	sends    int       // copies of that beacon sent
 }
 
 // New returns a service; start Run to send beacons.
@@ -175,7 +183,9 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 	// since the beacon that asked for it.
 	if !s.answerAt.IsZero() && !now.Before(s.answerAt) {
 		if now.Sub(s.lastSent) < answerGap {
-			s.answerAt = s.lastSent.Add(answerGap) // at most one answer in 30 s
+			// At most one answer in 30 s; the random part keeps two stations
+			// whose beacons collided from answering in step again.
+			s.answerAt = s.lastSent.Add(answerGap + s.between(answerDelay))
 		} else {
 			return true, s.first, time.Time{}
 		}
@@ -186,6 +196,9 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 	if !s.askAt.IsZero() && !now.Before(s.askAt) {
 		return true, true, time.Time{}
 	}
+	if !s.echoAt.IsZero() && !now.Before(s.echoAt) {
+		return true, s.echoAsk, time.Time{}
+	}
 	wake = s.next
 	if !s.answerAt.IsZero() && s.answerAt.Before(wake) {
 		wake = s.answerAt
@@ -193,12 +206,28 @@ func (s *Service) due(now time.Time) (send, ask bool, wake time.Time) {
 	if !s.askAt.IsZero() && s.askAt.Before(wake) {
 		wake = s.askAt
 	}
+	if !s.echoAt.IsZero() && s.echoAt.Before(wake) {
+		wake = s.echoAt
+	}
 	return false, false, wake
 }
 
 func (s *Service) send(now time.Time, ask bool) {
 	s.mu.Lock()
-	frame, err := s.cfg.beacon(ask).FrameVia(s.cfg.Call, s.floodLocked(now))
+	path := s.floodLocked(now)
+	frame, err := s.cfg.beacon(ask).FrameVia(s.cfg.Call, path)
+	again := !s.echoAt.IsZero() && !now.Before(s.echoAt) // the last copy did not come back
+	s.echoAt = time.Time{}
+	if len(path) > 0 {
+		if again {
+			s.sends++
+		} else {
+			s.sends = 1
+		}
+		if s.sends < maxSends {
+			s.echoAt, s.echoAsk = now.Add(s.between(echoWait)), ask
+		}
+	}
 	s.lastSent = now
 	s.first = false
 	s.answerAt = time.Time{} // this beacon answers everything heard before
@@ -303,6 +332,9 @@ func (s *Service) Handle(frame []byte) bool {
 		s.warnOnce("invalid:"+call.String(), "invalid beacon ignored", "call", call.String(), "err", err)
 		return true
 	case call.SameStation(s.cfg.Call):
+		if len(via) > 0 { // a relay repeated our beacon: it reached the relay and goes on from there
+			s.echoAt, s.askAt = time.Time{}, time.Time{}
+		}
 		echo := b.Addr == s.cfg.Addr && b.Every == s.cfg.Every && b.Proxy == s.cfg.Proxy && slices.Equal(b.Tags, s.cfg.Tags) &&
 			b.Locator == s.cfg.Locator
 		if !echo { // an echo of our own beacon (some TNCs return what they sent) is fine

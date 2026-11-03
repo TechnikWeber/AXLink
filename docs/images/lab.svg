@@ -1,24 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="758" height="343" viewBox="0 0 758 343">
+<svg xmlns="http://www.w3.org/2000/svg" width="758" height="400" viewBox="0 0 758 400">
 <rect width="100%" height="100%" rx="8" fill="#0d1117"/>
 <rect width="100%" height="28" rx="8" fill="#161b22"/>
 <rect y="20" width="100%" height="8" fill="#161b22"/>
 <circle cx="16" cy="14" r="5" fill="#ff5f56"/><circle cx="32" cy="14" r="5" fill="#ffbd2e"/><circle cx="48" cy="14" r="5" fill="#27c93f"/>
 <text x="379" y="18" fill="#8b949e" font-family="ui-sans-serif, Helvetica, Arial, sans-serif" font-size="12" text-anchor="middle">AXLink lab: two stations, simulated channel</text>
 <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="13" fill="#c9d1d9" xml:space="preserve">
-<text x="18" y="48" fill="#8b949e">$ bash scripts/lab-netns.sh</text>
+<text x="18" y="48" fill="#8b949e">$ bash scripts/lab-netns.sh f4hwn-ackmode</text>
 <text x="18" y="67" fill="#8b949e">...</text>
-<text x="18" y="86">== Result (f4hwn, 155 s) ==</text>
-<text x="18" y="105">found: both stations by their beacons, 4.3 s after A started</text>
-<text x="18" y="124">ping:  3 packets transmitted, 3 received, 0% packet loss, time 8003ms rtt min/avg/max/mdev</text>
-<text x="18" y="143">       = 2083.890/2100.755/2116.117/13.199 ms</text>
+<text x="18" y="86">== Result (f4hwn-ackmode, 322 s) ==</text>
+<text x="18" y="105">found: both stations by their beacons, 5.4 s after A started</text>
+<text x="18" y="124">ping:  3 packets transmitted, 3 received, 0% packet loss, time 8004ms rtt min/avg/max/mdev</text>
+<text x="18" y="143">       = 2090.424/2206.992/2322.260/94.651 ms</text>
 <text x="18" y="162">UDP:   <tspan fill="#3fb950" font-weight="bold">ok</tspan> 1.7s tries=1</text>
-<text x="18" y="181">HTTP:  <tspan fill="#3fb950" font-weight="bold">ok</tspan> (9.0 s)</text>
-<text x="18" y="200">gateway: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (proxy 12.3 s, CONNECT 16.4 s; own network refused; no direct route)</text>
-<text x="18" y="219">web UI: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (B listed as a gateway, chosen there; local proxy 12.7 s, CONNECT 13.5 s)</text>
-<text x="18" y="238">welcome: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (B&#x27;s page over the radio, also as testb-1.axl); firewall: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (TESTA-1 → tcp</text>
-<text x="18" y="257">       9999 blocked)</text>
-<text x="18" y="276">channel: 74 frames from A, 60 from B (IPv4/PID 0xCC: 72 / 58, beacons 2 / 2), 133 received,</text>
-<text x="18" y="295">       lost on the air 0, airtime 132 s</text>
-<text x="18" y="314">TNC:     frames dropped before the air 0</text>
+<text x="18" y="181">HTTP:  <tspan fill="#3fb950" font-weight="bold">ok</tspan> (10.0 s)</text>
+<text x="18" y="200">gateway: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (proxy 12.2 s, CONNECT 17.6 s; own network refused; no direct route)</text>
+<text x="18" y="219">web UI: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (B listed as a gateway, chosen there; local proxy 14.9 s, CONNECT 13.6 s)</text>
+<text x="18" y="238">welcome: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (B&#x27;s page over the radio with its open ports, also as testb-1.axl); firewall:</text>
+<text x="18" y="257">       <tspan fill="#3fb950" font-weight="bold">ok</tspan> (TESTA-1 → tcp 9999 refused after 3.6 s)</text>
+<text x="18" y="276">forward: <tspan fill="#3fb950" font-weight="bold">ok</tspan> (B&#x27;s port 8022 → its local server in 12.6 s; 8023, for TESTC only, refused)</text>
+<text x="18" y="295">chat:  <tspan fill="#3fb950" font-weight="bold">ok</tspan> (A → B delivered and acknowledged in 5.5 s at the first try; B&#x27;s answer arrived;</text>
+<text x="18" y="314">       A&#x27;s CQ in B&#x27;s room once)</text>
+<text x="18" y="333">channel: 153 frames from A, 131 from B (IPv4/PID 0xCC: 147 / 127, beacons 2 / 2), 283</text>
+<text x="18" y="352">       received, lost on the air 0, airtime 269 s</text>
+<text x="18" y="371">TNC:     frames dropped before the air 0</text>
 </g>
 </svg>

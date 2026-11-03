@@ -31,6 +31,9 @@ TESTC-1>AXLINK,TESTB-1,TESTD-1*,AXHOP*  repeated by D: no hops left
 
 Senders use `AXHOP-2` (at most two relays), and only while they hear a station with the tag
 `RELAY` directly; without a relay around, frames go without a path. IP frames are never flooded.
+A sender hears its own flooded beacon come back from the relay; without that copy it sends the
+beacon again (see the beacon's timing): stations that do not hear each other may have collided
+at the relay.
 
 **Duplicates.** A relay does not repeat the same frame (source, destination, PID and information
 field; the path changes on the way) twice within 30 s when flooding and 5 s when named.

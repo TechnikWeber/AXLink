@@ -217,10 +217,12 @@ its own computer or network. The format: [protocol/mesh.md](protocol/mesh.md).
 
 The lab `scripts/lab-mesh.sh` puts three stations in a line (A hears B, B hears C, A and C do
 not hear each other) with B as the relay. In the F4HWN model with ACKMODE, A and C found each
-other over B within about 40 s; ping took about 5 s per round trip, a small HTTP file about
-55 s, and a chat message from A to C was delivered at the second try. The channel showed a
-dozen collisions at B: A and C cannot hear each other's carrier (hidden stations), which AX.25
-on one frequency cannot prevent; TCP and the chat repeat what was lost.
+other over B in 35-42 s; ping took about 5 s per round trip, a small HTTP file 25-55 s, and a
+chat message from A to C was delivered at the first or second try. The channel showed 7-12
+collisions at B: A and C cannot hear each other's carrier (hidden stations), which AX.25 on one
+frequency cannot prevent; TCP and the chat repeat what was lost. One run showed why a station
+must ask again: the first beacons of A and C collided at B, and without an answer nobody would
+have sent another beacon for ten minutes (see the beacon timing).
 
 ## Chat
 

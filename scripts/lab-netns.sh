@@ -167,7 +167,7 @@ if [ "$NAME" = b ]; then
             curl -s --max-time 10 "http://127.0.0.1:7373/api/chat/messages?peer=$PEER_CALL" > "$WORK/b-chat.json" 2> /dev/null || true
             curl -s --max-time 10 "http://127.0.0.1:7373/api/chat/messages?peer=CQ" > "$WORK/b-cq.json" 2> /dev/null || true
             shoot gateway-overview / 1700
-            shoot gateway-settings "#settings" 1250
+            shoot gateway-settings "#settings" 2150
             shoot gateway-chat "#chat/$PEER_CALL" 860
             touch "$WORK/b.shot"
         fi
@@ -270,7 +270,7 @@ done
 chat send '{"to":"CQ","text":"CQ from the lab: anyone around?"}' > /dev/null 2>&1 || status=1
 sleep 6
 shoot client-overview / 1560
-shoot client-settings "#settings" 1250
+shoot client-settings "#settings" 2150
 shoot welcome "http://$PEER_IP/" 640
 shoot client-chat "#chat/$PEER_CALL" 860
 touch "$WORK/b.shoot"

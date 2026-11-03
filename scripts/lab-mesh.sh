@@ -44,9 +44,13 @@ echo "lab: $WORK (mode $MODE)"
 NONCE="$(python3 -I -c 'import secrets; print(secrets.token_hex(8))')"
 mkdir -p "$WORK/www"
 echo "AXLink over a relay $NONCE" > "$WORK/www/hello.txt"
+# Locators about 11 km apart in a line, announced in the beacons: the
+# station lists show distance and direction.
+declare -A LOC=([a]=JO62qm [b]=JO62sm [c]=JO62um)
 for n in a b c; do
     cat > "$SOCK/settings-$n.json" <<JSON
 {"welcome": {"enabled": true, "port": 80, "name": "Lab station ${n^^}", "qth": "a network namespace",
+ "locator": "${LOC[$n]}", "locator_in_beacon": true,
  "equipment": "the model of the F4HWN KISS app", "text": "A station of the AXLink mesh lab."}}
 JSON
 done

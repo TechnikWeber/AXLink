@@ -184,7 +184,11 @@ func TestAtMostOneAnswerIn30Seconds(t *testing.T) {
 	if len(ts.sent) != 1 {
 		t.Fatal("answered within 30 s of the last beacon")
 	}
-	ts.step(sentAt.Add(30 * time.Second))
+	ts.step(sentAt.Add(30*time.Second + answerDelay[0] - time.Millisecond))
+	if len(ts.sent) != 1 {
+		t.Fatal("the postponed answer came without its random wait")
+	}
+	ts.step(sentAt.Add(30*time.Second + answerDelay[1]))
 	if len(ts.sent) != 2 {
 		t.Fatal("the postponed answer did not come")
 	}
@@ -378,6 +382,36 @@ func TestAnUnansweredAskIsRepeated(t *testing.T) {
 	ts.step(ts.after(5 * time.Minute))
 	if n := asks(ts.sent); n != 1 {
 		t.Fatalf("%d asks from a station alone", n)
+	}
+}
+
+func TestAFloodedBeaconIsSentAgainUntilARelayRepeatsIt(t *testing.T) {
+	ts := newTestService(t, DefaultEvery)
+	ts.step(ts.after(5 * time.Second)) // the first beacon, no relay known: no path, no echo expected
+	ts.Handle(beaconFrom(t, "TESTB-1", Beacon{Addr: addr("10.73.0.2/24"), Tags: []string{"RELAY"}}))
+	start := ts.now
+	ts.step(start.Add(time.Minute)) // the answer to B, with AXHOP-2
+	ts.step(start.Add(3 * time.Minute))
+	flooded := 0
+	for _, p := range ts.paths {
+		if len(p) > 0 {
+			flooded++
+		}
+	}
+	if flooded != maxSends {
+		t.Fatalf("%d flooded beacons without an echo, want %d: %v", flooded, maxSends, ts.paths)
+	}
+	// With the relay's copy coming back, one is enough.
+	ts = newTestService(t, DefaultEvery)
+	ts.Handle(beaconFrom(t, "TESTB-1", Beacon{Addr: addr("10.73.0.2/24"), Tags: []string{"RELAY"}}))
+	ts.step(ts.after(5 * time.Second))
+	if len(ts.sent) != 1 || len(ts.paths[0]) != 1 {
+		t.Fatalf("%+v %v", ts.sent, ts.paths)
+	}
+	ts.Handle(relayed(t, "TESTA-1", ts.sent[0], "TESTB-1"))
+	ts.step(ts.after(3 * time.Minute))
+	if len(ts.sent) != 1 {
+		t.Fatalf("sent again although B repeated it: %d", len(ts.sent))
 	}
 }
 

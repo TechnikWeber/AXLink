@@ -64,11 +64,16 @@ chooses that, e.g. by setting the announced proxy as its HTTP proxy.
 - Then periodically every `every` seconds, varied at random by ±10 %.
 - Answer: after a beacon with `ask=1`, or one from a station that is not in the table, a station
   sends its own beacon after a random 2–8 s, unless it has sent one since it heard that beacon.
-  It answers at most once in 30 s and postpones a later answer instead of dropping it.
+  It answers at most once in 30 s and postpones a later answer instead of dropping it, to a
+  random 2–8 s after the 30 s, so that two stations whose beacons collided do not answer in step
+  again.
 - Asking again: a station that knows other stations and hears no beacon at all within a random
   10–20 s after its beacon with `ask=1` sends it again, three times in all. Two stations that do
   not hear each other may have asked at the same moment and collided at a relay; a station alone
   asks once.
+- Echo: a beacon sent with the flood alias (see [mesh.md](mesh.md)) comes back repeated by the
+  relay, with the relay in its path. A station that hears no such copy of its own beacon within a
+  random 10–20 s sends it again, three times in all. The copy also ends the asking again.
 - A station is forgotten 3 × its `every` + 60 s after its last beacon.
 
 Load at 1200 bit/s: a beacon of 30–50 bytes is about 0.6 s on the air. Every 10 minutes that is

@@ -4,25 +4,28 @@
   <img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha-orange">
   <a href="https://github.com/TechnikWeber/AXLink/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/TechnikWeber/AXLink?include_prereleases&label=release"></a>
   <a href="https://github.com/TechnikWeber/AXLink/actions/workflows/ci.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/TechnikWeber/AXLink/ci.yml?branch=main&label=tests"></a>
-  <img alt="Platform: Linux | Windows (macOS planned)" src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%28macOS%20planned%29-blue">
+  <img alt="Platform: Linux | Windows | macOS" src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-blue">
   <img alt="Radio: any KISS TNC, UV-K1 | UV-K5 V3" src="https://img.shields.io/badge/radio-KISS%20TNC%20%7C%20UV--K1%20%7C%20UV--K5%20V3-blue">
   <img alt="UI: English | German" src="https://img.shields.io/badge/UI-English%20%7C%20German-informational">
   <a href="LICENSE"><img alt="License: GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-green"></a>
 </p>
 
-**Ordinary network programs over a handheld radio: ping, curl and small web servers at
-1200 baud.**
+**Ordinary network programs over a handheld radio: ping, browsers, SSH, small web servers and a
+chat at 1200 baud.**
 
 AXLink connects a KISS radio or TNC, opens a virtual network adapter and sends IP packets as
 AX.25 UI frames (PID `0xCC`), the framing that Linux, JNOS, BPQ and Packet.NET use. Programs work
-unchanged, only slowly.
+unchanged, only slowly. Next to that it carries a chat as APRS messages, relays for stations out
+of range, and an internet gateway for stations without internet.
 
 It is tuned first to the Quansheng UV-K1 / UV-K5 V3 with the F4HWN firmware and its KISS TNC
 app, and works with any KISS TNC (Dire Wolf, hardware TNCs, KISS over TCP).
 
-> **Status: alpha (0.2.0-dev).** Linux works in the lab: two stations, a simulated channel,
-> real kernel IP stacks. On Windows the network adapter passes its test in CI. Real radios and
-> macOS come next. Nothing has been on the air yet.
+> **Status: alpha, prerelease 0.2.0-alpha.1.** Works in the lab: stations in their own network
+> namespaces with real kernel IP stacks, a simulated channel with a model of the F4HWN KISS app,
+> two stations or three with a relay. The network adapter passes its test in CI on Linux,
+> Windows and macOS. **Nothing has been on the air with a real radio yet.**
+> Start: [QUICKSTART.md](docs/QUICKSTART.md).
 
 ![The web interface: live monitor, stations heard, internet gateway and firewall](docs/images/client-overview-en.png)
 
@@ -36,65 +39,92 @@ a welcome page over the radio ([English](docs/images/welcome-en.png), [German](d
 
 ## What works
 
-- `axlinkd run`: a radio over USB (F4HWN radios are found by their USB ID `36B7:FFFF`), KISS
+- **A network adapter** on Linux (TUN), Windows (Wintun) and macOS (utun) and IPv4 over AX.25
+  UI/PID `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter.
+  Radio packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink
+  lowers the TCP MSS and fragments.
+- **`axlinkd run`:** a radio over USB (F4HWN radios are found by their USB ID `36B7:FFFF`), KISS
   over TCP or a Unix socket. It reconnects after USB resets, paces frames per TNC profile and
-  supports ACKMODE.
-- Station discovery: each station announces its address and roles (`INET`, `RELAY`, …) in a
-  short beacon, so stations in the same subnet reach each other without configured routes.
-- Internet gateway: a station with internet access shares it as an HTTP proxy (HTTPS through
-  CONNECT, names resolved on the gateway). A client chooses the gateway in its web interface;
-  browser and programs use the local proxy `127.0.0.1:7374`, set up once.
-- A web interface in English and German with a live monitor (channel load, transmit queue,
-  throughput as in a task manager), the stations heard, the choice of the gateway and settings
-  that survive a restart. It runs on the own computer and needs no internet.
-- A firewall, on by default: radio stations reach only answers to own connections, ping and the
-  ports you open, optionally per callsign; your home network is never reachable over the radio.
-- A welcome page per station on its radio address, written in the web interface: who runs it,
-  where, with what.
-- A network adapter `axl0` on Linux (TUN) and Windows (Wintun) and IPv4 over AX.25 UI/PID
-  `0xCC`, with a destination filter, checksum checks, routes and a broadcast filter. Radio
-  packets stay at 256 bytes; where the adapter MTU must be larger (Windows: 576), AXLink lowers
-  the TCP MSS and fragments.
-- A lab without radios: `scripts/lab-netns.sh` runs two stations in their own network namespaces
-  (no root, no Docker) and checks beacons, ping, UDP, HTTP, the gateway and the web interface
-  through a simulated channel with a model of the F4HWN KISS app. It also runs in CI.
+  supports ACKMODE ([AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC)).
+- **Stations find each other:** each station announces its address, roles (`INET`, `RELAY`, …)
+  and, if its operator wants, its locator in a short beacon. No routes to configure; the station
+  list shows distance and direction.
+- **Chat** as APRS messages straight over the radio, no IP: to a station (acknowledged, repeated,
+  kept in a mailbox until the station is heard again, for up to a week) or to everyone in the CQ
+  room. Neither the firewall nor the internet sharing stands in the way. Radios with the
+  [APRS messenger firmware](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware) speak the
+  same format.
+- **Mesh:** a station switched to "Relay" repeats frames as a digipeater; beacons and CQ travel
+  over up to two relays, and stations learn over which relays the others are reached
+  ([protocol](docs/protocol/mesh.md)).
+- **Internet gateway:** a station with internet access shares it as an HTTP proxy (HTTPS through
+  CONNECT, names resolved on the gateway), open to everyone or to listed callsigns. A client
+  chooses the gateway in its web interface or asks for access in the chat; browser and programs
+  use the local proxy `127.0.0.1:7374`.
+- **A firewall,** on by default: radio stations reach only answers to own connections, ping and
+  the ports you open, optionally per callsign; a refused station learns it at once instead of
+  waiting. **Port forwarding** publishes one service of your network (SSH, a web server) on the
+  radio address; the rest of your network stays unreachable.
+- **A welcome page** per station on its radio address: who runs it, where, with what, which
+  ports are open.
+- **A web interface** in English and German: a live monitor (channel load, transmit queue,
+  throughput as in a task manager), the stations heard, the chat, the gateway and settings that
+  survive a restart. It runs on the own computer and needs no internet.
+- **A lab without radios:** `scripts/lab-netns.sh` (two stations) and `scripts/lab-mesh.sh`
+  (three in a line, the middle one relays) run stations in their own network namespaces (no
+  root, no Docker) through a simulated channel with a model of the F4HWN KISS app. The
+  two-station lab also runs in CI.
+
+![The chat: a message to TESTB-1, acknowledged, and its answer](docs/images/client-chat-en.png)
+
+*The chat of station A in the lab: a message to B, delivered and acknowledged at the first try,
+and B's answer. APRS messages over the simulated channel, no IP. [German](docs/images/client-chat-de.png).*
+
+![Station A sees C over the relay B](docs/images/mesh-overview-en.png)
+
+*The mesh lab: A hears only B; C, out of A's range, is listed "via TESTB-1" with its locator and
+distance, and reached over B. [German](docs/images/mesh-overview-de.png) ·
+[a chat with C over B](docs/images/mesh-chat-en.png) · [the lab's result](docs/images/lab-mesh.svg).*
 
 ![Result of the two-station lab](docs/images/lab.svg)
 
-*A lab run on 2026-11-02 (`bash scripts/lab-netns.sh`; picture from its output with
-`scripts/lab-svg.py`). A model, not a radio.*
+*A lab run (`bash scripts/lab-netns.sh`; picture from its output with `scripts/lab-svg.py`). A
+model, not a radio.*
 
 ## Quick start
 
+Download the package for Linux, Windows or macOS from the
+[releases](https://github.com/TechnikWeber/AXLink/releases), unpack it and start, with your own
+callsign and an address agreed with the other stations:
+
 ```sh
-bash scripts/setup-go.sh                 # Go into .tools/go
-export PATH="$PWD/.tools/go/bin:$PATH"
-go test ./...
-bash scripts/lab-netns.sh                # the two-station lab
-go build -o axlinkd ./cmd/axlinkd
-./axlinkd ports
-sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
+sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24      # Windows: as administrator, axlinkd.exe
 # then open http://127.0.0.1:7373 in the browser
 ```
 
-Windows: an administrator PowerShell and `wintun.dll` next to `axlinkd.exe`
-(`scripts/fetch-wintun.ps1`); see [DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Step by step for each system, the radio included: [QUICKSTART.md](docs/QUICKSTART.md). From the
+source code: `bash scripts/setup-go.sh`, then `go build ./cmd/axlinkd`
+([DEVELOPMENT.md](docs/DEVELOPMENT.md)).
 
 Use your own callsign; placeholders such as `N0CALL` are refused. Every operator is
 responsible for what is allowed on their frequency; AXLink does not restrict traffic.
 
 ## Radio firmware
 
-- F4HWN Labs v6.3.0 with its KISS TNC app works today.
+- F4HWN Labs v6.3.0 with its KISS TNC app (profile `f4hwn-kisstnc`, the default).
 - [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC): our variant of the KISS app with
-  extensions for hosts such as AXLink (in progress). Runs on the original Labs v6.3.0.
+  ACKMODE, a counter for lost frames and a fix for frames cut by a USB reset (prerelease
+  v0.2.0-alpha.1, host-tested, not yet on a radio; profile `f4hwn-kisstnc-ackmode`). Runs on the
+  original Labs v6.3.0.
 - Messenger and KISS TNC on one radio until F4HWN v7: [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md).
 
 ## Documents
 
 | Document | Content |
 |---|---|
+| [QUICKSTART.md](docs/QUICKSTART.md) | install and start on Linux, Windows, macOS |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | how AXLink is built |
+| [protocol/](docs/protocol/) | the beacon and the relays (CC BY 4.0) |
 | [DECISIONS.md](docs/DECISIONS.md) | the decisions; they take precedence |
 | [DEVELOPMENT.md](docs/DEVELOPMENT.md) | build, test, run, lab |
 | [TODO.md](docs/TODO.md) | open points |
