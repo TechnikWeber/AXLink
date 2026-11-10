@@ -68,7 +68,8 @@ sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
   least 576. With a larger adapter MTU the bridge lowers the TCP MSS to fit the radio and
   fragments larger packets without DF; packets with DF that do not fit are dropped (counter
   `TooBig` in the statistics).
-- The serial port needs read and write access; on Fedora the group `dialout`.
+- The serial port needs read and write access: the group `dialout` on Fedora, Debian, Ubuntu
+  and Raspberry Pi OS, `uucp` on Arch (`sudo usermod -aG dialout $USER`, then log in again).
 - After a USB reset (RF on the cable) AXLink reconnects by itself and sends the KISS parameters
   again. A frame that did not get through completely is sent once more.
 - Without a callsign, or with a placeholder (`N0CALL`), `run` does not start.

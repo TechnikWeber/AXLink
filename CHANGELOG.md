@@ -1,5 +1,10 @@
 # Changes
 
+## Unreleased
+
+- Docs: serial port access is the group `dialout` on Fedora, Debian, Ubuntu and Raspberry Pi
+  OS, `uucp` on Arch ([DEVELOPMENT.md](docs/DEVELOPMENT.md)).
+
 ## 0.2.0-alpha.2 — 2026-11-03
 
 A prerelease for the first test with radios: relaying on by default, the packet monitor and a
