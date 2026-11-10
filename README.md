@@ -110,8 +110,10 @@ Step by step for each system, the radio included: [QUICKSTART.md](docs/QUICKSTAR
 source code: `bash scripts/setup-go.sh`, then `go build ./cmd/axlinkd`
 ([DEVELOPMENT.md](docs/DEVELOPMENT.md)).
 
-Use your own callsign; placeholders such as `N0CALL` are refused. Every operator is
-responsible for what is allowed on their frequency; AXLink does not restrict traffic.
+Transmitting needs an **amateur radio licence**. Use your own callsign; placeholders such
+as `N0CALL` are refused. Every operator is responsible for what is allowed on their
+frequency; AXLink does not restrict traffic. AXLink is alpha and comes **"as is", without
+any warranty**; the author accepts **no liability** (see [LICENSE](LICENSE)).
 
 ## Radio firmware
 

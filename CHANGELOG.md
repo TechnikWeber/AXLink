@@ -4,6 +4,7 @@
 
 - Docs: serial port access is the group `dialout` on Fedora, Debian, Ubuntu and Raspberry Pi
   OS, `uucp` on Arch ([DEVELOPMENT.md](docs/DEVELOPMENT.md)).
+- README: transmitting needs an amateur radio licence; AXLink comes as is, without warranty.
 
 ## 0.2.0-alpha.2 — 2026-11-03
 
