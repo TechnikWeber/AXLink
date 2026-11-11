@@ -2,12 +2,22 @@
 
 <p>
   <img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha-orange">
-  <a href="https://github.com/TechnikWeber/AXLink/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/TechnikWeber/AXLink?include_prereleases&label=release"></a>
+  <a href="https://github.com/TechnikWeber/AXLink/releases/latest"><img alt="Download" src="https://img.shields.io/github/v/release/TechnikWeber/AXLink?include_prereleases&label=download&color=2ea44f"></a>
+  <a href="https://github.com/TechnikWeber/AXLink/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/TechnikWeber/AXLink/total?color=blue"></a>
+  <a href="https://github.com/TechnikWeber/AXLink/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/TechnikWeber/AXLink?style=flat&color=yellow"></a>
   <a href="https://github.com/TechnikWeber/AXLink/actions/workflows/ci.yml"><img alt="tests" src="https://img.shields.io/github/actions/workflow/status/TechnikWeber/AXLink/ci.yml?branch=main&label=tests"></a>
   <img alt="Platform: Linux | Windows | macOS" src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-blue">
   <img alt="Radio: any KISS TNC, UV-K1 | UV-K5 V3" src="https://img.shields.io/badge/radio-KISS%20TNC%20%7C%20UV--K1%20%7C%20UV--K5%20V3-blue">
   <img alt="UI: English | German" src="https://img.shields.io/badge/UI-English%20%7C%20German-informational">
   <a href="LICENSE"><img alt="License: GPL-3.0-or-later" src="https://img.shields.io/badge/license-GPL--3.0--or--later-green"></a>
+</p>
+
+<p>
+  <a href="https://github.com/TechnikWeber/AXLink/releases/latest"><b>Download</b></a> &nbsp;·&nbsp;
+  <a href="docs/QUICKSTART.md"><b>Quick start</b></a> &nbsp;·&nbsp;
+  <a href="https://technikweber.github.io/2026/vom-handfunkgeraet-ins-netz/"><b>Blog post (German)</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/TechnikWeber/AXLink-TNC"><b>AXLink TNC</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/TechnikWeber/AXLink/releases"><b>Releases</b></a>
 </p>
 
 **Ordinary network programs over a handheld radio: ping, browsers, SSH, small web servers and a
