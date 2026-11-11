@@ -1,7 +1,11 @@
 # Changes
 
-## Unreleased
+## 0.2.0-alpha.3 — 2026-11-11
 
+A security update of the Go libraries; nothing else changes in how AXLink works.
+
+- `golang.org/x/net` 0.53.0 → 0.55.0 (fixes a denial of service in its HTML parser) and
+  `golang.org/x/sys` 0.43.0 → 0.45.0.
 - Docs: serial port access is the group `dialout` on Fedora, Debian, Ubuntu and Raspberry Pi
   OS, `uucp` on Arch ([DEVELOPMENT.md](docs/DEVELOPMENT.md)).
 - README: transmitting needs an amateur radio licence; AXLink comes as is, without warranty.
