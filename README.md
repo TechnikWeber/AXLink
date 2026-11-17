@@ -107,12 +107,19 @@ model, not a radio.*
 ## Quick start
 
 Download the package for Linux, Windows or macOS from the
-[releases](https://github.com/TechnikWeber/AXLink/releases), unpack it and start, with your own
-callsign and an address agreed with the other stations:
+[releases](https://github.com/TechnikWeber/AXLink/releases), unpack it and **double-click
+`axlinkd`** (or run `./axlinkd` without arguments). The setup page opens in the browser: enter
+your callsign, pick the radio, check the address and press *Save and start AXLink*.
+
+![The setup page: callsign, radio, what runs on the radio, address on the radio network](docs/images/setup-en.png)
+
+On Linux AXLink then runs as a service that starts with the computer, asking for your password
+once, and appears in the start menu as *AXLink*; that opens the web interface at
+http://127.0.0.1:7373 from then on. On Windows and macOS it starts with administrator rights
+(not tested on a real PC or Mac yet). The command line still works the same way:
 
 ```sh
 sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24      # Windows: as administrator, axlinkd.exe
-# then open http://127.0.0.1:7373 in the browser
 ```
 
 Step by step for each system, the radio included: [QUICKSTART.md](docs/QUICKSTART.md). From the

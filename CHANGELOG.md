@@ -1,5 +1,19 @@
 # Changes
 
+## Unreleased
+
+- **Setup page:** started without arguments (a double click), `axlinkd` opens a page in the
+  browser: callsign, radio, what runs on the radio and the address, with a suggestion from the
+  callsign. It stores the station in the settings file (`station`), so that `axlinkd run`
+  needs no flags; `-call`, `-port` and `-ip` still override it. `axlinkd setup` opens it again.
+  It answers on `127.0.0.1:7375` only, to loopback host names and its own page (token).
+- **Linux service:** saving installs the systemd service `axlinkd` after one password prompt
+  (pkexec): it runs as the user with `CAP_NET_ADMIN` and `CAP_NET_BIND_SERVICE` instead of as
+  root, and starts with the computer. A start menu entry *AXLink* opens the web interface.
+  `axlinkd install-service` / `uninstall-service` do the same by hand.
+- Windows and macOS: the setup page starts AXLink with administrator rights (UAC prompt,
+  password prompt). Not tested on a real PC or Mac yet.
+
 ## 0.2.0-alpha.3 — 2026-11-11
 
 A security update of the Go libraries; nothing else changes in how AXLink works.

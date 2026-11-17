@@ -34,10 +34,48 @@ with a real radio yet**. Try it on a bench first, with a dummy load or on a free
 
 Download the package for your system from the
 [releases](https://github.com/TechnikWeber/AXLink/releases) and unpack it. Each package holds
-`axlinkd`, this guide, the README and the licences. Replace `<CALL>` with your callsign and
-`10.73.0.1/24` with your address.
+`axlinkd`, this guide, the README and the licences.
 
-### Linux
+### The easy way: the setup page
+
+Double-click `axlinkd` (Windows: `axlinkd.exe`), or run it without arguments. The setup page
+opens in the browser (`http://127.0.0.1:7375`, English or German):
+
+1. **Your callsign** with an SSID for this computer, e.g. `<CALL>-1`.
+2. **Radio:** *Find it automatically* for the UV-K1 / UV-K5 V3 with F4HWN, or the port. The
+   radio need not be connected yet; AXLink waits for it.
+3. **What runs on the radio:** the F4HWN KISS TNC app, AXLink TNC, or another KISS TNC.
+4. **Address on the radio network:** a suggestion from your callsign; use the address agreed
+   with the other stations.
+5. **Save and start AXLink.** The station is stored in the settings file, so that
+   `axlinkd run` needs no flags from then on.
+
+What happens then depends on the system:
+
+- **Linux:** your desktop asks for the administrator password once (pkexec). AXLink copies
+  itself to `/usr/local/bin/axlinkd` and installs the systemd service `axlinkd`, which runs as
+  *your* user with only the rights it needs (`CAP_NET_ADMIN` for the adapter,
+  `CAP_NET_BIND_SERVICE` for the welcome page on port 80, the group `dialout`/`uucp` for the
+  serial port) and starts with the computer. The start menu gets an entry *AXLink* that opens
+  the web interface. Log: `journalctl -u axlinkd`. Without pkexec the page shows the one
+  `sudo` command to run instead. Remove the service with
+  `sudo axlinkd uninstall-service` (the settings stay).
+- **Windows:** the UAC prompt asks for administrator rights; AXLink then runs in a window of its
+  own. Not a service yet: after a restart, start `axlinkd.exe` again. *Not tested on a real PC
+  yet.*
+- **macOS:** the password prompt asks for administrator rights; AXLink then runs in the
+  background, its log is `/tmp/axlinkd.log`. Not a service yet. *Not tested on a real Mac yet.*
+
+As soon as AXLink runs, the page switches to the web interface. Starting `axlinkd` again
+without arguments opens the web interface; `axlinkd setup` opens the setup page to change the
+station (saving restarts AXLink).
+
+### The command line
+
+Everything the setup page does also works with flags; they override the stored station.
+Replace `<CALL>` with your callsign and `10.73.0.1/24` with your address.
+
+#### Linux
 
 ```sh
 tar xzf axlinkd-0.2.0-alpha.1-linux-amd64.tar.gz      # arm64: 64-bit Raspberry Pi; armv6: any Raspberry Pi
@@ -50,7 +88,7 @@ sudo ./axlinkd run -call <CALL>-1 -port auto -ip 10.73.0.1/24
 - The adapter is called `axl0`. Without `sudo`, the user needs `CAP_NET_ADMIN` and access to
   the serial port (group `dialout`); that variant is not tested yet.
 
-### Windows
+#### Windows
 
 1. Unpack the zip (`windows-amd64`; `windows-arm64` for ARM PCs), e.g. to `C:\AXLink`. It
    contains `wintun.dll`, the driver library of the network adapter, with its licence.
@@ -69,7 +107,7 @@ cd C:\AXLink
   `New-NetFirewallRule -DisplayName "AXLink ping" -Direction Inbound -InterfaceAlias axl0 -Protocol ICMPv4 -IcmpType 8 -Action Allow`
   (not tested yet).
 
-### macOS
+#### macOS
 
 ```sh
 tar xzf axlinkd-0.2.0-alpha.1-macos-arm64.tar.gz       # Apple silicon; Intel Macs: macos-amd64

@@ -15,7 +15,10 @@ A system-wide Go of the right version works as well.
 ## Program
 
 ```text
+axlinkd              no arguments: the web interface if AXLink runs, the setup page otherwise
+axlinkd setup        the setup page (127.0.0.1:7375): stores the station, then starts AXLink
 axlinkd run          connect a radio or TNC, open the network adapter, carry IPv4
+axlinkd install-service / uninstall-service   Linux, as root: the systemd service for a user
 axlinkd ports        serial ports; marks radios with F4HWN firmware (USB 36B7:FFFF)
 axlinkd decode       a KISS stream on stdin as JSON per frame
 axlinkd sim-channel  lab only: a simulated radio channel

@@ -14,7 +14,11 @@ Background and reasons: [DECISIONS.md](DECISIONS.md). As of 2026-11-03.
 - [ ] macOS: test with a radio (the utun adapter passes its ping test in CI); a signed package.
 - [ ] ICMP "fragmentation needed" for packets with DF that are larger than the radio MTU
       (path-MTU discovery); today they are dropped.
-- [ ] Check running without `sudo` via `setcap cap_net_admin+ep`.
+- [ ] Check running without `sudo`: the Linux service runs as the user with
+      `CAP_NET_ADMIN`/`CAP_NET_BIND_SERVICE` (setup page, `install-service`); unit and setup
+      page tested, the service with a radio not yet.
+- [ ] Setup page on Windows and macOS on real machines (UAC / password prompt); a Windows
+      service and a macOS launchd job instead of a window or background process.
 - [ ] Gateway, next steps: its rules in the beacon (services, rate, contact); a fair share per
       callsign; pages shrunk for 1200 bit/s; a transparent gateway in userspace (netstack) for
       other protocols.

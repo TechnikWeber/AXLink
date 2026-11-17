@@ -2,7 +2,8 @@
 
 // Package settings keeps what the web interface changes across restarts: the
 // choice of an internet gateway, sharing the own internet connection, the
-// station's welcome page, the firewall and the port forwarding. They live in a JSON file,
+// station's welcome page, the firewall and the port forwarding, and the station
+// itself (callsign, radio, address) as the setup page stores it. They live in a JSON file,
 // settings.json in the user's configuration folder by default, written
 // atomically and readable by the owner only.
 package settings
@@ -12,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,10 +25,13 @@ import (
 	"github.com/TechnikWeber/AXLink/internal/firewall"
 	"github.com/TechnikWeber/AXLink/internal/forward"
 	"github.com/TechnikWeber/AXLink/internal/locator"
+	"github.com/TechnikWeber/AXLink/internal/pacing"
 )
 
 // Settings are the stored settings.
 type Settings struct {
+	// Station is what "axlinkd run" uses when its flags leave it out.
+	Station  Station         `json:"station,omitzero"`
 	Gateway  Gateway         `json:"gateway"`
 	Share    Share           `json:"share"`
 	Welcome  Welcome         `json:"welcome"`
@@ -37,6 +42,52 @@ type Settings struct {
 	// Relay repeats frames for other stations (mesh, role RELAY); on by
 	// default.
 	Relay bool `json:"relay"`
+}
+
+// Station is the own station as the setup page stores it, so that
+// "axlinkd run" needs no flags. The flags -call, -port and -ip override it.
+type Station struct {
+	Call    string `json:"call,omitempty"`    // with SSID, e.g. N0CALL-1
+	Port    string `json:"port,omitempty"`    // serial port of the radio or TNC, or "auto"
+	IP      string `json:"ip,omitempty"`      // IPv4 address with prefix length, e.g. 10.73.0.1/24
+	Profile string `json:"profile,omitempty"` // TNC profile; "" for the default of the port
+}
+
+// Check reports the first thing that is wrong. Empty fields are allowed:
+// the flags may still give them.
+func (s Station) Check() error {
+	if s.Call != "" {
+		c, err := ax25.ParseAddress(s.Call)
+		if err != nil {
+			return fmt.Errorf("station: callsign: %w", err)
+		}
+		if IsPlaceholder(c.Call) {
+			return errors.New("station: that callsign is a placeholder; set your own")
+		}
+	}
+	if s.IP != "" {
+		p, err := netip.ParsePrefix(s.IP)
+		if err != nil || !p.Addr().Is4() || p.Bits() < 8 || p.Bits() > 30 {
+			return errors.New("station: want an IPv4 address with prefix length, e.g. 10.73.0.1/24")
+		}
+		if p.Addr() == p.Masked().Addr() {
+			return errors.New("station: that is the network address, not one of a station")
+		}
+	}
+	if err := checkText(s.Port, 200, false); err != nil {
+		return fmt.Errorf("station: port: %w", err)
+	}
+	if _, ok := pacing.ByName(s.Profile); s.Profile != "" && !ok {
+		return fmt.Errorf("station: unknown profile %q", s.Profile)
+	}
+	return nil
+}
+
+// IsPlaceholder reports whether call (without SSID) is the placeholder that
+// examples use instead of a real callsign.
+func IsPlaceholder(call string) bool {
+	call = strings.ToUpper(call)
+	return call == "N0CALL" || call == "NOCALL"
 }
 
 // Gateway is the choice of the internet gateway this station uses.
@@ -84,6 +135,9 @@ func Defaults() Settings {
 
 // Check reports the first thing that is wrong.
 func (s Settings) Check() error {
+	if err := s.Station.Check(); err != nil {
+		return err
+	}
 	switch s.Gateway.Mode {
 	case "off", "auto":
 	case "station":
@@ -284,6 +338,9 @@ func normalise(s *Settings) {
 		}
 		return out
 	}
+	st := &s.Station
+	st.Call, st.Port = strings.ToUpper(strings.TrimSpace(st.Call)), strings.TrimSpace(st.Port)
+	st.IP, st.Profile = strings.TrimSpace(st.IP), strings.TrimSpace(st.Profile)
 	s.Gateway.Call = strings.ToUpper(strings.TrimSpace(s.Gateway.Call))
 	s.Share.Only = up(s.Share.Only)
 	for i := range s.Firewall.Rules {

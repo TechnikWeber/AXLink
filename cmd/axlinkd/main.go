@@ -26,10 +26,16 @@ func main() { os.Exit(run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr)) }
 
 func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	if len(args) == 0 {
-		usage(stderr)
-		return 2
+		// A double click: open the web interface, or the setup page.
+		return openOrSetup(stdout, stderr)
 	}
 	switch args[0] {
+	case "setup":
+		return runSetup(args[1:], stdout, stderr)
+	case "install-service":
+		return installService(args[1:], stdout, stderr)
+	case "uninstall-service":
+		return uninstallService(args[1:], stdout, stderr)
 	case "version":
 		fmt.Fprintln(stdout, "axlinkd", version)
 		return 0
@@ -52,8 +58,15 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 func usage(w io.Writer) {
 	fmt.Fprint(w, `usage: axlinkd <command> [flags]
 
+Without a command, axlinkd opens the web interface if AXLink runs, and the
+setup page in the browser otherwise.
+
 commands:
-  run          connect a radio or TNC, open the network adapter, carry IPv4
+  setup        the setup page: callsign, radio and address, then start AXLink
+  run          connect a radio or TNC, open the network adapter, carry IPv4;
+               without -call, -port and -ip it uses the station stored by setup
+  install-service    Linux, as root: run AXLink as a systemd service for a user
+  uninstall-service  Linux, as root: remove that service (the settings stay)
   ports        list serial ports; marks radios with F4HWN firmware
   decode       read a KISS byte stream on stdin and print one JSON line per frame
   sim-channel  lab only: a simulated radio channel for AXLink stations

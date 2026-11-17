@@ -146,14 +146,36 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	}
 
 	var cfg nodeConfig
+	// What the flags leave out comes from the station stored by the setup
+	// page (axlinkd setup).
+	noLink := *port == "" && *kissTCP == "" && *kissUnix == ""
+	if *call == "" || *ip == "" || noLink {
+		store, err := settings.Open(*configPath)
+		if err != nil {
+			return cfg, err
+		}
+		st := store.Get().Station
+		if *call == "" {
+			*call = st.Call
+		}
+		if *ip == "" {
+			*ip = st.IP
+		}
+		if noLink {
+			*port = st.Port
+			if *profile == "" {
+				*profile = st.Profile
+			}
+		}
+	}
 	if *call == "" {
-		return cfg, errors.New("-call is required")
+		return cfg, errors.New("-call is required (or store the station once with: axlinkd setup)")
 	}
 	c, err := ax25.ParseAddress(*call)
 	if err != nil {
 		return cfg, fmt.Errorf("-call: %w", err)
 	}
-	if c.Call == "N0CALL" || c.Call == "NOCALL" {
+	if settings.IsPlaceholder(c.Call) {
 		return cfg, errors.New("-call: that is a placeholder; set your own callsign")
 	}
 	cfg.call = c
@@ -182,7 +204,7 @@ func parseNodeFlags(args []string, stderr io.Writer) (nodeConfig, error) {
 	cfg.profile = p
 
 	if *ip == "" {
-		return cfg, errors.New("-ip is required")
+		return cfg, errors.New("-ip is required (or store the station once with: axlinkd setup)")
 	}
 	local, err := netip.ParsePrefix(*ip)
 	if err != nil || !local.Addr().Is4() {
