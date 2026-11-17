@@ -1,6 +1,8 @@
 # Changes
 
-## Unreleased
+## 0.2.0-alpha.4 — 2026-11-17
+
+A setup page for operators without the command line; nothing changes on the air.
 
 - **Setup page:** started without arguments (a double click), `axlinkd` opens a page in the
   browser: callsign, radio, what runs on the radio and the address, with a suggestion from the
