@@ -27,9 +27,10 @@ with a real radio yet**. Try it on a bench first, with a dummy load or on a free
 
 1. Put F4HWN Fusion v7 on the radio with [UV Studio](https://armel.github.io/uvstudio/), or
    the APRS messenger firmware (v0.4.0-beta.1 or later) to keep APRS messaging next to the app.
-2. Install the KISS TNC app, or AXLink TNC: download the zip from its
-   [releases](https://github.com/TechnikWeber/AXLink-TNC/releases), unzip it, then UV Studio →
-   Apps → Community → Install a .app → `AXLinkTNC.app`.
+2. Install the KISS TNC app (UV Studio → Apps, from the catalog), or AXLink TNC: download the
+   zip from its [releases](https://github.com/TechnikWeber/AXLink-TNC/releases), unzip it, then
+   UV Studio → Apps → Community → Install a .app → `AXLinkTNC.app`. For both the radio is
+   switched on as usual and connected by USB.
 3. Set the VFO to the agreed frequency, FM, and select that VFO: the app runs on the selected
    one (with the messenger: not the APRS VFO). Start the app: `F` + `7`, select it, `MENU`. The
    messenger pauses until you leave the app with `EXIT`.

@@ -138,7 +138,7 @@ any warranty**; the author accepts **no liability** (see [LICENSE](LICENSE)).
   default).
 - [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC): our variant of the KISS app with
   ACKMODE, a counter for lost frames and a fix for frames cut by a USB reset (prerelease
-  v0.2.0-alpha.1, host-tested, not yet on a radio; profile `f4hwn-kisstnc-ackmode`). It passes
+  v0.2.0-alpha.2, host-tested, not yet on a radio; profile `f4hwn-kisstnc-ackmode`). It passes
   the app loader of Fusion v7, of the APRS messenger from v0.4.0-beta.1 and of Labs v6.3.0.
 - Messenger and KISS TNC on one radio: the [APRS messenger firmware](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware)
   (F4HWN v7 with background APRS messaging) runs the TNC app too, in turns: the messenger
