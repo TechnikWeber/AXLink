@@ -29,6 +29,9 @@ Armel F4HWN (firmware, GitHub `armel`) and Johan Denoyer F4WAT (KISS TNC app, Gi
 
 ### To tell them next time
 
+- F4HWN v7.0.0 ships KISS TNC 1.0 without ACKMODE or the counters. AXLink TNC loads unchanged
+  on v7 (built against v7.0.0 it is byte-identical) and took over 1.0's one change, the
+  setting staged after each key (2026-11-19).
 - Since 2026-11-02 AXLink also waits longer after the radio heard another station, and its
   transmit queue merges or drops TCP repeats. In the model the original app then drops no frame
   in a 2 KB download (39 s; with ACKMODE 38 s). ACKMODE still covers what the host cannot see:

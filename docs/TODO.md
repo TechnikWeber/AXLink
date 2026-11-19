@@ -63,6 +63,8 @@ Repository: [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC
 
 ## After F4HWN v7
 
-- [ ] Move the messenger to v7; delete the Multiboot documentation (checklist in
-      [MULTIBOOT_V6.md](MULTIBOOT_V6.md)).
-- [ ] Build AXLink TNC against v7 and check it on Fusion v7.
+- [x] The messenger is on v7 (v0.4.0-beta.1, 2026-11-19) and keeps the app platform; the
+      Multiboot guide is deleted.
+- [x] AXLink TNC built against v7.0.0: byte-identical to v0.2.0-alpha.1, it passes the v7
+      loader's checks (ABI 1, API level 3 of 4, overlay address `0x20000280`).
+- [ ] Check it on a radio with Fusion v7 or the messenger (part of the hardware test above).

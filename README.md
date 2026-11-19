@@ -16,6 +16,7 @@
   <a href="docs/QUICKSTART.md"><b>Quick start</b></a> &nbsp;·&nbsp;
   <a href="https://technikweber.github.io/2026/vom-handfunkgeraet-ins-netz/"><b>Blog post (German)</b></a> &nbsp;·&nbsp;
   <a href="https://github.com/TechnikWeber/AXLink-TNC"><b>AXLink TNC</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware"><b>APRS messenger firmware</b></a> &nbsp;·&nbsp;
   <a href="https://github.com/TechnikWeber/AXLink/releases"><b>Releases</b></a>
 </p>
 
@@ -133,12 +134,15 @@ any warranty**; the author accepts **no liability** (see [LICENSE](LICENSE)).
 
 ## Radio firmware
 
-- F4HWN Labs v6.3.0 with its KISS TNC app (profile `f4hwn-kisstnc`, the default).
+- F4HWN Fusion v7 (or Labs v6.3.0) with its KISS TNC app (profile `f4hwn-kisstnc`, the
+  default).
 - [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC): our variant of the KISS app with
   ACKMODE, a counter for lost frames and a fix for frames cut by a USB reset (prerelease
-  v0.2.0-alpha.1, host-tested, not yet on a radio; profile `f4hwn-kisstnc-ackmode`). Runs on the
-  original Labs v6.3.0.
-- Messenger and KISS TNC on one radio until F4HWN v7: [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md).
+  v0.2.0-alpha.1, host-tested, not yet on a radio; profile `f4hwn-kisstnc-ackmode`). It passes
+  the app loader of Fusion v7, of the APRS messenger from v0.4.0-beta.1 and of Labs v6.3.0.
+- Messenger and KISS TNC on one radio: the [APRS messenger firmware](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware)
+  (F4HWN v7 with background APRS messaging) runs the TNC app too, in turns: the messenger
+  pauses while the app runs.
 
 ## Documents
 
@@ -151,7 +155,6 @@ any warranty**; the author accepts **no liability** (see [LICENSE](LICENSE)).
 | [DECISIONS.md](docs/DECISIONS.md) | the decisions; they take precedence |
 | [DEVELOPMENT.md](docs/DEVELOPMENT.md) | build, test, run, lab |
 | [TODO.md](docs/TODO.md) | open points |
-| [MULTIBOOT_V6.md](docs/MULTIBOOT_V6.md) | messenger and KISS TNC via Multiboot (until v7) |
 | [REVIEW_2026-11-02.md](docs/REVIEW_2026-11-02.md) | the review that led to the Go rewrite |
 | [HISTORY.md](docs/HISTORY.md) | the v0.1 prototype (pdn/pdn-net) and its findings |
 | [CHANGELOG.md](CHANGELOG.md) · [LICENSING.md](LICENSING.md) | changes · licences |

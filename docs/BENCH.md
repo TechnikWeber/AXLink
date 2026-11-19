@@ -7,8 +7,8 @@ the results in the table at the end. The messenger's own plan is in its reposito
 
 ## What you need
 
-- Two Quansheng UV-K1 or UV-K5 V3 with F4HWN Labs v6.3.0, the KISS TNC app and AXLink TNC
-  installed; later one of them with the APRS messenger firmware.
+- Two Quansheng UV-K1 or UV-K5 V3 with F4HWN Fusion v7 or the APRS messenger firmware
+  (v0.4.0-beta.1 or later), the KISS TNC app and AXLink TNC installed.
 - USB-C cables, a clip-on ferrite (VHF material) at the radio end of each.
 - Two computers with axlinkd (or one Linux computer, each station in its own network namespace
   as `scripts/lab-netns.sh` does).

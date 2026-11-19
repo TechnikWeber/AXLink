@@ -7,10 +7,12 @@ with a real radio yet**. Try it on a bench first, with a dummy load or on a free
 ## What you need
 
 - **A radio with KISS**, for example a Quansheng UV-K1 or UV-K5 V3 with the
-  [F4HWN firmware](https://github.com/armel/uv-k1-k5v3-firmware-custom) Labs v6.3.0 and its
-  **KISS TNC** app, or our variant [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC)
-  (adds ACKMODE). Any other KISS TNC works too: Dire Wolf with a sound card, a hardware TNC,
-  KISS over TCP.
+  [F4HWN firmware](https://github.com/armel/uv-k1-k5v3-firmware-custom) Fusion v7 (or Labs
+  v6.3.0) and its **KISS TNC** app, or our variant
+  [AXLink TNC](https://github.com/TechnikWeber/AXLink-TNC) (adds ACKMODE). The
+  [APRS messenger firmware](https://github.com/TechnikWeber/uv-k1-k5v3-aprs-firmware) from
+  v0.4.0-beta.1 runs the app too. Any other KISS TNC works too: Dire Wolf with a sound card, a
+  hardware TNC, KISS over TCP.
 - **A USB-C cable and a clip-on ferrite** (VHF material, type 31 or 43) at the radio end, the
   cable looped 2-4 turns through it. Without it, the RF at key-up can reset the radio's USB port.
 - **A computer**: Linux, Windows 10/11 or macOS, with administrator rights (the network adapter
@@ -23,11 +25,14 @@ with a real radio yet**. Try it on a bench first, with a dummy load or on a free
 
 ## 1. The radio
 
-1. Put F4HWN Labs v6.3.0 on the radio with [UV Studio](https://armel.github.io/uvstudio/).
+1. Put F4HWN Fusion v7 on the radio with [UV Studio](https://armel.github.io/uvstudio/), or
+   the APRS messenger firmware (v0.4.0-beta.1 or later) to keep APRS messaging next to the app.
 2. Install the KISS TNC app, or AXLink TNC: download the zip from its
    [releases](https://github.com/TechnikWeber/AXLink-TNC/releases), unzip it, then UV Studio →
    Apps → Community → Install a .app → `AXLinkTNC.app`.
-3. Set the VFO to the agreed frequency, FM. Start the app: `F` + `7`, select it, `MENU`.
+3. Set the VFO to the agreed frequency, FM, and select that VFO: the app runs on the selected
+   one (with the messenger: not the APRS VFO). Start the app: `F` + `7`, select it, `MENU`. The
+   messenger pauses until you leave the app with `EXIT`.
 4. Connect the radio to the computer with the USB-C cable (ferrite at the radio end).
 
 ## 2. AXLink

@@ -1,5 +1,12 @@
 # Changes
 
+## Unreleased
+
+- Docs: F4HWN v7. The KISS TNC app and AXLink TNC load on Fusion v7 and on the APRS messenger
+  firmware from v0.4.0-beta.1, which carries the messenger and the app platform in one
+  firmware; the Multiboot interim guide (`docs/MULTIBOOT_V6.md`) is gone. The quick start and
+  the bench plan name v7 instead of Labs v6.3.0.
+
 ## 0.2.0-alpha.4 — 2026-11-17
 
 A setup page for operators without the command line; nothing changes on the air.

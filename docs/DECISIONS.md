@@ -46,16 +46,17 @@ because AXLink paces on the host side.
 
 **D4a – The own KISS app stands alone and is offered separately.**
 - It does not need the messenger. The loader checks only the ABI major version, the API level,
-  the capabilities and the link address. These are the same in F4HWN v6.3.0, the messenger fork
-  and the v7 branch (ABI 1, address fixed at 0x20000280; API level 3 in v6.3, 4 in v7; the
-  service table only grows). An app with `APP_API_MIN` 3 therefore runs on the original
-  **Labs v6.3.0** and on **Fusion v7**, which carries the app platform there. If a v7 release
-  changes the ABI, we rebuild.
-- Not on Fusion v6.3 and not on the messenger v6.3 (no app loader).
+  the capabilities and the link address. These are the same in F4HWN v6.3.0, v7.0.0 and the
+  messenger from v0.4.0-beta.1 (ABI 1, address fixed at 0x20000280; API level 3 in v6.3, 4 in
+  v7; the service table only grows). An app with `APP_API_MIN` 3 therefore loads on the
+  original **Labs v6.3.0**, on **Fusion v7**, which carries the app platform, and on the
+  **messenger** from v0.4.0-beta.1. Built against v7.0.0 it is byte-identical (checked
+  2026-11-19). If a later release changes the ABI, we rebuild.
+- Not on Fusion v6.3 and not on the messenger up to v0.3 (no app loader).
 - With the original firmware only the USB back-pressure is missing (resident part); AXLink paces
   anyway.
 - The audience is larger than the messenger's: whoever only wants IP over AX.25 takes the
-  original Labs (v6.3) or Fusion (v7) plus the app, without Multiboot.
+  Fusion v7 (or Labs v6.3) plus the app.
 - Distribution: GitHub releases with the `.app` file (UV Studio → Apps → Community → Install a
   .app) and later an entry in the Community tab (Apps → Community → Propose an app; only possible
   with the app running on a radio).
@@ -64,7 +65,7 @@ because AXLink paces on the host side.
   **AXLink TNC**; on-screen title "AXL TNC".
 - Location: its own public repository
   [TechnikWeber/AXLink-TNC](https://github.com/TechnikWeber/AXLink-TNC), Apache-2.0 like the
-  original. F4HWN is a submodule at the release tag (now v6.3.0); the app is built against the
+  original. F4HWN is a submodule at the release tag (now v7.0.0); the app is built against the
   original firmware. `app/` keeps the file names of `App/apps/kisstnc`; the first commit is the
   unmodified app and every change is a separate commit, so that F4WAT can take changes over
   without a pull request. Open points: `TODO.md` there and here.
@@ -73,19 +74,16 @@ because AXLink paces on the host side.
 CC BY 4.0 ([licenses/CC-BY-4.0.txt](../licenses/CC-BY-4.0.txt)). Details:
 [LICENSING.md](../LICENSING.md).
 
-**D6 – Firmware path: separate first, united with v7.** Guide for the interim:
-[MULTIBOOT_V6.md](MULTIBOOT_V6.md). Everything about Multiboot is an interim solution and is
-deleted after the migration to v7 (checklist there).
-- Now (F4HWN v6.3): two firmwares via Multiboot. The messenger as Main, F4HWN Labs v6.3 (with
-  the KISS TNC app) in a user slot; switch at power-on while holding `MENU`. According to the
-  source the flash areas do not overlap (Multiboot slots 0x020000–0x0BFFFF, app slots
-  0x102000–0x161FFF, messenger 0x1BA000–0x1C9FFF). Not checked on hardware yet.
-- Our own KISS app (AXLink TNC: ACKMODE, a counter for dropped frames, identification, RSSI) as
-  an overlay app, see D4a. It costs no MCU flash and runs on Labs v6.3 and on v7. Whoever only
-  wants the TNC needs neither the messenger nor Multiboot.
-- With F4HWN v7: move the messenger to v7; the app platform is then part of the firmware, and
-  the KISS app runs in the same firmware as the messenger.
-- Native KISS in the messenger only as a fallback, if v7 does not come or the app platform does
+**D6 – Firmware path: united with v7 (done 2026-11-19).** The messenger moved to F4HWN v7
+(v0.4.0-beta.1) and keeps the app platform, so the KISS app runs in the same firmware as the
+messenger, in turns: the messenger pauses while an app runs and goes on after it. The interim
+with two firmwares via Multiboot (messenger as Main, Labs v6.3 in a user slot) is over; its
+guide is deleted.
+- Our own KISS app (AXLink TNC: ACKMODE, a counter for dropped frames, later identification
+  and RSSI) as an overlay app, see D4a. It costs no MCU flash and loads on Labs v6.3, Fusion v7
+  and the messenger from v0.4.0-beta.1. Whoever only wants the TNC needs neither the messenger
+  nor Multiboot.
+- Native KISS in the messenger is not needed: it was the fallback in case the app platform did
   not fit next to the messenger on v7.
 
 **D7 – Language.** Everything in the repositories is English: code, comments, documentation,
